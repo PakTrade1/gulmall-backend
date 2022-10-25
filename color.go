@@ -13,22 +13,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func color(w http.ResponseWriter, req *http.Request) {
-	//conect to database
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://developer001:IAmMuslim@cluster0.qeqntol.mongodb.net/test"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// database and colletion code goes here
-	db := client.Database("PakTrade")
-	coll := db.Collection("color")
-	// find code goes here
+var dbdata *mongo.Collection
 
+func color(w http.ResponseWriter, req *http.Request) {
+
+	// find code goes here
+	coll := dbdata
 	cursor, err := coll.Find(context.TODO(), bson.D{})
 	if err != nil {
 		panic(err)
@@ -62,8 +52,27 @@ func headers(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func dbconcet() {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://developer001:IAmMuslim@cluster0.qeqntol.mongodb.net/test"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// database and colletion code goes hear
+	db := client.Database("PakTrade")
+	coll := db.Collection("color")
+	dbdata = coll
+	//fmt.Println("database conection seccessfully")
+}
 func main() {
-	fmt.Println("runging server port 9990")
+
+	dbconcet()
+
+	//fmt.Println("runging server port 9900")
 	http.HandleFunc("/color", color)
 	http.HandleFunc("/headers", headers)
 
