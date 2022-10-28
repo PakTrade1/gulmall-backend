@@ -27,12 +27,6 @@ func (u *ColorServiceImp) CreateColor(color *models.Color) error {
 	return err
 }
 
-//	func (u *ColorServiceImp) GetColor(name *string) (*models.Color, error) {
-//		var color *models.Color
-//		query := bson.D{bson.E{Key: "color_name", Value: name}}
-//		err := u.colorcollection.FindOne(u.ctx, query).Decode(&color)
-//		return color, err
-//	}
 func (u *ColorServiceImp) GetAll() ([]*models.Color, error) {
 
 	fmt.Println("getall called")
