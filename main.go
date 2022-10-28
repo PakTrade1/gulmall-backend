@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"pak-trade-go/docking"
+	docking "pak-trade-go/services/Docking"
 )
 
 func main() {
