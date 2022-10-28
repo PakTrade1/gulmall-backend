@@ -17,15 +17,14 @@ type Name struct {
 }
 
 type Color1 struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty"`
+	Id     primitive.ObjectID `bson:"_id,omitempty"`
 	CSSHex string             `json:"cssHex,omitempty"`
 	Name   `json:"name,omitempty"`
 }
 
 func Color(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	coll := docking.Database.Collection("color")
+	coll := docking.PakTradeDb.Collection("color")
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
 		panic(err)

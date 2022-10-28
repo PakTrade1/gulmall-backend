@@ -8,7 +8,9 @@ import (
 )
 
 func main() {
-	docking.Dbconnect()
+
+	docking.PakTradeConnection()
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 	})
 	http.HandleFunc("/color", color.Color)
