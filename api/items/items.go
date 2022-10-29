@@ -11,13 +11,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type itemsstruct struct {
+type ItemType struct {
 	ID primitive.ObjectID `bson:"_id,omitempty"`
 
 	Name struct {
 		En string `json:"en,omitempty"`
 		Ar string `json:"ar,omitempty"`
 	} `json:"name,omitempty"`
+
 	Feature []struct {
 		Name struct {
 			En string `json:"en,omitempty"`
@@ -41,12 +42,12 @@ func Items(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var results []itemsstruct
+	var results []ItemType
 	if err = cursor.All(context.TODO(), &results); err != nil {
 		panic(err)
 	}
 	for cursor.Next(context.TODO()) {
-		var abc itemsstruct
+		var abc ItemType
 		cursor.Decode(&abc)
 		results = append(results, abc)
 
