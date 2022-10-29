@@ -10,9 +10,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var Database *mongo.Database
+var PakTradeDb *mongo.Database // PakTrade
+var ItemDb *mongo.Database     // Items
+var CartsDb *mongo.Database    // Items
 
-func Dbconnect() {
+func PakTradeConnection() {
 	fmt.Print("\nCalling fun db connect\n")
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://developer001:IAmMuslim@cluster0.qeqntol.mongodb.net/test"))
 	if err != nil {
@@ -23,7 +25,13 @@ func Dbconnect() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db := client.Database("PakTrade")
-	Database = db
+	// DATABASE NAME
+
+	pakTrade := client.Database("PakTrade")
+	items := client.Database("Item")
+	carts := client.Database("carts")
+	ItemDb = items
+	PakTradeDb = pakTrade
+	CartsDb = carts
 
 }

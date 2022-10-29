@@ -25,7 +25,7 @@ type Color1 struct {
 func Color(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	coll := docking.Database.Collection("color")
+	coll := docking.PakTradeDb.Collection("color")
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
 		panic(err)
