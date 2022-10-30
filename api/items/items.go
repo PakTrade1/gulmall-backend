@@ -2,7 +2,6 @@ package items
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	docking "pak-trade-go/Docking"
@@ -64,27 +63,26 @@ func Items(w http.ResponseWriter, req *http.Request) {
 		results = append(results, abc)
 
 	}
-	id, _ := primitive.ObjectIDFromHex("6352f8123e006819c56246c6")
+	//id, _ := primitive.ObjectIDFromHex("6352f8123e006819c56246c6")
 
-	matchStage := bson.D{{"$match", bson.D{{"color", id}}}}
-	groupStage := bson.D{{"$group", bson.D{{"_id", "$color"}, {"total", bson.D{{"$sum", "$duration"}}}}}}
+	lookupStage := bson.D{{Key: "$lookup", Value: bson.D{{Key: "from", Value: "color"}, {Key: "localField", Value: "color"}, {Key: "foreignField", Value: "_id"}, {Key: "as", Value: "color"}}}}
+	unwindStage := bson.D{{Key: "$unwind", Value: bson.D{{Key: "path", Value: "$color"}, {Key: "total", Value: bson.D{{Key: "$preserveNullAndEmptyArrays", Value: false}}}}}}
 
-	showInfoCursor, err := docking.PakTradeDb.Aggregate(context.TODO(), mongo.Pipeline{matchStage, groupStage})
+	showLoadedStructCursor, err := docking.PakTradeDb.Aggregate(context.TODO(), mongo.Pipeline{lookupStage, unwindStage})
 	if err != nil {
 		panic(err)
 	}
-	var showsWithInfo []bson.M
-	if err = showInfoCursor.All(context.TODO(), &showsWithInfo); err != nil {
+	var showsLoadedStruct []ColorType
+	if err = showLoadedStructCursor.All(context.TODO(), &showsLoadedStruct); err != nil {
 		panic(err)
 	}
-	//	fmt.Println()
-	fmt.Fprintf(w, "%s\n", showsWithInfo)
+	fmt.Println(showsLoadedStruct)
 
-	output, err := json.MarshalIndent(results, "", "    ")
-	if err != nil {
-		panic(err)
+	// output, err := json.MarshalIndent(results, "", "    ")
+	// if err != nil {
+	// 	panic(err)
 
-	}
-	fmt.Fprintf(w, "%s\n", output)
+	// }
+	// fmt.Fprintf(w, "%s\n", output)
 
 }

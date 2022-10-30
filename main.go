@@ -21,6 +21,6 @@ func main() {
 	r.HandleFunc("/color", color.Color)
 	r.HandleFunc("/item", item.Items)
 	fmt.Println("runging server port 9900")
-	http.ListenAndServe(":9900", nil)
+	http.ListenAndServe(":9901", nil)
 
 }
