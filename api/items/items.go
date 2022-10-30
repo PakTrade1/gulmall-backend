@@ -9,7 +9,19 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+type Name struct {
+	Ar string `json:"ar,omitempty"`
+	En string `json:"en,omitempty"`
+}
+
+type ColorType struct {
+	ID     primitive.ObjectID `bson:"_id,omitempty"`
+	CSSHex string             `json:"cssHex,omitempty"`
+	Name   `json:"name,omitempty"`
+}
 
 type ItemType struct {
 	ID primitive.ObjectID `bson:"_id,omitempty"`
@@ -52,6 +64,22 @@ func Items(w http.ResponseWriter, req *http.Request) {
 		results = append(results, abc)
 
 	}
+	id, _ := primitive.ObjectIDFromHex("6352f8123e006819c56246c6")
+
+	matchStage := bson.D{{"$match", bson.D{{"color", id}}}}
+	groupStage := bson.D{{"$group", bson.D{{"_id", "$color"}, {"total", bson.D{{"$sum", "$duration"}}}}}}
+
+	showInfoCursor, err := docking.PakTradeDb.Aggregate(context.TODO(), mongo.Pipeline{matchStage, groupStage})
+	if err != nil {
+		panic(err)
+	}
+	var showsWithInfo []bson.M
+	if err = showInfoCursor.All(context.TODO(), &showsWithInfo); err != nil {
+		panic(err)
+	}
+	//	fmt.Println()
+	fmt.Fprintf(w, "%s\n", showsWithInfo)
+
 	output, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
 		panic(err)
