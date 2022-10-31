@@ -13,14 +13,10 @@ import (
 func main() {
 	docking.PakTradeConnection()
 	r := mux.NewRouter()
-
-	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	fmt.Println("Ping...")
-	// })
 	http.Handle("/", r)
 	r.HandleFunc("/color", color.Color)
 	r.HandleFunc("/item", item.Items)
-	fmt.Println("runging server port 9900")
-	http.ListenAndServe(":9901", nil)
+	fmt.Println("Runging server port 80")
+	http.ListenAndServe(":80", nil)
 
 }
