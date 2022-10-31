@@ -23,9 +23,7 @@ func PakTradeConnection() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// DATABASE NAME
-
+	
 	pakTrade := client.Database("PakTrade")
 	PakTradeDb = pakTrade
-
 }
