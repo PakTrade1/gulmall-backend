@@ -11,8 +11,6 @@ import (
 )
 
 var PakTradeDb *mongo.Database // PakTrade
-var ItemDb *mongo.Database     // Items
-//var CartsDb *mongo.Database    // Items
 
 func PakTradeConnection() {
 	fmt.Print("\nCalling fun db connect\n")
@@ -28,10 +26,6 @@ func PakTradeConnection() {
 	// DATABASE NAME
 
 	pakTrade := client.Database("PakTrade")
-	//items := client.Database("Item")
-	//carts := client.Database("carts")
-	ItemDb = pakTrade
 	PakTradeDb = pakTrade
-	//CartsDb = carts
 
 }
