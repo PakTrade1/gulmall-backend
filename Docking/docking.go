@@ -11,7 +11,7 @@ import (
 )
 
 var PakTradeDb *mongo.Database // PakTrade
-var ItemDb *mongo.Database     // Items
+//var ItemDb *mongo.Database     // Items
 //var CartsDb *mongo.Database    // Items
 
 func PakTradeConnection() {
@@ -30,7 +30,7 @@ func PakTradeConnection() {
 	pakTrade := client.Database("PakTrade")
 	//items := client.Database("Item")
 	//carts := client.Database("carts")
-	ItemDb = pakTrade
+	//ItemDb = pakTrade
 	PakTradeDb = pakTrade
 	//CartsDb = carts
 

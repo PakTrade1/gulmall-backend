@@ -24,7 +24,7 @@ type Color1 struct {
 
 func Color(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	coll := docking.PakTradeDb.Collection("color")
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
@@ -36,10 +36,10 @@ func Color(w http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	for _, result := range results {
-		cursor.Decode(&results)
-
-		results = append(results, result)
+	for cursor.Next(context.TODO()) {
+		var abc Color1
+		cursor.Decode(&abc)
+		results = append(results, abc)
 
 	}
 	output, err := json.MarshalIndent(results, "", "    ")
