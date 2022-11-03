@@ -5,6 +5,12 @@ go 1.19
 require go.mongodb.org/mongo-driver v1.10.3
 
 require (
+	github.com/dave/jennifer v1.4.1 // indirect
+	github.com/naamancurtis/mongo-go-struct-to-bson v0.1.0 // indirect
+	github.com/sindbach/json-to-bson-go v0.1.2 // indirect
+)
+
+require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/gorilla/handlers v1.5.1

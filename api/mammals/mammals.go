@@ -7,46 +7,11 @@ import (
 	"net/http"
 	docking "pak-trade-go/Docking"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
-// type ItemType struct {
-// 	ID    primitive.ObjectID `bson:"_id,omitempty"`
-// 	Price int32              `json:"price,omitempty`
-
-// 	Name struct {
-// 		En string `json:"en,omitempty"`
-// 		Ar string `json:"ar,omitempty"`
-// 	} `json:"name,omitempty"`
-
-// 	Feature []struct {
-// 		//Low_quility  []string `json:"low_quility,omitempty"`
-// 		//High_quility []string `json:"high_quility,omitempty"`
-// 		Name struct {
-// 			En string `json:"en,omitempty"`
-// 			Ar string `json:"ar,omitempty"`
-// 		} `json:"name,omitempty"`
-// 	} `json:"feature,omitempty"`
-
-// 	Available_size []string `json:"available_size,omitempty"`
-
-// 	Images []struct {
-// 		Low_quility  []string `json:"low_quility,omitempty"`
-// 		High_quility []string `json:"high_quility,omitempty"`
-// 	} `json:"images,omitempty"`
-
-//		Available_color []struct {
-//			ID     primitive.ObjectID `bson:"_id,omitempty"`
-//			CSSHex string             `json:"cssHex,omitempty"`
-//			Name   struct {
-//				En string `json:"en,omitempty"`
-//				Ar string `json:"ar,omitempty"`
-//			} `json:"name,omitempty"`
-//		} `json:"available_color,omitempty"`
-//	}
-
 type Mammals_user struct {
-	ID   primitive.ObjectID `bson:"_id,omitempty"`
+	//ID   primitive.ObjectID `bson:"_id,omitempty"`
 	Name struct {
 		Firt_name string `json:"firt_name" bson:"firt_name"`
 		Last_name string `json:"last_name" bson:"last_name"`
@@ -98,33 +63,45 @@ func Mammals_getall(w http.ResponseWriter, req *http.Request) {
 func Mammals_insertone(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	// body, err := ioutil.ReadAll(req.Body)
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-	var data []Mammals_user
-	json.NewDecoder(req.Body).Decode(&data)
-	//fmt.Fprintf(w, "%s\n", data)
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
 
+	var strcutinit Mammals_user
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+
+	insertdat := bson.M{
+		"name": bson.M{
+			"firt_name": strcutinit.Name.Firt_name,
+			"last_name": strcutinit.Name.Last_name,
+		},
+		"address": bson.A{
+			bson.M{
+				"home_address": bson.M{
+					"address":  strcutinit.Address[0].Home_address.Address,
+					"country":  strcutinit.Address[0].Home_address.Country,
+					"city":     strcutinit.Address[0].Home_address.City,
+					"province": strcutinit.Address[0].Home_address.Province,
+					"zip_code": strcutinit.Address[0].Home_address.Zip_code,
+				},
+			},
+		},
+		"email":   strcutinit.Email,
+		"phone":   strcutinit.Phone,
+		"profile": strcutinit.Profile,
+	}
+
+	//fmt.Print(body)
 	coll := docking.PakTradeDb.Collection("mammals")
 
-	// insert a user
+	// // // insert a user
 
-	_, err3 := coll.InsertOne(context.TODO(), data)
+	inset, err3 := coll.InsertOne(context.TODO(), insertdat)
 	if err3 != nil {
 		fmt.Fprintf(w, "%s\n", err3)
 	}
-	// output, err2 := json.Marshal(data)
-	// if err2 != nil {
-	// 	log.Fatal(err2)
-	// }
-	// fmt.Fprintf(w, "%s\n", output)
-	// output, err := json.MarshalIndent(insertResult.InsertedID, "", "    ")
-	// if err != nil {
-	// 	panic(err)
 
-	// }
-	//fmt.Fprintf(w, "%s\n",)
+	fmt.Fprintf(w, "%s\n", inset)
 
 }

@@ -4,48 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
 	docking "pak-trade-go/Docking"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-// type ItemType struct {
-// 	ID    primitive.ObjectID `bson:"_id,omitempty"`
-// 	Price int32              `json:"price,omitempty`
-
-// 	Name struct {
-// 		En string `json:"en,omitempty"`
-// 		Ar string `json:"ar,omitempty"`
-// 	} `json:"name,omitempty"`
-
-// 	Feature []struct {
-// 		//Low_quility  []string `json:"low_quility,omitempty"`
-// 		//High_quility []string `json:"high_quility,omitempty"`
-// 		Name struct {
-// 			En string `json:"en,omitempty"`
-// 			Ar string `json:"ar,omitempty"`
-// 		} `json:"name,omitempty"`
-// 	} `json:"feature,omitempty"`
-
-// 	Available_size []string `json:"available_size,omitempty"`
-
-// 	Images []struct {
-// 		Low_quility  []string `json:"low_quility,omitempty"`
-// 		High_quility []string `json:"high_quility,omitempty"`
-// 	} `json:"images,omitempty"`
-
-//		Available_color []struct {
-//			ID     primitive.ObjectID `bson:"_id,omitempty"`
-//			CSSHex string             `json:"cssHex,omitempty"`
-//			Name   struct {
-//				En string `json:"en,omitempty"`
-//				Ar string `json:"ar,omitempty"`
-//			} `json:"name,omitempty"`
-//		} `json:"available_color,omitempty"`
-//	}
 
 type CartMammals struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
@@ -84,37 +48,35 @@ func Cart_getall(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%s\n", output)
 
 }
-func Cart_insertone(w http.ResponseWriter, req *http.Request) {
+func Mammals_insertone(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	_, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var data []CartMammals
-	json.NewDecoder(req.Body).Decode(&data)
-	//fmt.Fprintf(w, "%s\n", data)
+	var cart_init CartMammals
+	err := json.NewDecoder(req.Body).Decode(&cart_init)
+	if err != nil {
+		panic(err)
+	}
+	// mongo query
+	mongo_query := bson.M{
+		"mammal_id": cart_init.Mammal_id,
+		"item_id":   cart_init.Item_id,
+		"color_id":  cart_init.Color_id,
+		"size_id":   cart_init.Size_id,
+		"quantity":  cart_init.Quantity,
+		"price":     cart_init.Price,
+	}
 
 	coll := docking.PakTradeDb.Collection("cart_mammals")
 
-	// insert a user
+	// // // insert a user
 
-	_, err3 := coll.InsertOne(context.TODO(), data)
+	inset, err3 := coll.InsertOne(context.TODO(), mongo_query)
 	if err3 != nil {
 		fmt.Fprintf(w, "%s\n", err3)
 	}
-	output, err2 := json.Marshal(data)
-	if err2 != nil {
-		log.Fatal(err2)
-	}
-	fmt.Fprintf(w, "%s\n", output)
-	// output, err := json.MarshalIndent(insertResult.InsertedID, "", "    ")
-	// if err != nil {
-	// 	panic(err)
 
-	// }
-	//fmt.Fprintf(w, "%s\n",)
+	fmt.Fprintf(w, "%s\n", inset)
 
 }
