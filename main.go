@@ -25,7 +25,7 @@ func main() {
 	r.HandleFunc("/addCart", Allcart.Mammals_insertone)
 
 	fmt.Println("runging server port 9900")
-	http.ListenAndServe(":9901", nil)
+	http.ListenAndServe(":9900", nil)
 	//fmt.Println("Runging server port 80")
 	//http.ListenAndServe(":80", nil)
 
