@@ -7,8 +7,7 @@ import (
 	Allcart "pak-trade-go/api/cart"
 	color "pak-trade-go/api/color"
 	item "pak-trade-go/api/items"
-	Alluser "pak-trade-go/api/mammals"
-	Insertuser "pak-trade-go/api/mammals"
+	User "pak-trade-go/api/mammals"
 
 	"github.com/gorilla/mux"
 )
@@ -19,10 +18,13 @@ func main() {
 	http.Handle("/", r)
 	r.HandleFunc("/getColor", color.Color)
 	r.HandleFunc("/getItem", item.Items)
-	r.HandleFunc("/getUser", Alluser.Mammals_getall)
-	r.HandleFunc("/addUser", Insertuser.Mammals_insertone)
+	r.HandleFunc("/getUser", User.Mammals_getall)
+	r.HandleFunc("/addUser", User.Mammals_insertone)
+	r.HandleFunc("/searchUser", User.Mammals_select_one)
+	r.HandleFunc("/updateUser", User.Mammals_update_one)
+
 	r.HandleFunc("/getCart", Allcart.Cart_getall)
-	r.HandleFunc("/addCart", Allcart.Mammals_insertone)
+	r.HandleFunc("/addCart", Allcart.Cart_insertone)
 
 	fmt.Println("runging server port 9900")
 	http.ListenAndServe(":9900", nil)

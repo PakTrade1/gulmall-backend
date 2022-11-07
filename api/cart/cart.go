@@ -48,7 +48,7 @@ func Cart_getall(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%s\n", output)
 
 }
-func Mammals_insertone(w http.ResponseWriter, req *http.Request) {
+func Cart_insertone(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	// w.Header().Set("Access-Control-Allow-Origin", "*")
