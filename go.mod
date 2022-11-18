@@ -1,22 +1,23 @@
 module pak-trade-go
 
-go 1.19
+go 1.17
 
 require go.mongodb.org/mongo-driver v1.10.3
 
+require github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v0.5.0
+
 require (
-	github.com/dave/jennifer v1.4.1 // indirect
-	github.com/naamancurtis/mongo-go-struct-to-bson v0.1.0 // indirect
-	github.com/sindbach/json-to-bson-go v0.1.2 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.1.4 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.2.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.0.1 // indirect
+	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 )
 
 require (
-	github.com/gin-gonic/gin v1.8.1
 	github.com/golang/snappy v0.0.1 // indirect
-	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/klauspost/compress v1.13.6 // indirect
-	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
+	github.com/montanaflynn/stats v0.6.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
