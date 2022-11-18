@@ -25,6 +25,5 @@ func PakTradeConnection() {
 	}
 
 	pakTrade := client.Database("PakTrade")
-
 	PakTradeDb = pakTrade
 }

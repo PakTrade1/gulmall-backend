@@ -8,6 +8,7 @@ import (
 	color "pak-trade-go/api/color"
 	item "pak-trade-go/api/items"
 	User "pak-trade-go/api/mammals"
+	storage "pak-trade-go/storage"
 
 	"github.com/gorilla/mux"
 )
@@ -22,7 +23,7 @@ func main() {
 	r.HandleFunc("/addUser", User.Mammals_insertone)
 	r.HandleFunc("/searchUser", User.Mammals_select_one)
 	r.HandleFunc("/updateUser", User.Mammals_update_one)
-
+	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
 	r.HandleFunc("/getCart", Allcart.Cart_getall)
 	r.HandleFunc("/addCart", Allcart.Cart_insertone)
 
