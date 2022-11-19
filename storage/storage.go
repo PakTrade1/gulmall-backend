@@ -1,5 +1,10 @@
 package storage
 
+//USER_ID==> Container name/
+//MEDIA_TYPE==> Type of media which could be Item,Personal,Doc
+//MEDIA_SUB_TYPE ==> Type of media that could be dress, shoes, profile,
+//123/item/dress/abc.jpeg
+
 import (
 	"context"
 	"fmt"
@@ -40,12 +45,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	id1 := r.MultipartForm.Value["id"]
 	typee1 := r.MultipartForm.Value["type"]
 	subtype1 := r.MultipartForm.Value["subtype"]
-	////// convet []stirng to sting
 	id := strings.Join(id1, " ")
 	typee := strings.Join(typee1, " ")
 	subtype := strings.Join(subtype1, " ")
-
-	//[{},{},{}]
 	var files_array []*os.File
 	for i, fileHeader := range files {
 
