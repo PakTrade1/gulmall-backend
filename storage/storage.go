@@ -7,6 +7,7 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -25,6 +26,11 @@ func handleError(err error) {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+}
+
+type resp struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
 }
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +82,14 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	uploadToAzureBlob(files_array, id, typee, subtype)
-	fmt.Fprintf(w, "Upload successful")
+	mesage1 := &resp{
+		Status:  http.StatusOK,
+		Message: "Upload successful",
+	}
+	data, err := json.Marshal(mesage1)
+	handleError(err)
+
+	fmt.Fprintf(w, string(data))
 }
 
 func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string) {
