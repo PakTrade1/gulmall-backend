@@ -13,10 +13,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	docking "pak-trade-go/Docking"
 	"strings"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 )
 
@@ -32,6 +32,13 @@ type resp struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
 }
+
+type blob_path_struct struct {
+	Blobpath string `json:"blobpath"`
+}
+
+// call function to login on azure blob
+var client = docking.AzureBloblogs()
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -56,7 +63,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	subtype := strings.Join(subtype1, " ")
 	var files_array []*os.File
 	for i, fileHeader := range files {
-
 		file, err := files[i].Open()
 		new_file, err := os.Create(files[i].Filename)
 		fileBytes, err3 := ioutil.ReadAll(file)
@@ -90,17 +96,10 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	handleError(err)
 
 	fmt.Fprintf(w, string(data))
+
 }
 
 func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string) {
-
-	url := "https://paktradegallery.blob.core.windows.net/"
-	credential, err1 := azidentity.NewDefaultAzureCredential(nil)
-	if err1 != nil {
-		log.Fatal("Invalid credentials with error: " + err1.Error())
-	}
-	client, client_error := azblob.NewClient(url, credential, nil)
-	handleError(client_error)
 	for i, f := range file {
 		blobname1 := "gallerycontainer" + "/" + id + "/" + type_ + "/" + subtype
 		fmt.Println("file upload to this path ", blobname1, time.Now())
@@ -116,4 +115,35 @@ func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string)
 		handleError(_err)
 	}
 
+}
+
+func Deltefile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var path blob_path_struct
+	err := json.NewDecoder(r.Body).Decode(&path)
+	handleError(err)
+	_, err1 := client.DeleteBlob(context.TODO(), "gallerycontainer", path.Blobpath, nil)
+	if err1 != nil {
+		mesage1 := &resp{
+			Status:  http.StatusOK,
+			Message: "image not found",
+		}
+		data, err := json.Marshal(mesage1)
+		handleError(err)
+
+		fmt.Fprintf(w, string(data))
+
+	} else {
+		mesage1 := &resp{
+			Status:  http.StatusOK,
+			Message: "delete Image successful",
+		}
+		data, err := json.Marshal(mesage1)
+		handleError(err)
+
+		fmt.Fprintf(w, string(data))
+	}
 }

@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -26,4 +28,17 @@ func PakTradeConnection() {
 
 	pakTrade := client.Database("PakTrade")
 	PakTradeDb = pakTrade
+}
+
+func AzureBloblogs() *azblob.Client {
+	url := "https://paktradegallery.blob.core.windows.net/"
+	credential, err1 := azidentity.NewDefaultAzureCredential(nil)
+	if err1 != nil {
+		log.Fatal("Invalid credentials with error: " + err1.Error())
+	}
+	client, client_error := azblob.NewClient(url, credential, nil)
+	if client_error != nil {
+		log.Fatal(client_error)
+	}
+	return client
 }

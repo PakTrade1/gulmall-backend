@@ -15,6 +15,7 @@ import (
 
 func main() {
 	docking.PakTradeConnection()
+	docking.AzureBloblogs()
 	r := mux.NewRouter()
 	http.Handle("/", r)
 	r.HandleFunc("/getColor", color.Color)
@@ -24,6 +25,8 @@ func main() {
 	r.HandleFunc("/searchUser", User.Mammals_select_one)
 	r.HandleFunc("/updateUser", User.Mammals_update_one)
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
+	r.HandleFunc("/delete-file", storage.Deltefile).Methods("POST")
+
 	r.HandleFunc("/getCart", Allcart.Cart_getall)
 	r.HandleFunc("/addCart", Allcart.Cart_insertone)
 
