@@ -14,10 +14,13 @@ import (
 )
 
 func main() {
+	// DOCKING WITH AZURE BLOB STORAGE.
 	docking.PakTradeConnection()
 	docking.AzureBloblogs()
+       // ROUTERS
 	r := mux.NewRouter()
 	http.Handle("/", r)
+       // API ENDPOINTS
 	r.HandleFunc("/getColor", color.Color)
 	r.HandleFunc("/getItem", item.Items)
 	r.HandleFunc("/getUser", User.Mammals_getall)
@@ -26,7 +29,6 @@ func main() {
 	r.HandleFunc("/updateUser", User.Mammals_update_one)
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
 	r.HandleFunc("/delete-file", storage.Deltefile).Methods("POST")
-
 	r.HandleFunc("/getCart", Allcart.Cart_getall)
 	r.HandleFunc("/addCart", Allcart.Cart_insertone)
 
