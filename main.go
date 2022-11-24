@@ -17,23 +17,22 @@ func main() {
 	// DOCKING WITH AZURE BLOB STORAGE.
 	docking.PakTradeConnection()
 	docking.AzureBloblogs()
-       // ROUTERS
+	// ROUTERS
 	r := mux.NewRouter()
 	http.Handle("/", r)
-       // API ENDPOINTS
-	r.HandleFunc("/getColor", color.Color)
+	// API ENDPOINTS
+	r.HandleFunc("/get-color", color.Color)
 	// r.HandleFunc("/ItemAdd", item.ItemInsertone)
-	r.HandleFunc("/ItemUpdate", item.Item_update_one)
-
-	r.HandleFunc("/getItem", item.Items)
-	r.HandleFunc("/getUser", User.Mammals_getall)
-	r.HandleFunc("/addUser", User.Mammals_insertone)
-	r.HandleFunc("/searchUser", User.Mammals_select_one)
-	r.HandleFunc("/updateUser", User.Mammals_update_one)
+	r.HandleFunc("/update-item", item.Item_update_one)
+	r.HandleFunc("/get-item", item.Items)
+	r.HandleFunc("/get-user", User.Mammals_getall)
+	r.HandleFunc("/add-user", User.Mammals_insertone)
+	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
+	r.HandleFunc("/update-user", User.Mammals_update_one)
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
 	r.HandleFunc("/delete-file", storage.Deltefile).Methods("POST")
-	r.HandleFunc("/getCart", Allcart.Cart_getall)
-	r.HandleFunc("/addCart", Allcart.Cart_insertone)
+	r.HandleFunc("/get-cart", Allcart.Cart_getall)
+	r.HandleFunc("/add-cart", Allcart.Cart_insertone)
 
 	fmt.Println("runging server port 9900")
 	http.ListenAndServe(":9900", nil)
