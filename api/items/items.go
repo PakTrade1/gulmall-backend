@@ -47,6 +47,33 @@ type ItemType struct {
 	} `json:"available_color,omitempty"`
 }
 
+type update_item struct {
+	ID string `json:"item_id"`
+
+	Name struct {
+		En string `json:"en"`
+		Ar string `json:"ar"`
+	} `json:"name"`
+	Feature []struct {
+		Name struct {
+			En string `json:"en"`
+			Ar string `json:"ar"`
+		} `json:"name"`
+	} `json:"feature"`
+	AvailableColor []primitive.ObjectID `json:"available_color,omitempty"`
+	// } `json:"available_color"`
+	AvailableSize []primitive.ObjectID `json:"available_size,omitempty"`
+
+	// AvailableSize []struct {
+	// 	ID primitive.ObjectID `bson:"_id,omitempty"`
+	// } `json:"available_size"`
+	Images struct {
+		Highquility []string `json:"highquility"`
+		Lowquility  []string `json:"lowquility"`
+	} `json:"images"`
+	Price int `json:"price"`
+}
+
 func Items(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -125,6 +152,94 @@ func Items(w http.ResponseWriter, req *http.Request) {
 		panic(err)
 
 	}
+	fmt.Fprintf(w, "%s\n", output)
+
+}
+
+// func ItemInsertone(w http.ResponseWriter, req *http.Request) {
+
+// 	w.Header().Set("Content-Type", "application/json")
+// 	// w.Header().Set("Access-Control-Allow-Origin", "*")
+
+// 	var strcutinit inset_item
+// 	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	insertdat := bson.M{"name": bson.M{
+// 		"en": strcutinit.Name.En,
+// 		"ar": strcutinit.Name.Ar,
+// 	},
+// 		"feature": bson.A{
+// 			strcutinit.Feature,
+// 		},
+// 		"available_color": bson.A{
+// 			strcutinit.AvailableColor,
+// 		},
+// 		"available_size": bson.A{
+// 			strcutinit.AvailableSize,
+// 		},
+// 		"images": bson.A{
+// 			strcutinit.Images,
+// 		},
+// 		"price": strcutinit.Price,
+// 	}
+
+// 	//fmt.Print(body)
+// 	coll := docking.PakTradeDb.Collection("cloths")
+
+// 	// // // insert a user
+
+// 	inset, err3 := coll.InsertOne(context.TODO(), insertdat)
+// 	if err3 != nil {
+// 		fmt.Fprintf(w, "%s\n", err3)
+// 	}
+
+// 	fmt.Fprintf(w, "%s\n", inset.InsertedID)
+
+// }
+func Item_update_one(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var strcutinit update_item
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+	coll := docking.PakTradeDb.Collection("cloths")
+	objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.ID)
+	// fmt.Print(objectIDS)
+
+	result1, err := coll.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": objectIDS},
+		bson.D{
+			{Key: "$set", Value: bson.M{
+				"name": bson.M{
+					"en": strcutinit.Name.En,
+					"ar": strcutinit.Name.Ar,
+				},
+				"feature":         strcutinit.Feature,
+				"available_color": strcutinit.AvailableColor,
+
+				"available_size": strcutinit.AvailableSize,
+
+				"price": strcutinit.Price,
+			}},
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//end update
+
+	output, err2 := json.MarshalIndent(result1, "", "    ")
+	if err2 != nil {
+		panic(err2)
+	}
+
 	fmt.Fprintf(w, "%s\n", output)
 
 }
