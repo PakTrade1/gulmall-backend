@@ -19,6 +19,9 @@ func main() {
 	r := mux.NewRouter()
 	http.Handle("/", r)
 	r.HandleFunc("/getColor", color.Color)
+	// r.HandleFunc("/ItemAdd", item.ItemInsertone)
+	r.HandleFunc("/ItemUpdate", item.Item_update_one)
+
 	r.HandleFunc("/getItem", item.Items)
 	r.HandleFunc("/getUser", User.Mammals_getall)
 	r.HandleFunc("/addUser", User.Mammals_insertone)

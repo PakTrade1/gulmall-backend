@@ -15,9 +15,11 @@ import (
 	"os"
 	docking "pak-trade-go/Docking"
 	"strings"
-	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const MAX_UPLOAD_SIZE = 30048576 // 1MB 10048576
@@ -31,6 +33,7 @@ func handleError(err error) {
 type resp struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
+	Id      string `json:"item_id"`
 }
 
 type blob_path_struct struct {
@@ -39,6 +42,7 @@ type blob_path_struct struct {
 
 // call function to login on azure blob
 var client = docking.AzureBloblogs()
+var insetedid *mongo.InsertOneResult
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -88,9 +92,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	uploadToAzureBlob(files_array, id, typee, subtype)
+	stringObjectID := insetedid.InsertedID.(primitive.ObjectID).Hex()
+
 	mesage1 := &resp{
 		Status:  http.StatusOK,
 		Message: "Upload successful",
+		Id:      stringObjectID,
 	}
 	data, err := json.Marshal(mesage1)
 	handleError(err)
@@ -100,9 +107,13 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string) {
+	var file_path []string
+
 	for i, f := range file {
 		blobname1 := "gallerycontainer" + "/" + id + "/" + type_ + "/" + subtype
-		fmt.Println("file upload to this path ", blobname1, time.Now())
+
+		// fmt.Println("file upload to this path ", blobname1, time.Now())
+		// var blob = client.;
 		_, _err := client.UploadFile(context.TODO(), blobname1, f.Name(), file[i],
 			&azblob.UploadFileOptions{
 				BlockSize:   int64(1024),
@@ -113,11 +124,18 @@ func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string)
 				},
 			})
 		handleError(_err)
+		////// update path to
+		file_path = append(file_path, "https://paktradegallery.blob.core.windows.net/"+blobname1+f.Name())
 	}
-
+	// fmt.Println(file_path)
+	result := Add_data_to_mongo(file_path)
+	insetedid = result
 }
 
 func Deltefile(w http.ResponseWriter, r *http.Request) {
+
+	azblob.ParseURL("")
+
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -125,10 +143,12 @@ func Deltefile(w http.ResponseWriter, r *http.Request) {
 	var path blob_path_struct
 	err := json.NewDecoder(r.Body).Decode(&path)
 	handleError(err)
+	// for i, _ := range path {
+	// fmt.Print(path[i].Blobpath)
 	_, err1 := client.DeleteBlob(context.TODO(), "gallerycontainer", path.Blobpath, nil)
 	if err1 != nil {
 		mesage1 := &resp{
-			Status:  http.StatusOK,
+			Status:  http.StatusBadGateway,
 			Message: "image not found",
 		}
 		data, err := json.Marshal(mesage1)
@@ -146,4 +166,43 @@ func Deltefile(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Fprintf(w, string(data))
 	}
+	// }
+}
+func Add_data_to_mongo(image_array []string) *mongo.InsertOneResult {
+	dumy_array := [2]string{"no image 1", " no image 2"}
+
+	insertdat := bson.M{"name": bson.M{
+		"en": "",
+		"ar": "",
+	},
+		"feature": bson.A{
+			"",
+		},
+		"available_color": bson.A{
+			"",
+		},
+		"available_size": bson.A{
+			"",
+		},
+		"images": bson.A{
+			bson.M{
+				"low_quility": image_array,
+			},
+			bson.M{
+				"high_quility": dumy_array,
+			},
+		},
+		"price": 0,
+	}
+
+	//fmt.Print(body)
+	coll := docking.PakTradeDb.Collection("cloths")
+
+	// // // insert a user
+
+	responceid, err3 := coll.InsertOne(context.TODO(), insertdat)
+	if err3 != nil {
+		fmt.Print(err3)
+	}
+	return responceid
 }

@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/Azure/azure-pipeline-go v0.2.3 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.1.4 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.0.1 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v0.7.0 // indirect
@@ -24,6 +25,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/mattn/go-ieproxy v0.0.1 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
