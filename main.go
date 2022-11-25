@@ -30,7 +30,9 @@ func main() {
 	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
 	r.HandleFunc("/update-user", User.Mammals_update_one)
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
-	r.HandleFunc("/delete-file", storage.Deltefile).Methods("POST")
+	//r.HandleFunc("/delete-file", item.Delte_item).Methods("POST")
+	//r.HandleFunc("/delete-image", storage.Deltefile).Methods("POST")
+
 	r.HandleFunc("/get-cart", Allcart.Cart_getall)
 	r.HandleFunc("/add-cart", Allcart.Cart_insertone)
 

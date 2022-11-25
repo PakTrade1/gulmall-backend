@@ -132,44 +132,47 @@ func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string)
 	insetedid = result
 }
 
+//////// delete image form azure blob now for this time code not use
+/*
 func Deltefile(w http.ResponseWriter, r *http.Request) {
 
-	azblob.ParseURL("")
+		azblob.ParseURL("")
 
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	var path blob_path_struct
-	err := json.NewDecoder(r.Body).Decode(&path)
-	handleError(err)
-	// for i, _ := range path {
-	// fmt.Print(path[i].Blobpath)
-	_, err1 := client.DeleteBlob(context.TODO(), "gallerycontainer", path.Blobpath, nil)
-	if err1 != nil {
-		mesage1 := &resp{
-			Status:  http.StatusBadGateway,
-			Message: "image not found",
+		if r.Method != "POST" {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
 		}
-		data, err := json.Marshal(mesage1)
+		var path blob_path_struct
+		err := json.NewDecoder(r.Body).Decode(&path)
 		handleError(err)
+		// for _, a := range path.Blobpath {
+		_, err1 := client.DeleteBlob(context.TODO(), "gallerycontainer", path.Blobpath, nil)
 
-		fmt.Fprintf(w, string(data))
+		if err1 != nil {
+			mesage1 := &resp{
+				Status:  http.StatusBadGateway,
+				Message: "image not found",
+			}
+			data, err := json.Marshal(mesage1)
+			handleError(err)
 
-	} else {
-		mesage1 := &resp{
-			Status:  http.StatusOK,
-			Message: "delete Image successful",
+			fmt.Fprintf(w, string(data))
+
+		} else {
+			mesage1 := &resp{
+				Status:  http.StatusOK,
+				Message: "delete Image successful",
+			}
+			data, err := json.Marshal(mesage1.Message)
+			handleError(err)
+
+			fmt.Fprintf(w, string(data))
 		}
-		data, err := json.Marshal(mesage1)
-		handleError(err)
-
-		fmt.Fprintf(w, string(data))
+		// }
 	}
-	// }
-}
+*/
 func Add_data_to_mongo(image_array []string) *mongo.InsertOneResult {
-	dumy_array := [2]string{"no image 1", " no image 2"}
+	dumy_array := [1]string{"no image"}
 
 	insertdat := bson.M{"name": bson.M{
 		"en": "",
