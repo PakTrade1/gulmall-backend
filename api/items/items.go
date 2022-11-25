@@ -94,7 +94,9 @@ func Items(w http.ResponseWriter, req *http.Request) {
 
 	// Open an aggregation cursor
 	cursor, err := coll.Aggregate(ctx, bson.A{
+		bson.D{{Key: "$match", Value: bson.D{{"status", "active"}}}},
 		bson.D{
+
 			{Key: "$unwind",
 				Value: bson.D{
 					{Key: "path", Value: "$available_color"},
