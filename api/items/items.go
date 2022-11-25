@@ -21,8 +21,9 @@ func handleError(err error) {
 }
 
 type ItemType struct {
-	ID    primitive.ObjectID `bson:"_id,omitempty"`
-	Price int32              `json:"price,omitempty`
+	ID     primitive.ObjectID `bson:"_id,omitempty"`
+	Price  int32              `json:"price,omitempty`
+	Status string             `json:"status"`
 
 	Name struct {
 		En string `json:"en,omitempty"`
@@ -81,10 +82,19 @@ type update_item struct {
 	} `json:"images"`
 	Price int `json:"price"`
 }
+type status_req struct {
+	Status string `json:"status"`
+}
 
 func Items(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var Status_req status_req
+	err := json.NewDecoder(req.Body).Decode(&Status_req)
+	if err != nil {
+		panic(err)
+	}
 
 	coll := docking.PakTradeDb.Collection("cloths")
 
@@ -94,7 +104,7 @@ func Items(w http.ResponseWriter, req *http.Request) {
 
 	// Open an aggregation cursor
 	cursor, err := coll.Aggregate(ctx, bson.A{
-		bson.D{{Key: "$match", Value: bson.D{{"status", "active"}}}},
+		bson.D{{Key: "$match", Value: bson.D{{Key: "status", Value: Status_req.Status}}}},
 		bson.D{
 
 			{Key: "$unwind",
@@ -126,6 +136,7 @@ func Items(w http.ResponseWriter, req *http.Request) {
 							{Key: "images", Value: "$images"},
 							{Key: "_id", Value: "$_id"},
 							{Key: "price", Value: "$price"},
+							{Key: "status", Value: "$status"},
 						},
 					},
 					{Key: "colors", Value: bson.D{{Key: "$push", Value: "$result"}}},
@@ -141,6 +152,7 @@ func Items(w http.ResponseWriter, req *http.Request) {
 					{Key: "available_size", Value: "$_id.sizes"},
 					{Key: "images", Value: "$_id.images"},
 					{Key: "price", Value: "$_id.price"},
+					{Key: "status", Value: "$_id.status"},
 					{Key: "available_color", Value: "$colors"},
 				},
 			},

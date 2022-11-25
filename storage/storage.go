@@ -195,7 +195,8 @@ func Add_data_to_mongo(image_array []string) *mongo.InsertOneResult {
 				"high_quility": dumy_array,
 			},
 		},
-		"price": 0,
+		"price":  0,
+		"status": "pending",
 	}
 
 	//fmt.Print(body)
