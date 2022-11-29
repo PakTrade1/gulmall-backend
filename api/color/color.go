@@ -21,6 +21,11 @@ type Color1 struct {
 	CSSHex string             `json:"cssHex,omitempty"`
 	Name   `json:"name,omitempty"`
 }
+type respone_struct struct {
+	Status  int      `json:"status"`
+	Message string   `json:"message"`
+	Data    []Color1 `json:"data"`
+}
 
 func Color(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -40,9 +45,17 @@ func Color(w http.ResponseWriter, req *http.Request) {
 		var abc Color1
 		cursor.Decode(&abc)
 		results = append(results, abc)
-
 	}
-	output, err := json.MarshalIndent(results, "", "    ")
+	var responce respone_struct
+	if results != nil {
+		responce.Status = http.StatusOK
+		responce.Message = "success"
+		responce.Data = results
+	} else {
+		responce.Status = http.StatusBadRequest
+		responce.Message = "declined"
+	}
+	output, err := json.MarshalIndent(responce, "", "    ")
 	if err != nil {
 		panic(err)
 	}
