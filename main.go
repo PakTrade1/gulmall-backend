@@ -11,6 +11,7 @@ import (
 	storage "pak-trade-go/storage"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -39,9 +40,13 @@ func main() {
 
 	r.HandleFunc("/get-cart", Allcart.Cart_getall)
 	r.HandleFunc("/add-cart", Allcart.Cart_insertone)
-
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+	})
+	handler := c.Handler(r)
 	fmt.Println("runging server port 9900")
-	http.ListenAndServe(":9900", nil)
+	http.ListenAndServe(":80", handler)
 	//fmt.Println("Runging server port 80")
 	//http.ListenAndServe(":80", nil)
 
