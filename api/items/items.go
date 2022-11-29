@@ -85,6 +85,11 @@ type update_item struct {
 type status_req struct {
 	Status string `json:"status"`
 }
+type respone_struct struct {
+	Status  int        `json:"status"`
+	Message string     `json:"message"`
+	Data    []ItemType `json:"data"`
+}
 
 func Items(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -161,19 +166,29 @@ func Items(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var results []ItemType
+	var results respone_struct
+	var resp1 []ItemType
 	for cursor.Next(context.TODO()) {
-		var abc ItemType
-		cursor.Decode(&abc)
-		results = append(results, abc)
+		var xy ItemType
+		cursor.Decode(&xy)
+		resp1 = append(resp1, xy)
 
 	}
+	if resp1 != nil {
+		results.Status = http.StatusOK
+		results.Message = "success"
 
+	} else {
+		results.Message = "decline"
+
+	}
+	results.Data = resp1
 	output, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
 		panic(err)
 
 	}
+
 	fmt.Fprintf(w, "%s\n", output)
 
 }
@@ -256,18 +271,31 @@ func Item_update_one(w http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 	//end update
-
-	output, err2 := json.MarshalIndent(result1, "", "    ")
+	var record update_resp
+	if result1.ModifiedCount >= 1 {
+		record.Status = http.StatusOK
+		record.Message = "success"
+		record.Update_record = int(result1.ModifiedCount)
+	} else {
+		record.Status = http.StatusBadRequest
+		record.Message = "decline"
+		record.Update_record = 0
+	}
+	output, err2 := json.MarshalIndent(record, "", "    ")
 	if err2 != nil {
 		panic(err2)
 	}
 
 	fmt.Fprintf(w, "%s\n", output)
-
 }
 
 type delete_id struct {
 	Item_id string `json:"item_id"`
+}
+type serch_itme_struct struct {
+	Status  string `json:"status"`
+	Message string `json:"message "`
+	Data    ItemType
 }
 
 func Serch_item_by_id(w http.ResponseWriter, r *http.Request) {
@@ -338,19 +366,30 @@ func Serch_item_by_id(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var results []ItemType
+
+	results := new(respone_struct)
+	var resp1 []ItemType
 	for cursor.Next(context.TODO()) {
-		var abc ItemType
-		cursor.Decode(&abc)
-		results = append(results, abc)
+		var xy ItemType
+		cursor.Decode(&xy)
+		resp1 = append(resp1, xy)
 
 	}
+	if resp1 != nil {
+		results.Status = http.StatusOK
+		results.Message = "success"
 
+	} else {
+		results.Message = "decline"
+
+	}
+	results.Data = resp1
 	output, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
 		panic(err)
 
 	}
+
 	fmt.Fprintf(w, "%s\n", output)
 
 }
@@ -359,6 +398,11 @@ func Serch_item_by_id(w http.ResponseWriter, r *http.Request) {
 type delte_status struct {
 	Item_id string `json:"item_id"`
 	Status  string `josn:"status"`
+}
+type update_resp struct {
+	Status        int    `json:"status"`
+	Message       string `json:"message"`
+	Update_record int    `json:"update_record"`
 }
 
 func Item_delete_by_id(w http.ResponseWriter, req *http.Request) {
@@ -387,8 +431,17 @@ func Item_delete_by_id(w http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 	//end update
-
-	output, err2 := json.MarshalIndent(result1, "", "    ")
+	var record update_resp
+	if result1.ModifiedCount == 1 {
+		record.Status = http.StatusOK
+		record.Message = "success"
+		record.Update_record = int(result1.ModifiedCount)
+	} else {
+		record.Status = http.StatusBadRequest
+		record.Message = "decline"
+		record.Update_record = 0
+	}
+	output, err2 := json.MarshalIndent(record, "", "    ")
 	if err2 != nil {
 		panic(err2)
 	}
@@ -590,19 +643,29 @@ func Get_all_items(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var results []ItemType
+	results := new(respone_struct)
+	var resp1 []ItemType
 	for cursor.Next(context.TODO()) {
-		var abc ItemType
-		cursor.Decode(&abc)
-		results = append(results, abc)
+		var xy ItemType
+		cursor.Decode(&xy)
+		resp1 = append(resp1, xy)
 
 	}
+	if resp1 != nil {
+		results.Status = http.StatusOK
+		results.Message = "success"
 
+	} else {
+		results.Message = "decline"
+
+	}
+	results.Data = resp1
 	output, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
 		panic(err)
 
 	}
+
 	fmt.Fprintf(w, "%s\n", output)
 
 }
