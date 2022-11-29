@@ -59,9 +59,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Get a reference to the fileHeaders.
 	// They are accessible only after ParseMultipartForm is called
 	files := r.MultipartForm.File["file"]
-	id1 := r.MultipartForm.Value["id"]
-	typee1 := r.MultipartForm.Value["type"]
-	subtype1 := r.MultipartForm.Value["subtype"]
+	id1 := r.MultipartForm.Value["mamal_id"]
+	typee1 := r.MultipartForm.Value["entity_type"]
+	subtype1 := r.MultipartForm.Value["entity_sub_type"]
 	id := strings.Join(id1, " ")
 	typee := strings.Join(typee1, " ")
 	subtype := strings.Join(subtype1, " ")

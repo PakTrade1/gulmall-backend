@@ -423,7 +423,7 @@ func Item_delete_by_id(w http.ResponseWriter, req *http.Request) {
 		bson.M{"_id": objectIDS},
 		bson.D{
 			{Key: "$set", Value: bson.M{
-				"status": strcutinit.Status,
+				"status": "inactive",
 			}},
 		},
 	)

@@ -30,10 +30,9 @@ func main() {
 	r.HandleFunc("/add-user", User.Mammals_insertone)
 	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
 	r.HandleFunc("/update-user", User.Mammals_update_one)
-	r.HandleFunc("/serch-item-by-id", item.Serch_item_by_id)   //item_id
+	r.HandleFunc("/get-item-by-id", item.Serch_item_by_id)     //item_id
 	r.HandleFunc("/delete-item-by-id", item.Item_delete_by_id) // item_id and status
-	r.HandleFunc("/get-all-item", item.Get_all_items)          // get all items
-
+	r.HandleFunc("/get-all-item", item.Get_all_items)          // POST         // get all items
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
 	//r.HandleFunc("/delete-file", item.Delte_item).Methods("POST")
 	//r.HandleFunc("/delete-image", storage.Deltefile).Methods("POST")
