@@ -108,7 +108,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string) {
 	var file_path []string
-
 	for i, f := range file {
 		blobname1 := "gallerycontainer" + "/" + id + "/" + type_ + "/" + subtype
 
@@ -118,6 +117,7 @@ func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string)
 			&azblob.UploadFileOptions{
 				BlockSize:   int64(1024),
 				Concurrency: uint16(3),
+
 				// If Progress is non-nil, this function is called periodically as bytes are uploaded.
 				Progress: func(bytesTransferred int64) {
 					// fmt.Println(bytesTransferred)
