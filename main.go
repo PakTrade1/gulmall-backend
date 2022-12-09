@@ -42,6 +42,8 @@ func main() {
 
 	r.HandleFunc("/get-all-cart", Allcart.Get_cart_all_with_id_data)
 	r.HandleFunc("/get-cart-with-id", Allcart.Get_cart_with_id)
+	r.HandleFunc("/update-cart", Allcart.Update_cart_all_with_id_data)
+	r.HandleFunc("/delete-cart", Allcart.Cart_delete)
 
 	r.HandleFunc("/get-cart", Allcart.Cart_getall)
 	r.HandleFunc("/add-cart", Allcart.Cart_insertone)
