@@ -18,8 +18,8 @@ type CartMammals struct {
 	Quantity        int                `json:"quantity"`
 	Price           int                `json:"price"`
 	Payement_method primitive.ObjectID `bson:"payement_method,omitempty"`
-	Color_selected  primitive.ObjectID `bson:"_id,omitempty"`
-	Size_selected   primitive.ObjectID `bson:"size_selected,omitempty"`
+	color_id        primitive.ObjectID `bson:"_id,omitempty"`
+	size_id         primitive.ObjectID `bson:"size_id,omitempty"`
 	Discount        string             `json:"discount"`
 	Total_price     float32            `json:"total_price"`
 }
@@ -73,8 +73,8 @@ func Cart_insertone(w http.ResponseWriter, req *http.Request) {
 	mongo_query := bson.M{
 		"mammal_id":       cart_init.Mammal_id,
 		"item_id":         cart_init.Item_id,
-		"color_selected":  cart_init.Color_selected,
-		"size_selected":   cart_init.Size_selected,
+		"color_id":        cart_init.color_id,
+		"size_id":         cart_init.size_id,
 		"quantity":        cart_init.Quantity,
 		"price":           cart_init.Price,
 		"discount":        cart_init.Discount,
@@ -202,7 +202,7 @@ func Get_cart_all_with_id_data(w http.ResponseWriter, req *http.Request) {
 			{Key: "$lookup",
 				Value: bson.D{
 					{Key: "from", Value: "color"},
-					{Key: "localField", Value: "color_selected"},
+					{Key: "localField", Value: "color_id"},
 					{Key: "foreignField", Value: "_id"},
 					{Key: "as", Value: "color"},
 				},
@@ -222,7 +222,7 @@ func Get_cart_all_with_id_data(w http.ResponseWriter, req *http.Request) {
 			{Key: "$lookup",
 				Value: bson.D{
 					{Key: "from", Value: "size"},
-					{Key: "localField", Value: "size_selected"},
+					{Key: "localField", Value: "size_id"},
 					{Key: "foreignField", Value: "_id"},
 					{Key: "as", Value: "size"},
 				},
@@ -336,7 +336,7 @@ func Get_cart_with_id(w http.ResponseWriter, req *http.Request) {
 			{Key: "$lookup",
 				Value: bson.D{
 					{Key: "from", Value: "color"},
-					{Key: "localField", Value: "color_selected"},
+					{Key: "localField", Value: "color_id"},
 					{Key: "foreignField", Value: "_id"},
 					{Key: "as", Value: "color"},
 				},
@@ -356,7 +356,7 @@ func Get_cart_with_id(w http.ResponseWriter, req *http.Request) {
 			{Key: "$lookup",
 				Value: bson.D{
 					{Key: "from", Value: "size"},
-					{Key: "localField", Value: "size_selected"},
+					{Key: "localField", Value: "size_id"},
 					{Key: "foreignField", Value: "_id"},
 					{Key: "as", Value: "size"},
 				},
@@ -449,15 +449,15 @@ type cart_id_data_validation struct {
 	Quantity        int                `json:"quantity"`
 	Price           int                `json:"price"`
 	Payement_method primitive.ObjectID `bson:"payement_method"`
-	Color_selected  primitive.ObjectID `json:"color_selected"`
-	Size_selected   primitive.ObjectID `json:"size_selected"`
+	color_id        primitive.ObjectID `json:"color_id"`
+	size_id         primitive.ObjectID `json:"size_id"`
 	Discount        string             `json:"discount"`
 	Total_price     float32            `json:"total_price"`
 }
 type cart_id_req_update struct {
-	Cart_id        string             `json:"cart_id"`
-	Color_selected primitive.ObjectID `json:"color_selected"`
-	Size_selected  primitive.ObjectID `json:"size_selected"`
+	Cart_id  string             `json:"cart_id"`
+	color_id primitive.ObjectID `json:"color_id"`
+	size_id  primitive.ObjectID `json:"size_id"`
 }
 type resp_update struct {
 	Status  int    `json:"status"`
@@ -485,7 +485,7 @@ func Update_cart_all_with_id_data(w http.ResponseWriter, req *http.Request) {
 	// end findOne
 	// update data if add to cart thing not change only qty changed
 
-	if result.Color_selected == search1.Color_selected && result.Size_selected == search1.Size_selected {
+	if result.color_id == search1.color_id && result.size_id == search1.size_id {
 		coll := docking.PakTradeDb.Collection("cart_mammals")
 		objectIDS, _ := primitive.ObjectIDFromHex(search1.Cart_id)
 
@@ -526,12 +526,12 @@ func Update_cart_all_with_id_data(w http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(w, "%s\n", output)
 
 	} else {
-		if search1.Color_selected != result.Color_selected && search1.Size_selected == result.Size_selected {
+		if search1.color_id != result.color_id && search1.size_id == result.size_id {
 			mongo_query := bson.M{
 				"mammal_id":       result.Mammal_id,
 				"item_id":         result.Item_id,
-				"color_selected":  search1.Color_selected,
-				"size_selected":   result.Size_selected,
+				"color_id":        search1.color_id,
+				"size_id":         result.size_id,
 				"quantity":        1,
 				"price":           result.Price,
 				"discount":        result.Discount,
@@ -563,12 +563,12 @@ func Update_cart_all_with_id_data(w http.ResponseWriter, req *http.Request) {
 
 			fmt.Fprintf(w, "%s\n", output)
 
-		} else if search1.Size_selected != result.Size_selected && search1.Color_selected == result.Color_selected {
+		} else if search1.size_id != result.size_id && search1.color_id == result.color_id {
 			mongo_query := bson.M{
 				"mammal_id":       result.Mammal_id,
 				"item_id":         result.Item_id,
-				"color_selected":  result.Color_selected,
-				"size_selected":   search1.Size_selected,
+				"color_id":        result.color_id,
+				"size_id":         search1.size_id,
 				"quantity":        1,
 				"price":           result.Price,
 				"discount":        result.Discount,
@@ -603,13 +603,13 @@ func Update_cart_all_with_id_data(w http.ResponseWriter, req *http.Request) {
 
 			fmt.Fprintf(w, "%s\n", output)
 
-		} else if search1.Size_selected != result.Color_selected && search1.Color_selected != result.Color_selected {
+		} else if search1.size_id != result.color_id && search1.color_id != result.color_id {
 
 			mongo_query := bson.M{
 				"mammal_id":       result.Mammal_id,
 				"item_id":         result.Item_id,
-				"color_selected":  search1.Color_selected,
-				"size_selected":   search1.Size_selected,
+				"color_id":        search1.color_id,
+				"size_id":         search1.size_id,
 				"quantity":        1,
 				"price":           result.Price,
 				"discount":        result.Discount,
@@ -697,5 +697,126 @@ func Cart_delete(w http.ResponseWriter, req *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%s\n", output)
+
+}
+
+type cart_id_data struct {
+	ID              primitive.ObjectID `bson:"_id,omitempty"`
+	Mammal_id       primitive.ObjectID `json:"mammal_id"`
+	Item_id         primitive.ObjectID `json:"item_id"`
+	Quantity        int                `json:"quantity"`
+	Price           int                `json:"price"`
+	Payement_method primitive.ObjectID `bson:"payement_method"`
+	Color_id        primitive.ObjectID `json:"color_id"`
+	Size_id         primitive.ObjectID `json:"size_id"`
+	Discount        string             `json:"discount"`
+	Total_price     float32            `json:"total_price"`
+}
+type resp_update1 struct {
+	Status  int         `json:"status"`
+	Message string      `json:"message"`
+	Id      interface{} `json:"id"`
+}
+type price struct {
+	Price float32 `json:"price"`
+}
+
+func Update_cart(w http.ResponseWriter, req *http.Request) {
+	var search1 cart_id_data
+	err := json.NewDecoder(req.Body).Decode(&search1)
+	if err != nil {
+		panic(err)
+	}
+
+	var Price price
+	coll1 := docking.PakTradeDb.Collection("cloths")
+	filter1 := bson.M{"_id": search1.Item_id}
+	err2 := coll1.FindOne(context.TODO(), filter1).Decode(&Price)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+	coll := docking.PakTradeDb.Collection("cart_mammals")
+	var result cart_id_data
+	filter := bson.M{"mammal_id": search1.Mammal_id, "item_id": search1.Item_id, "color_id": search1.Color_id, "size_id": search1.Size_id}
+	err1 := coll.FindOne(context.TODO(), filter).Decode(&result)
+	if err1 != nil {
+		// fmt.Println(err1)
+
+		mongo_query := bson.M{
+			"mammal_id":       search1.Mammal_id,
+			"item_id":         search1.Item_id,
+			"color_id":        search1.Color_id,
+			"size_id":         search1.Size_id,
+			"quantity":        1,
+			"price":           Price.Price,
+			"discount":        search1.Discount,
+			"payement_method": search1.Payement_method,
+			"total_price":     search1.Price * search1.Quantity,
+		}
+
+		//coll := docking.PakTradeDb.Collection("cart_mammals")
+
+		// // // insert a user
+
+		inset, err3 := coll.InsertOne(context.TODO(), mongo_query)
+		if err3 != nil {
+			fmt.Fprintf(w, "%s\n", err3)
+		}
+		var results resp_insert
+		if inset != nil {
+			results.Status = http.StatusOK
+			results.Message = "success"
+
+		} else {
+			results.Message = "decline"
+
+		}
+
+		results.Id = inset.InsertedID
+		output, err := json.MarshalIndent(results, "", "    ")
+		if err != nil {
+			panic(err)
+
+		}
+
+		fmt.Fprintf(w, "%s\n", output)
+
+	} else {
+		qty_update := result.Quantity + 1
+		total_price_update := result.Price * qty_update
+		result1, err := coll.UpdateOne(
+			context.TODO(),
+			bson.M{"_id": result.ID},
+			bson.D{
+				{Key: "$set", Value: bson.M{
+					"quantity":    qty_update,
+					"total_price": total_price_update,
+					"price":       Price.Price,
+				}},
+			},
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+		//end update
+		var results resp_update1
+		if result1 != nil {
+			results.Status = http.StatusOK
+			results.Message = "success"
+		} else {
+			results.Message = "decline"
+
+		}
+		//objectIDS, _ := primitive.ObjectIDFromHex(string(result.Id))
+
+		results.Id = 1
+		output, err := json.MarshalIndent(results, "", "    ")
+		if err != nil {
+			panic(err)
+
+		}
+
+		fmt.Fprintf(w, "%s\n", output)
+	}
 
 }
