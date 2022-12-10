@@ -721,7 +721,9 @@ type price struct {
 	Price float32 `json:"price"`
 }
 type paymanet_status struct {
-	Paymanet_status string `json:"paymanet_status"`
+	ID primitive.ObjectID `bson:"_id,omitempty"`
+
+	Payment_status string `json:"payment_status"`
 }
 
 func Update_cart(w http.ResponseWriter, req *http.Request) {
@@ -739,7 +741,7 @@ func Update_cart(w http.ResponseWriter, req *http.Request) {
 	if err3 != nil {
 		log.Fatal(err3)
 	}
-	fmt.Println(Payment_status.Paymanet_status, "abbasi")
+	//fmt.Println(Payment_status.ID, "abbasi")
 
 	var Price price
 	coll1 := docking.PakTradeDb.Collection("cloths")
@@ -754,17 +756,17 @@ func Update_cart(w http.ResponseWriter, req *http.Request) {
 	err1 := coll.FindOne(context.TODO(), filter).Decode(&result)
 	if err1 != nil {
 		// fmt.Println(err1)
-
+		tp := int(Price.Price) * 1.
 		mongo_query := bson.M{
-			"mammal_id":       mammal_id,
+			"mammal_id":       objectIDS,
 			"item_id":         search1.Item_id,
 			"color_id":        search1.Color_id,
 			"size_id":         search1.Size_id,
 			"quantity":        1,
 			"price":           Price.Price,
 			"discount":        "0%",
-			"payement_method": search1.Payement_method,
-			"total_price":     search1.Price * search1.Quantity,
+			"payement_method": Payment_status.ID,
+			"total_price":     tp,
 		}
 
 		//coll := docking.PakTradeDb.Collection("cart_mammals")
