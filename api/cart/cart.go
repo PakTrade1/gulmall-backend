@@ -720,13 +720,26 @@ type resp_update1 struct {
 type price struct {
 	Price float32 `json:"price"`
 }
+type paymanet_status struct {
+	Paymanet_status string `json:"paymanet_status"`
+}
 
 func Update_cart(w http.ResponseWriter, req *http.Request) {
+	mammal_id := req.Header.Get("mammal_id")
 	var search1 cart_id_data
 	err := json.NewDecoder(req.Body).Decode(&search1)
 	if err != nil {
 		panic(err)
 	}
+	objectIDS, _ := primitive.ObjectIDFromHex(mammal_id)
+	var Payment_status paymanet_status
+	coll2 := docking.PakTradeDb.Collection("mamals_paymentInfo")
+	filter2 := bson.M{"user_id": mammal_id}
+	err3 := coll2.FindOne(context.TODO(), filter2).Decode(&Payment_status)
+	if err3 != nil {
+		log.Fatal(err3)
+	}
+	fmt.Println(Payment_status.Paymanet_status, "abbasi")
 
 	var Price price
 	coll1 := docking.PakTradeDb.Collection("cloths")
@@ -737,19 +750,19 @@ func Update_cart(w http.ResponseWriter, req *http.Request) {
 	}
 	coll := docking.PakTradeDb.Collection("cart_mammals")
 	var result cart_id_data
-	filter := bson.M{"mammal_id": search1.Mammal_id, "item_id": search1.Item_id, "color_id": search1.Color_id, "size_id": search1.Size_id}
+	filter := bson.M{"mammal_id": objectIDS, "item_id": search1.Item_id, "color_id": search1.Color_id, "size_id": search1.Size_id}
 	err1 := coll.FindOne(context.TODO(), filter).Decode(&result)
 	if err1 != nil {
 		// fmt.Println(err1)
 
 		mongo_query := bson.M{
-			"mammal_id":       search1.Mammal_id,
+			"mammal_id":       mammal_id,
 			"item_id":         search1.Item_id,
 			"color_id":        search1.Color_id,
 			"size_id":         search1.Size_id,
 			"quantity":        1,
 			"price":           Price.Price,
-			"discount":        search1.Discount,
+			"discount":        "0%",
 			"payement_method": search1.Payement_method,
 			"total_price":     search1.Price * search1.Quantity,
 		}
