@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -14,6 +16,13 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+type resp struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+	Id      string `json:"item_id"`
+}
+
+const MAX_UPLOAD_SIZE = 30048576 // 1MB 10048576
 func UploadBlob() {
 	files, errW := walkDir(".")
 
@@ -80,11 +89,13 @@ func ReadFile(filePath string) ([]byte, error) {
 }
 
 func UploadBytesToBlob(b []byte) (string, error) {
+	fmt.Println("byte", b)
 	azrKey, accountName, endPoint, container := GetAccountInfo()
+	fmt.Println("ENDPOINT: ", endPoint, " container: ", container)
 	u, _ := url.Parse(fmt.Sprint(endPoint, container, "/", GetBlobName()))
 	credential, errC := azblob.NewSharedKeyCredential(accountName, azrKey)
 	if errC != nil {
-		return "", errC
+		return "Error in account name or azure key", errC
 	}
 
 	blockBlobUrl := azblob.NewBlockBlobURL(*u, azblob.NewPipeline(credential, azblob.PipelineOptions{}))
@@ -95,8 +106,8 @@ func UploadBytesToBlob(b []byte) (string, error) {
 			ContentType: "image/jpg",
 		},
 	}
-
-	_, errU := azblob.UploadBufferToBlockBlob(ctx, b, blockBlobUrl, o)
+	upload, errU := azblob.UploadBufferToBlockBlob(ctx, b, blockBlobUrl, o)
+	fmt.Println("UPLOAD RESP", upload.Response())
 	return blockBlobUrl.String(), errU
 }
 
@@ -111,6 +122,57 @@ func GetAccountInfo() (string, string, string, string) {
 func GetBlobName() string {
 	t := time.Now()
 	uuid, _ := uuid.NewV4()
-
+	fmt.Printf("%s-%v.jpg", t.Format("20060102"), uuid)
 	return fmt.Sprintf("%s-%v.jpg", t.Format("20060102"), uuid)
+}
+
+func UploadFile(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Called")
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// 32 MB is the default used by FormFile()
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Get a reference to the fileHeaders.
+	// They are accessible only after ParseMultipartForm is called
+	files := r.MultipartForm.File["file"]
+	var files_array []*os.File
+	for i, fileHeader := range files {
+		file, err := files[i].Open()
+		new_file, err := os.Create(files[i].Filename)
+		fileBytes, err3 := ioutil.ReadAll(file)
+		UploadBytesToBlob(fileBytes)
+		if err3 != nil {
+			fmt.Println("Error reading the File")
+
+			log.Fatal(err3)
+		}
+		if err3 != nil {
+			fmt.Println("Error reading the File")
+
+			log.Fatal(err3)
+		}
+		new_file.Write(fileBytes)
+
+		handleError(err)
+		files_array = append(files_array, new_file)
+		if fileHeader.Size > MAX_UPLOAD_SIZE {
+			http.Error(w, fmt.Sprintf("The uploaded image is too big: %s. Please use an image less than 1MB in size", fileHeader.Filename), http.StatusBadRequest)
+			return
+		}
+		defer os.Remove(new_file.Name())
+
+	}
+
+}
+func handleError(err error) {
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }

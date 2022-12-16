@@ -9,6 +9,7 @@ import (
 	item "pak-trade-go/api/items"
 	User "pak-trade-go/api/mammals"
 	payment_service "pak-trade-go/api/payment"
+	blobstorage "pak-trade-go/blobstorage"
 	storage "pak-trade-go/storage"
 
 	"github.com/gorilla/mux"
@@ -45,7 +46,7 @@ func main() {
 	//r.HandleFunc("/update-cart", Allcart.Update_cart_all_with_id_data)
 	r.HandleFunc("/delete-cart", Allcart.Cart_delete)
 	r.HandleFunc("/update-cart-in", Allcart.Update_cart)
-
+	r.HandleFunc("/upload-filen", blobstorage.UploadFile).Methods("POST")
 	r.HandleFunc("/get-cart", Allcart.Cart_getall)
 	r.HandleFunc("/add-cart", Allcart.Update_cart)
 	c := cors.New(cors.Options{
@@ -54,7 +55,7 @@ func main() {
 	})
 	handler := c.Handler(r)
 	fmt.Println("Runging server port 80")
-	http.ListenAndServe(":80", handler)
+	http.ListenAndServe(":8080", handler)
 	//fmt.Println("Runging server port 80")
 	//http.ListenAndServe(":80", nil)
 
