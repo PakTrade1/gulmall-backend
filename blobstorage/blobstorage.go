@@ -1,8 +1,10 @@
 package blobstorage
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -142,33 +144,19 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Get a reference to the fileHeaders.
 	// They are accessible only after ParseMultipartForm is called
 	files := r.MultipartForm.File["file"]
-	var files_array []*os.File
-	for i, fileHeader := range files {
-		file, err := files[i].Open()
-		new_file, err := os.Create(files[i].Filename)
-		fileBytes, err3 := ioutil.ReadAll(file)
-		UploadBytesToBlob(fileBytes)
-		if err3 != nil {
-			fmt.Println("Error reading the File")
-
-			log.Fatal(err3)
-		}
-		if err3 != nil {
-			fmt.Println("Error reading the File")
-
-			log.Fatal(err3)
-		}
-		new_file.Write(fileBytes)
-
-		handleError(err)
-		files_array = append(files_array, new_file)
-		if fileHeader.Size > MAX_UPLOAD_SIZE {
-			http.Error(w, fmt.Sprintf("The uploaded image is too big: %s. Please use an image less than 1MB in size", fileHeader.Filename), http.StatusBadRequest)
-			return
-		}
-		defer os.Remove(new_file.Name())
-
+	buf := bytes.NewBuffer(nil)
+	for _, filename := range files {
+		f, _ := os.Open(filename.Filename) // Error handling elided for brevity.
+		io.Copy(buf, f)                    // Error handling elided for brevity.
+		f.Close()
 	}
+	u, errU := UploadBytesToBlob(buf.Bytes())
+	if errU != nil {
+		fmt.Println("Error during upload: ", errU)
+	}
+
+	fmt.Println("Finished uploading to: ", u)
+	fmt.Println("==========================================================")
 
 }
 func handleError(err error) {
