@@ -109,7 +109,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string) {
 	var file_path []string
 	for i, f := range file {
-		blobname1 := "gallerycontainer" + "/" + id + "/" + type_ + "/" + subtype
+		blobname1 := "appmediacontainer" + "/" + id + "/" + type_ + "/" + subtype
 
 		// fmt.Println("file upload to this path ", blobname1, time.Now())
 		// var blob = client.;
@@ -120,7 +120,7 @@ func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string)
 
 				// If Progress is non-nil, this function is called periodically as bytes are uploaded.
 				Progress: func(bytesTransferred int64) {
-					// fmt.Println(bytesTransferred)
+					fmt.Println(bytesTransferred)
 				},
 			})
 		handleError(_err)

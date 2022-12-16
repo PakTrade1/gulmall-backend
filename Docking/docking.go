@@ -31,14 +31,14 @@ func PakTradeConnection() {
 }
 
 func AzureBloblogs() *azblob.Client {
-	url := "https://paktradegallery.blob.core.windows.net/"
+	url := "https://appmedia.blob.core.windows.net/"
 	credential, err1 := azidentity.NewDefaultAzureCredential(nil)
 	if err1 != nil {
 		log.Fatal("Invalid credentials with error: " + err1.Error())
 	}
 	client, client_error := azblob.NewClient(url, credential, nil)
 	if client_error != nil {
-		log.Fatal(client_error)
+		log.Fatal("Invalid credentials with error: ", client_error.Error())
 	}
 	return client
 }
