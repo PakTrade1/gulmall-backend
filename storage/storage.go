@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -108,16 +109,17 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string) {
 	var file_path []string
+
 	for i, f := range file {
-		blobname1 := "appmediacontainer" + "/" + id + "/" + type_ + "/" + subtype
+		blobname1 := "media" + "/" + id + "/" + type_ + "/" + subtype
 
 		// fmt.Println("file upload to this path ", blobname1, time.Now())
 		// var blob = client.;
+
 		_, _err := client.UploadFile(context.TODO(), blobname1, f.Name(), file[i],
 			&azblob.UploadFileOptions{
 				BlockSize:   int64(1024),
 				Concurrency: uint16(3),
-
 				// If Progress is non-nil, this function is called periodically as bytes are uploaded.
 				Progress: func(bytesTransferred int64) {
 					fmt.Println(bytesTransferred)
@@ -125,7 +127,7 @@ func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string)
 			})
 		handleError(_err)
 		////// update path to
-		file_path = append(file_path, "https://paktradegallery.blob.core.windows.net/"+blobname1+f.Name())
+		file_path = append(file_path, "https://paktradestorage.blob.core.windows.net/"+blobname1+f.Name())
 	}
 	// fmt.Println(file_path)
 	result := Add_data_to_mongo(file_path)

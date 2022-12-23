@@ -114,10 +114,10 @@ func UploadBytesToBlob(b []byte) (string, error) {
 }
 
 func GetAccountInfo() (string, string, string, string) {
-	azrKey := "pIub4yUb20E0RYSDV1BoNwZQZG080Z4O3KdjSBayKBpFeonlq2DfS7HVuG/0dNobfoPqtauE6cBE+AStUkIEuw==/0dNobfoPqtauE6cBE+AStUkIEuw==_key"
-	azrBlobAccountName := "appmedia"
+	azrKey := "H2imTpv/29KoIVfRMOrbNyRr5MDDUU7AbO99oL+x6L30e53houKz8PEOrhQuSMGM4U7mqdmHZ+My+ASty1aMYg=="
+	azrBlobAccountName := "paktradestorage"
 	azrPrimaryBlobServiceEndpoint := fmt.Sprintf("https://%s.blob.core.windows.net/", azrBlobAccountName)
-	azrBlobContainer := "appmediacontainer"
+	azrBlobContainer := "media"
 	return azrKey, azrBlobAccountName, azrPrimaryBlobServiceEndpoint, azrBlobContainer
 }
 
