@@ -1,26 +1,46 @@
+
+
 name: ci
 
 on:
   push:
-    branches:
-      - 'main'
+    tags:
+      - '*'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Create build
-        uses: go build -o ./out/dist .
+        name: Checkout
+        uses: actions/checkout@v2
+      - 
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            junaid22/paktrade-backend
+          tags: |
+           type=semver,pattern={{version}}
+           type=semver,pattern={{major}}.{{minor}}
+           type=semver,pattern={{major}}
       -
-        name: Create Docker Build
-        uses: docker build -t go-backend-app .
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
       -
-        name: Login to Azure
-        uses: az acr login —name gobackendapp1.azurecr.io
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
       -
-        name: Tag the build
-        uses: docker tag go-backend-app gobackendapp1.azurecr.io/go-backend-app
-      -  
-        name: Push container
-        uses: docker push gobackendapp1.azurecr.io/go-backend-app
+        name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
