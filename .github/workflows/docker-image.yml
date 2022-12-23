@@ -3,7 +3,10 @@ name: Docker Image CI
 on:
   push:
     branches: [ "main" ]
-
+    
+permissions:
+      id-token: write
+      contents: read
 jobs:
 
   build:
@@ -22,6 +25,12 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true 
+    - name: 'Run az commands'
+      run: |
+       az account show
+       az group list
+       pwd
     - name: Azure Container Registery Login
       run: az acr login -n paktradebackend --expose-token
     - name: Docker Tag
