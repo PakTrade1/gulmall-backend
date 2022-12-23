@@ -1,0 +1,40 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+    
+permissions:
+      id-token: write
+      contents: read
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Build Docker
+      run: docker build -t go-backend-app .
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true 
+    - name: 'Run az commands'
+      run: |
+       az account show
+       az group list
+       pwd
+    - name: Azure Container Registery Login
+      run: az acr login -n paktradebackend --expose-token
+    - name: Docker Tag
+      run: docker tag go-backend-app gobackendapp1.azurecr.io/go-backend-app
+    - name: Docker Push
+      run: docker push gobackendapp1.azurecr.io/go-backend-app
+      
