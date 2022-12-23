@@ -2,28 +2,25 @@ name: ci
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - 'main'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        name: Create build
+        uses: go build -o ./out/dist .
       -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        name: Create Docker Build
+        uses: docker build -t go-backend-app .
       -
-        name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        name: Login to Azure
+        uses: az acr login —name gobackendapp1.azurecr.io
       -
-        name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: junaid22/paktrade-backend
+        name: Tag the build
+        uses: docker tag go-backend-app gobackendapp1.azurecr.io/go-backend-app
+      -  
+        name: Push container
+        uses: docker push gobackendapp1.azurecr.io/go-backend-app
