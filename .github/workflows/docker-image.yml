@@ -16,8 +16,12 @@ jobs:
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
     - name: Build Docker
       run: docker build -t go-backend-app .
-    - name: Az Login
-      run: az login
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Azure Container Registery Login
       run: az acr login -n paktradebackend --expose-token
     - name: Docker Tag
