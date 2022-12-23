@@ -17,6 +17,8 @@ jobs:
     - name: Build Docker
       run: docker build -t go-backend-app .
     - name: Az Login
+      run: az login
+    - name: Azure Container Registery Login
       run: az acr login -n paktradebackend --expose-token
     - name: Docker Tag
       run: docker tag go-backend-app gobackendapp1.azurecr.io/go-backend-app
