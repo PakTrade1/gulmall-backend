@@ -16,7 +16,9 @@ import (
 	docking "pak-trade-go/Docking"
 	"strings"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -82,7 +84,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err3)
 		}
 		new_file.Write(fileBytes)
-
+		//	fmt.Print(fileBytes)
 		handleError(err)
 		files_array = append(files_array, new_file)
 		if fileHeader.Size > MAX_UPLOAD_SIZE {
@@ -118,6 +120,11 @@ func uploadToAzureBlob(file []*os.File, id string, type_ string, subtype string)
 
 		_, _err := client.UploadFile(context.TODO(), blobname1, f.Name(), file[i],
 			&azblob.UploadFileOptions{
+				HTTPHeaders: &blob.HTTPHeaders{
+					BlobContentType: to.Ptr("image/jpg"),
+					// BlobContentDisposition: to.Ptr("attachment"),
+				},
+
 				BlockSize:   int64(1024),
 				Concurrency: uint16(3),
 				// If Progress is non-nil, this function is called periodically as bytes are uploaded.
