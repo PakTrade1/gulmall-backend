@@ -22,16 +22,19 @@ jobs:
       uses: azure/login@v1
       with:
        creds: ${{ secrets.AZURE_CREDENTIALS }} 
+       
+       
     - name: Azure Container Registery Login
-    
     - uses: azure/docker-login@v1
       with:
         login-server: paktradebackend.azurecr.io
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
-        
-    - name: Docker Tag
-      run: docker tag paktradebackend paktradebackend.azurecr.io/paktradebackend
-    - name: Docker Push
-      run: docker push paktradebackend.azurecr.io/paktradebackend
+    - run: |
+        docker build . -t paktradebackend.azurecr.io/myapp:${{ github.sha }}
+        docker push mycontainer.azurecr.io/myapp:${{ github.sha }}      
+   # - name: Docker Tag
+    #  run: docker tag paktradebackend paktradebackend.azurecr.io/paktradebackend
+    #- name: Docker Push
+     # run: docker push paktradebackend.azurecr.io/paktradebackend
       
