@@ -22,7 +22,12 @@ jobs:
       with:
        creds: ${{ secrets.AZURE_CREDENTIALS }} 
     - name: Azure Container Registery Login
-      run: az acr login -n paktradebackend --expose-token
+    - uses: actions/checkout@v2
+    - uses: azure/docker-login@v1
+      with:
+        login-server: mycontainer.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
     - name: Docker Tag
       run: docker tag paktradebackend paktradebackend.azurecr.io/paktradebackend
     - name: Docker Push
