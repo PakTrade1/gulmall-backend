@@ -17,16 +17,19 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag paktradebackend
+      
     - name: Azure Login
       uses: azure/login@v1
       with:
        creds: ${{ secrets.AZURE_CREDENTIALS }} 
     - name: Azure Container Registery Login
+    
     - uses: azure/docker-login@v1
       with:
-        login-server: mycontainer.azurecr.io
+        login-server: paktradebackend.azurecr.io
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
+        
     - name: Docker Tag
       run: docker tag paktradebackend paktradebackend.azurecr.io/paktradebackend
     - name: Docker Push
