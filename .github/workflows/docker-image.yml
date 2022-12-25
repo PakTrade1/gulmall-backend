@@ -16,7 +16,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Build Docker
+      run: docker build -t paktradebackend .
     - name: Azure Login
       uses: azure/login@v1
       with:
