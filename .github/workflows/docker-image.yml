@@ -32,7 +32,7 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
     - run: |
         docker build . -t paktradebackend.azurecr.io/paktradebackend
-        docker push mycontainer.azurecr.io/paktradebackend      
+        docker push paktradebackend.azurecr.io/paktradebackend      
    # - name: Docker Tag
     #  run: docker tag paktradebackend paktradebackend.azurecr.io/paktradebackend
     #- name: Docker Push
