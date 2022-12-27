@@ -5,7 +5,9 @@ import (
 	"net/http"
 	docking "pak-trade-go/Docking"
 	Allcart "pak-trade-go/api/cart"
+	categories "pak-trade-go/api/categories"
 	color "pak-trade-go/api/color"
+
 	item "pak-trade-go/api/items"
 	User "pak-trade-go/api/mammals"
 	payment_service "pak-trade-go/api/payment"
@@ -30,6 +32,10 @@ func main() {
 	// r.HandleFunc("/ItemAdd", item.ItemInsertone)
 	r.HandleFunc("/update-item", item.Item_update_one)
 	r.HandleFunc("/get-item-with-status", item.Items)
+	r.HandleFunc("/get-categories", categories.Get_all_categories)
+	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
+	r.HandleFunc("/get-child-categories", categories.Child_Categories_select_by__sub_Cat_id)
+
 	r.HandleFunc("/get-user", User.Mammals_getall)
 	r.HandleFunc("/add-user", User.Mammals_insertone)
 	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
