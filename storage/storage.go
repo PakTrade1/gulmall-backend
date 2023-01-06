@@ -193,8 +193,12 @@ func Add_data_to_mongo(image_array []string) *mongo.InsertOneResult {
 		"available_color": bson.A{
 			"",
 		},
-		"available_size": bson.A{
-			"",
+		"size": bson.M{
+			"available_size": bson.A{
+				"",
+				"",
+			},
+			"size_chart": "",
 		},
 		"images": bson.A{
 			bson.M{
@@ -204,8 +208,11 @@ func Add_data_to_mongo(image_array []string) *mongo.InsertOneResult {
 				"high_quility": dumy_array,
 			},
 		},
-		"price":  0,
-		"status": "pending",
+		"price":        0,
+		"status":       "pending",
+		"gender":       "",
+		"category":     "",
+		"sub-category": "",
 	}
 
 	//fmt.Print(body)

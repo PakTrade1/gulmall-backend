@@ -69,9 +69,12 @@ type update_item struct {
 			Ar string `json:"ar"`
 		} `json:"name"`
 	} `json:"feature"`
-	AvailableColor []primitive.ObjectID `json:"available_color,omitempty"`
+	Available_color []primitive.ObjectID `json:"available_color,omitempty"`
 	// } `json:"available_color"`
-	AvailableSize []primitive.ObjectID `json:"available_size,omitempty"`
+	Size struct {
+		Available_size []primitive.ObjectID `json:"available_size,omitempty"`
+		Size_chart     string               `json:"size_chart"`
+	} `json:"size"`
 
 	// AvailableSize []struct {
 	// 	ID primitive.ObjectID `bson:"_id,omitempty"`
@@ -80,7 +83,10 @@ type update_item struct {
 		Highquility []string `json:"highquility"`
 		Lowquility  []string `json:"lowquility"`
 	} `json:"images"`
-	Price int `json:"price"`
+	Price        int    `json:"price"`
+	Gender       string `json:"gender"`
+	Category     string `json:"category"`
+	Sub_category string `json:"sub_category"`
 }
 type status_req struct {
 	Status string `json:"status"`
@@ -247,6 +253,11 @@ func Item_update_one(w http.ResponseWriter, req *http.Request) {
 	}
 	coll := docking.PakTradeDb.Collection("cloths")
 	objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.ID)
+	gender_objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.Gender)
+	sub_category_objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.Sub_category)
+	category_objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.Category)
+	size_chart_objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.Size.Size_chart)
+
 	// fmt.Print(objectIDS)
 
 	result1, err := coll.UpdateOne(
@@ -259,11 +270,19 @@ func Item_update_one(w http.ResponseWriter, req *http.Request) {
 					"ar": strcutinit.Name.Ar,
 				},
 				"feature":         strcutinit.Feature,
-				"available_color": strcutinit.AvailableColor,
+				"available_color": strcutinit.Available_color,
 
-				"available_size": strcutinit.AvailableSize,
+				"size": bson.M{
+					"available_size": strcutinit.Size.Available_size,
 
-				"price": strcutinit.Price,
+					"size_chart": size_chart_objectIDS,
+				},
+
+				"price":        strcutinit.Price,
+				"status":       "pending",
+				"gender":       gender_objectIDS,
+				"category":     category_objectIDS,
+				"sub_category": sub_category_objectIDS,
 			}},
 		},
 	)

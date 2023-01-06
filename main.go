@@ -7,10 +7,10 @@ import (
 	Allcart "pak-trade-go/api/cart"
 	categories "pak-trade-go/api/categories"
 	color "pak-trade-go/api/color"
-
 	item "pak-trade-go/api/items"
 	User "pak-trade-go/api/mammals"
 	payment_service "pak-trade-go/api/payment"
+	size "pak-trade-go/api/size"
 	blobstorage "pak-trade-go/blobstorage"
 	storage "pak-trade-go/storage"
 
@@ -27,6 +27,9 @@ func main() {
 	http.Handle("/", r)
 	// API ENDPOINTS
 	r.HandleFunc("/get-color", color.Color)
+	r.HandleFunc("/get-size", size.Size)
+	r.HandleFunc("/get-size-chart", size.Size_select_by_child_id)
+
 	r.HandleFunc("/get-payment-service", payment_service.Get_payment_method)
 
 	// r.HandleFunc("/ItemAdd", item.ItemInsertone)
