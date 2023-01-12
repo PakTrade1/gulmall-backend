@@ -28,20 +28,27 @@ func main() {
 	r := mux.NewRouter()
 	http.Handle("/", r)
 	// API ENDPOINTS
+	// RETURNS LIST OF ALL PRE-DEFIEND COLORS.
 	r.HandleFunc("/get-color", color.Color)
-	r.HandleFunc("/get-size", size.Size)
+	// GET SIZE CHART RETURNS ALL
 	r.HandleFunc("/get-size-chart", size.Size_select_by_child_id)
 	r.HandleFunc("/get-payment-service", payment_service.Get_payment_method)
 	r.HandleFunc("/update-item", item.Item_update_one)
 	r.HandleFunc("/get-item-with-status", item.Items)
+	// RETURNS LIST OF CATEGORIES.
 	r.HandleFunc("/get-categories", categories.Get_all_categories)
+	// RETURNS LIST OF ALL SUB-CAT.
 	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
+	// RETURNS LIST OF ALL SUB-CAT-CHILD.
 	r.HandleFunc("/get-child-categories", categories.Child_Categories_select_by__sub_Cat_id)
+	// RETURNS LIST OF ALL PRE-DEFIEND GENDERS.
 	r.HandleFunc("/get-gender", gender.Gender)
+	// RETURNS LIST OF ALL USERS.
 	r.HandleFunc("/get-user", User.Mammals_getall)
 	r.HandleFunc("/add-user", User.Mammals_insertone)
 	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
 	r.HandleFunc("/update-user", User.Mammals_update_one)
+	// RETURNS SINGLE ITEM.
 	r.HandleFunc("/get-item-by-id", item.Serch_item_by_id)     //item_id
 	r.HandleFunc("/delete-item-by-id", item.Item_delete_by_id) // item_id and status
 	r.HandleFunc("/get-all-item", item.Get_all_items)          // POST         // get all items
