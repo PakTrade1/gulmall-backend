@@ -65,7 +65,7 @@ func Size(w http.ResponseWriter, req *http.Request) {
 
 type size_chart_search struct {
 	Child_cat_id string `json:"child_cat_id"`
-	Gander       string `json:"gender"`
+	type1        string `json:"type"` // this for sizeing /i.e man , woman,junior/ / food i.e letter, weight,dozen/
 }
 type size_chart struct {
 	ID   primitive.ObjectID `bson:"_id,omitempty"`
@@ -96,18 +96,6 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 	}
 	coll := docking.PakTradeDb.Collection("size_chart")
 	objectIDS, _ := primitive.ObjectIDFromHex(search1.Child_cat_id)
-	Gender1 := ""
-	Male := "63a95761d6ba395211aab1db"
-	Female := "63b1399ea615a20512b42ed2"
-	Juniour := "63a9572cd6ba395211aab1da"
-	if search1.Gander == Male {
-		Gender1 = "male_size"
-	} else if search1.Gander == Female {
-		Gender1 = "female_size"
-	} else if search1.Gander == Juniour {
-		Gender1 = "child_size"
-
-	}
 
 	//var result size_chart
 	//filter := bson.M{"_id": objectIDS}
@@ -115,7 +103,7 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 
 	mongoqury := bson.A{
 		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
-		bson.D{{"$project", bson.D{{"chart", "$chart." + Gender1 + ".size"}}}},
+		bson.D{{"$project", bson.D{{"chart", "$chart." + search1.type1 + ".size"}}}},
 		bson.D{
 			{"$lookup",
 				bson.D{
