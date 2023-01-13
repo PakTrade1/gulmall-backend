@@ -65,7 +65,7 @@ func Size(w http.ResponseWriter, req *http.Request) {
 
 type size_chart_search struct {
 	Child_cat_id string `json:"child_cat_id"`
-	type1        string `json:"type"` // this for sizeing /i.e man , woman,junior/ / food i.e letter, weight,dozen/
+	Type1        string `json:"type"` // this for sizeing /i.e man , woman,junior/ / food i.e letter, weight,dozen/
 }
 type size_chart struct {
 	ID   primitive.ObjectID `bson:"_id,omitempty"`
@@ -103,7 +103,7 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 
 	mongoqury := bson.A{
 		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
-		bson.D{{"$project", bson.D{{"chart", "$chart." + search1.type1 + ".size"}}}},
+		bson.D{{"$project", bson.D{{"chart", "$chart." + search1.Type1 + ".size"}}}},
 		bson.D{
 			{"$lookup",
 				bson.D{
