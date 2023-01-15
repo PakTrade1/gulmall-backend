@@ -217,9 +217,12 @@ func Child_Categories_select_by__sub_Cat_id(w http.ResponseWriter, req *http.Req
 
 // / function for add singel category
 type respone_add_category struct {
-	Status  int         `json:"status"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Status  int           `json:"status"`
+	Message string        `json:"message"`
+	Data    status_result `json:"data"`
+}
+type status_result struct {
+	Status string `json:"status"`
 }
 
 func Add_category(w http.ResponseWriter, req *http.Request) {
@@ -254,15 +257,15 @@ func Add_category(w http.ResponseWriter, req *http.Request) {
 
 	//	fmt.Fprintf(w, "%s\n", inset)
 
-	if inset != nil {
+	if inset != nil && inset.InsertedID != "" {
 		results.Status = http.StatusOK
 		results.Message = "success"
-
+		results.Data.Status = "add cetegory successfully"
 	} else {
 		results.Message = "decline"
+		results.Data.Status = "not added "
 
 	}
-	results.Data = inset.InsertedID
 	output, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
 		panic(err)
@@ -315,15 +318,15 @@ func Update_Category(w http.ResponseWriter, req *http.Request) {
 	}
 	//end update
 	var results respone_add_category
-	if result1 != nil {
+	if result1 != nil && result1.ModifiedCount == 1 {
 		results.Status = http.StatusOK
 		results.Message = "success"
-
+		results.Data.Status = " update successfully"
 	} else {
 		results.Message = "decline"
+		results.Data.Status = "no data update "
 
 	}
-	results.Data = result1.ModifiedCount
 	output, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
 		panic(err)
@@ -331,4 +334,48 @@ func Update_Category(w http.ResponseWriter, req *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%s\n", output)
+}
+
+// //////// delte item by id
+type delete_cat struct {
+	Cat_id string `json:"cat_id"`
+}
+
+func Delete_category(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var strcutinit delete_cat
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+	coll := docking.PakTradeDb.Collection("categories")
+	objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.Cat_id)
+	// fmt.Print(objectIDS)
+
+	res, err := coll.DeleteOne(context.TODO(), bson.D{{"_id", objectIDS}})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var results respone_add_category
+	if res != nil && res.DeletedCount == 1 {
+		results.Status = http.StatusOK
+		results.Message = "success"
+		results.Data.Status = "delete successfully"
+
+	} else {
+		results.Message = "decline"
+		results.Data.Status = "no data delete"
+
+	}
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+
+	fmt.Fprintf(w, "%s\n", output)
+
 }

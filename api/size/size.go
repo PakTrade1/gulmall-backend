@@ -149,3 +149,70 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%s\n", output)
 
 }
+
+// ////////// Add size
+type size_add struct {
+	Name struct {
+		Ar string `json:"ar"`
+		En string `json:"en"`
+	} `json:"name"`
+}
+
+type respone_add_category struct {
+	Status  int           `json:"status"`
+	Message string        `json:"message"`
+	Data    status_result `json:"data"`
+}
+type status_result struct {
+	Status string `json:"status"`
+}
+
+func Add_size(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var strcutinit size_add
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+
+	insertdat := bson.M{
+		"name": bson.M{
+			"en": strcutinit.Name.En,
+			"ar": strcutinit.Name.Ar,
+		},
+	}
+
+	//fmt.Print(body)
+	coll := docking.PakTradeDb.Collection("size")
+
+	// // // insert a user
+	var results respone_add_category
+
+	inset, err3 := coll.InsertOne(context.TODO(), insertdat)
+	if err3 != nil {
+		fmt.Fprintf(w, "%s\n", err3)
+	}
+
+	//	fmt.Fprintf(w, "%s\n", inset)
+
+	if inset != nil && inset.InsertedID != "" {
+		results.Status = http.StatusOK
+		results.Message = "success"
+		results.Data.Status = "add Size successfully"
+	} else {
+		results.Message = "decline"
+		results.Data.Status = "not added "
+
+	}
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+
+	fmt.Fprintf(w, "%s\n", output)
+
+}
