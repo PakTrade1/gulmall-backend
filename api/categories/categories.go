@@ -21,8 +21,9 @@ func handleError(err error) {
 }
 
 type Categories struct {
-	ID   primitive.ObjectID `bson:"_id,omitempty"`
-	Name struct {
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	Gender_flag bool               `json:"gender_flag"`
+	Name        struct {
 		En string `json:"en"`
 		Ar string `json:"ar"`
 	} `json:"name"`
@@ -98,6 +99,7 @@ type sub_Categoies_selected struct {
 	} `json:"name"`
 }
 
+// // this functhion  is for sub_category collection that serch data w.r.t category id
 func Sub_Categories_select_by_Cat_id(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
@@ -204,6 +206,124 @@ func Child_Categories_select_by__sub_Cat_id(w http.ResponseWriter, req *http.Req
 
 	}
 	results.Data = resp1
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+
+	fmt.Fprintf(w, "%s\n", output)
+}
+
+// / function for add singel category
+type respone_add_category struct {
+	Status  int         `json:"status"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
+
+func Add_category(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var strcutinit Categories
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+
+	insertdat := bson.M{
+		"name": bson.M{
+			"en": strcutinit.Name.En,
+			"ar": strcutinit.Name.Ar,
+		},
+		"gender_flag": strcutinit.Gender_flag,
+	}
+
+	//fmt.Print(body)
+	coll := docking.PakTradeDb.Collection("categories")
+
+	// // // insert a user
+	var results respone_add_category
+
+	inset, err3 := coll.InsertOne(context.TODO(), insertdat)
+	if err3 != nil {
+		fmt.Fprintf(w, "%s\n", err3)
+	}
+
+	//	fmt.Fprintf(w, "%s\n", inset)
+
+	if inset != nil {
+		results.Status = http.StatusOK
+		results.Message = "success"
+
+	} else {
+		results.Message = "decline"
+
+	}
+	results.Data = inset.InsertedID
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+
+	fmt.Fprintf(w, "%s\n", output)
+
+}
+
+// update category
+type cat_update struct {
+	Cat_id string `json:"cat_id"`
+	Name   struct {
+		En string `json:"en"`
+		Ar string `json:"ar"`
+	} `json:"name"`
+	Gender_flag bool `json:"gender_flag"`
+}
+
+func Update_Category(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var cat_updt cat_update
+	err := json.NewDecoder(req.Body).Decode(&cat_updt)
+	if err != nil {
+		panic(err)
+	}
+	coll := docking.PakTradeDb.Collection("categories")
+	objectIDS, _ := primitive.ObjectIDFromHex(cat_updt.Cat_id)
+	// fmt.Print(objectIDS)
+
+	result1, err := coll.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": objectIDS},
+		bson.D{
+			{Key: "$set", Value: bson.M{
+				"name": bson.M{
+					"en": cat_updt.Name.En,
+					"ar": cat_updt.Name.Ar,
+				},
+
+				"gender_flag": cat_updt.Gender_flag,
+			}},
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//end update
+	var results respone_add_category
+	if result1 != nil {
+		results.Status = http.StatusOK
+		results.Message = "success"
+
+	} else {
+		results.Message = "decline"
+
+	}
+	results.Data = result1.ModifiedCount
 	output, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
 		panic(err)

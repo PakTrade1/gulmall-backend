@@ -37,6 +37,10 @@ func main() {
 	r.HandleFunc("/get-item-with-status", item.Items)
 	// RETURNS LIST OF CATEGORIES.
 	r.HandleFunc("/get-categories", categories.Get_all_categories)
+	// ADD _____ Update___ Delete_______Search  category
+	r.HandleFunc("/add-category", categories.Add_category)
+	r.HandleFunc("/update-category", categories.Update_Category)
+
 	// RETURNS LIST OF ALL SUB-CAT.
 	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
 	// RETURNS LIST OF ALL SUB-CAT-CHILD.
