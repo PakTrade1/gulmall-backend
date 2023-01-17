@@ -9,10 +9,13 @@ import (
 	color "pak-trade-go/api/color"
 	gender "pak-trade-go/api/gender"
 
+	//	"pak-trade-go/api/weight"
+
 	item "pak-trade-go/api/items"
 	User "pak-trade-go/api/mammals"
 	payment_service "pak-trade-go/api/payment"
 	size "pak-trade-go/api/size"
+	weight "pak-trade-go/api/weight"
 	blobstorage "pak-trade-go/blobstorage"
 	storage "pak-trade-go/storage"
 
@@ -43,6 +46,8 @@ func main() {
 	r.HandleFunc("/delete-category", categories.Delete_category)
 	// ADD _________ Size
 	r.HandleFunc("/add-size", size.Add_size)
+	// Get  _________ Weightt
+	r.HandleFunc("/get-weight", weight.Weight)
 
 	// RETURNS LIST OF ALL SUB-CAT.
 	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
