@@ -119,21 +119,36 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 	type_Feild := "chart." + search1.Type1 + ".size"
 	type_Feild1 := "$chart." + search1.Type1 + ".size"
 
-	mongoqury :=
-		bson.A{
-			bson.D{
-				{"$lookup",
-					bson.D{
-						{"from", "size"},
-						{"localField", type_Feild},
-						{"foreignField", "_id"},
-						{"as", "result"},
-					},
+	mongoqury := bson.A{
+		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
+		bson.D{
+			{"$unwind",
+				bson.D{
+					{"path", type_Feild1},
+					{"includeArrayIndex", "index"},
 				},
 			},
-			bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
-			bson.D{{"$project", bson.D{{"size", type_Feild1}}}},
-		}
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "size"},
+					{"localField", type_Feild},
+					{"foreignField", "_id"},
+					{"as", "result"},
+				},
+			},
+		},
+		bson.D{{"$set", bson.D{{"result", bson.D{{"$first", "$result"}}}}}},
+		bson.D{
+			{"$group",
+				bson.D{
+					{"_id", "$_id"},
+					{"size", bson.D{{"$push", "$result"}}},
+				},
+			},
+		},
+	}
 	cursor, err1 := coll.Aggregate(context.TODO(), mongoqury)
 	if err1 != nil {
 		fmt.Println("errror retrieving user userid : " + objectIDS.Hex())
