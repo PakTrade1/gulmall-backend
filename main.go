@@ -16,7 +16,6 @@ import (
 	payment_service "pak-trade-go/api/payment"
 	size "pak-trade-go/api/size"
 	weight "pak-trade-go/api/weight"
-	blobstorage "pak-trade-go/blobstorage"
 	storage "pak-trade-go/storage"
 
 	"github.com/gorilla/mux"
@@ -30,6 +29,7 @@ func main() {
 	// ROUTERS
 	r := mux.NewRouter()
 	http.Handle("/", r)
+	// API ENDPOINTS
 	// ADD ROUTES
 	r.HandleFunc("/add-cart", Allcart.Update_cart)
 	r.HandleFunc("/add-size", size.Add_size)
@@ -48,7 +48,7 @@ func main() {
 	r.HandleFunc("/get-size-chart", size.Size_select_by_child_id)
 	r.HandleFunc("/get-payment-service", payment_service.Get_payment_method)
 	r.HandleFunc("/get-item-with-status", item.Items)
-	r.HandleFunc("/get-categories", categories.Get_al
+	r.HandleFunc("/get-categories", categories.Get_all_categories)
 	r.HandleFunc("/get-user", User.Mammals_getall)
 	r.HandleFunc("/get-gender", gender.Gender)
 	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
@@ -59,7 +59,7 @@ func main() {
 	r.HandleFunc("/get-all-item", item.Get_all_items)
 	r.HandleFunc("/get-weight", weight.Weight)
 	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
-	r.HandleFunc("/get-child-categories", categories.Child_Categories_select_by__sub_Cat_id)	
+	r.HandleFunc("/get-child-categories", categories.Child_Categories_select_by__sub_Cat_id)
 	// UPLOAD FILE
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
 	c := cors.New(cors.Options{
