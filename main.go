@@ -30,48 +30,38 @@ func main() {
 	// ROUTERS
 	r := mux.NewRouter()
 	http.Handle("/", r)
-	// API ENDPOINTS
-	// RETURNS LIST OF ALL PRE-DEFIEND COLORS.
+	// ADD ROUTES
+	r.HandleFunc("/add-cart", Allcart.Update_cart)
+	r.HandleFunc("/add-size", size.Add_size)
+	r.HandleFunc("/add-category", categories.Add_category)
+	// UPDATE ROUTE
+	r.HandleFunc("/update-category", categories.Update_Category)
+	r.HandleFunc("/update-user", User.Mammals_update_one)
+	r.HandleFunc("/update-cart-in", Allcart.Update_cart)
+	r.HandleFunc("/update-item", item.Item_update_one)
+	// DELETE ROUTE
+	r.HandleFunc("/delete-category", categories.Delete_category)
+	r.HandleFunc("/delete-cart", Allcart.Cart_delete)
+	r.HandleFunc("/delete-item-by-id", item.Item_delete_by_id)
+	// GET ROUTE
 	r.HandleFunc("/get-color", color.Color)
-	// GET SIZE CHART RETURNS ALL
 	r.HandleFunc("/get-size-chart", size.Size_select_by_child_id)
 	r.HandleFunc("/get-payment-service", payment_service.Get_payment_method)
-	r.HandleFunc("/update-item", item.Item_update_one)
 	r.HandleFunc("/get-item-with-status", item.Items)
-	// RETURNS LIST OF CATEGORIES.
-	r.HandleFunc("/get-categories", categories.Get_all_categories)
-	// ADD _____ Update___ Delete_______
-	r.HandleFunc("/add-category", categories.Add_category)
-	r.HandleFunc("/update-category", categories.Update_Category)
-	r.HandleFunc("/delete-category", categories.Delete_category)
-	// ADD _________ Size
-	r.HandleFunc("/add-size", size.Add_size)
-	// Get  _________ Weightt
-	r.HandleFunc("/get-weight", weight.Weight)
-
-	// RETURNS LIST OF ALL SUB-CAT.
-	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
-	// RETURNS LIST OF ALL SUB-CAT-CHILD.
-	r.HandleFunc("/get-child-categories", categories.Child_Categories_select_by__sub_Cat_id)
-	// RETURNS LIST OF ALL PRE-DEFIEND GENDERS.
-	r.HandleFunc("/get-gender", gender.Gender)
-	// RETURNS LIST OF ALL USERS.
+	r.HandleFunc("/get-categories", categories.Get_al
 	r.HandleFunc("/get-user", User.Mammals_getall)
-	r.HandleFunc("/add-user", User.Mammals_insertone)
+	r.HandleFunc("/get-gender", gender.Gender)
 	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
-	r.HandleFunc("/update-user", User.Mammals_update_one)
-	// RETURNS SINGLE ITEM.
-	r.HandleFunc("/get-item-by-id", item.Serch_item_by_id)     //item_id
-	r.HandleFunc("/delete-item-by-id", item.Item_delete_by_id) // item_id and status
-	r.HandleFunc("/get-all-item", item.Get_all_items)          // POST         // get all items
-	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
-	r.HandleFunc("/get-all-cart", Allcart.Get_cart_all_with_id_data)
+	r.HandleFunc("/get-item-by-id", item.Serch_item_by_id)
 	r.HandleFunc("/get-cart-with-id", Allcart.Get_cart_with_id)
-	r.HandleFunc("/delete-cart", Allcart.Cart_delete)
-	r.HandleFunc("/update-cart-in", Allcart.Update_cart)
-	r.HandleFunc("/upload-filen", blobstorage.UploadFile).Methods("POST")
 	r.HandleFunc("/get-cart", Allcart.Cart_getall)
-	r.HandleFunc("/add-cart", Allcart.Update_cart)
+	r.HandleFunc("/get-all-cart", Allcart.Get_cart_all_with_id_data)
+	r.HandleFunc("/get-all-item", item.Get_all_items)
+	r.HandleFunc("/get-weight", weight.Weight)
+	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
+	r.HandleFunc("/get-child-categories", categories.Child_Categories_select_by__sub_Cat_id)	
+	// UPLOAD FILE
+	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
