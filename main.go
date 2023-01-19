@@ -31,8 +31,10 @@ func main() {
 	http.Handle("/", r)
 	// API ENDPOINTS
 	// ADD ROUTES
+
 	r.HandleFunc("/add-cart", Allcart.Update_cart)
 	r.HandleFunc("/add-size", size.Add_size)
+
 	r.HandleFunc("/add-category", categories.Add_category)
 	// UPDATE ROUTE
 	r.HandleFunc("/update-category", categories.Update_Category)

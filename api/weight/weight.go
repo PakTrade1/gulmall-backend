@@ -14,14 +14,8 @@ import (
 type weight_get struct {
 	ID   primitive.ObjectID `bson:"_id,omitempty"`
 	Name struct {
-		Short struct {
-			En string `json:"en"`
-			Ar string `json:"ar"`
-		} `json:"short"`
-		Full struct {
-			En string `json:"en"`
-			Ar string `json:"ar"`
-		} `json:"full"`
+		En string `json:"en"`
+		Ar string `json:"ar"`
 	} `json:"name"`
 }
 
