@@ -168,10 +168,10 @@ type women_size_tshirt struct {
 	Name             string             `json:"name"`
 	Sub_cat_child_id primitive.ObjectID `json:"sub_cat_child_id"`
 	Chart            struct {
-		Length       []string `json:"length"`
-		Chest        []string `json:"chest"`
-		Shoulder     []string `json:"shoulder"`
-		SleeveLength []string `json:"sleeve_length"`
+		Length        []string `json:"length"`
+		Chest         []string `json:"chest"`
+		Shoulder      []string `json:"shoulder"`
+		Sleeve_length []string `json:"sleeve_length"`
 	} `json:"chart"`
 	Size []struct {
 		ID   primitive.ObjectID `bson:"_id,omitempty"`
@@ -238,10 +238,10 @@ type men_shirt_size struct {
 	Name             string             `json:"name"`
 	Sub_cat_child_id primitive.ObjectID `json:"sub_cat_child_id"`
 	Chart            struct {
-		Chest        []string `json:"chest"`
-		Shoulder     []string `json:"shoulder"`
-		SleeveLength []string `json:"sleeve_length"`
-		BodyLength   []string `json:"body_length"`
+		Chest         []string `json:"chest"`
+		Shoulder      []string `json:"shoulder"`
+		Sleeve_length []string `json:"sleeve_length"`
+		Body_length   []string `json:"body_length"`
 	} `json:"chart"`
 	Size []struct {
 		ID   primitive.ObjectID `bson:"_id,omitempty"`
