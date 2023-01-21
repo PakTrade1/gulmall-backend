@@ -134,6 +134,176 @@ type child_respone_struct_child struct {
 	Data       []size_chart               `json:"data"`
 	Size_Chart []child_fashion_size_cahrt `json:"size_chart"`
 }
+type type_selection struct {
+	Name string `json:"name"`
+}
+
+type women_size_show struct {
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	Name             string             `json:"name"`
+	Sub_cat_child_id primitive.ObjectID `json:"sub_cat_child_id"`
+	Chart            struct {
+		Round_waist_width           []string `json:"round_waist_width"`
+		Round_inner_hip_width       []string `json:"round_inner_hip_width"`
+		Round_inner_thigh_at_crotch []string `json:"round_inner_thigh_at_crotch"`
+		Outseam_length              []string `json:"outseam_length"`
+	} `json:"chart"`
+	Size []struct {
+		ID   primitive.ObjectID `bson:"_id,omitempty"`
+		Name struct {
+			En string `json:"en"`
+			Ar string `json:"ar"`
+		} `json:"name"`
+	} `json:"size"`
+}
+type women_resp struct {
+	Status  int               `json:"status"`
+	Message string            `json:"message"`
+	Data    []women_size_show `json:"data"`
+}
+
+// // tShirt women
+type women_size_tshirt struct {
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	Name             string             `json:"name"`
+	Sub_cat_child_id primitive.ObjectID `json:"sub_cat_child_id"`
+	Chart            struct {
+		Length       []string `json:"length"`
+		Chest        []string `json:"chest"`
+		Shoulder     []string `json:"shoulder"`
+		SleeveLength []string `json:"sleeve_length"`
+	} `json:"chart"`
+	Size []struct {
+		ID   primitive.ObjectID `bson:"_id,omitempty"`
+		Name struct {
+			En string `json:"en"`
+			Ar string `json:"ar"`
+		} `json:"name"`
+	} `json:"size"`
+}
+type women_tShirt_Resp struct {
+	Status  int                 `json:"status"`
+	Message string              `json:"message"`
+	Data    []women_size_tshirt `json:"data"`
+}
+
+type Men_women_shoze struct {
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	Name             string             `json:"name"`
+	Sub_cat_child_id primitive.ObjectID `json:"sub_cat_child_id"`
+	Chart            struct {
+		Length  []string `json:"length"`
+		Eu_size []string `json:"eu_size"`
+		Us_size []string `json:"us_size"`
+		Uk_size []string `json:"uk_size"`
+	} `json:"chart"`
+	Size []struct {
+		ID   primitive.ObjectID `bson:"_id,omitempty"`
+		Name struct {
+			En string `json:"en"`
+			Ar string `json:"ar"`
+		} `json:"name"`
+	} `json:"size"`
+}
+type men_wonen_shoze_resp struct {
+	Status  int               `json:"status"`
+	Message string            `json:"message"`
+	Data    []Men_women_shoze `json:"data"`
+}
+type men_pent_size struct {
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	Name             string             `json:"name"`
+	Sub_cat_child_id primitive.ObjectID `json:"sub_cat_child_id"`
+	Chart            struct {
+		Round_waist_width           []string `json:"round_waist_width"`
+		Round_inner_hip_width       []string `json:"round_inner_hip_width"`
+		Round_inner_thigh_at_crotch []string `json:"round_inner_thigh_at_crotch"`
+		Outseam_length              []string `json:"outseam_length"`
+	} `json:"chart"`
+	Size []struct {
+		ID   primitive.ObjectID `bson:"_id,omitempty"`
+		Name struct {
+			En string `json:"en"`
+			Ar string `json:"ar"`
+		} `json:"name"`
+	} `json:"size"`
+}
+type men_pent_size_resp struct {
+	Status  int             `json:"status"`
+	Message string          `json:"message"`
+	Data    []men_pent_size `json:"data"`
+}
+type men_shirt_size struct {
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	Name             string             `json:"name"`
+	Sub_cat_child_id primitive.ObjectID `json:"sub_cat_child_id"`
+	Chart            struct {
+		Chest        []string `json:"chest"`
+		Shoulder     []string `json:"shoulder"`
+		SleeveLength []string `json:"sleeve_length"`
+		BodyLength   []string `json:"body_length"`
+	} `json:"chart"`
+	Size []struct {
+		ID   primitive.ObjectID `bson:"_id,omitempty"`
+		Name struct {
+			En string `json:"en"`
+			Ar string `json:"ar"`
+		} `json:"name"`
+	} `json:"size"`
+}
+type men_shirt_size_resp struct {
+	Status  int              `json:"status"`
+	Message string           `json:"message"`
+	Data    []men_shirt_size `json:"data"`
+}
+type child_pent_size struct {
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	Name             string             `json:"name"`
+	Sub_cat_child_id primitive.ObjectID `json:"sub_cat_child_id"`
+	Chart            struct {
+		Length                    []string `json:"length"`
+		Round_waist_width_relaxed []string `json:"round_waist_width_relaxed"`
+		Round_hip_width           []string `json:"round_hip_width"`
+		Round_thigh_at_crotch     []string `json:"round_thigh_at_crotch"`
+	} `json:"chart"`
+	Size []struct {
+		ID   primitive.ObjectID `bson:"_id,omitempty"`
+		Name struct {
+			En string `json:"en"`
+			Ar string `json:"ar"`
+		} `json:"name"`
+	} `json:"size"`
+}
+type child_pent_size_resp struct {
+	Status  int               `json:"status"`
+	Message string            `json:"message"`
+	Data    []child_pent_size `json:"data"`
+}
+type child_shirt_size struct {
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	Name             string             `json:"name"`
+	Sub_cat_child_id primitive.ObjectID `json:"sub_cat_child_id"`
+	Chart            struct {
+		Length              []string `json:"length"`
+		Body_length_cropped []string `json:"body_length_cropped"`
+		Chest               []string `json:"chest"`
+		Shoulder            []string `json:"shoulder"`
+		Sleeve_length       []string `json:"sleeve_length"`
+		Half_sleeve_length  []string `json:"half_sleeve_length"`
+	} `json:"chart"`
+	Size []struct {
+		ID   primitive.ObjectID `bson:"_id,omitempty"`
+		Name struct {
+			En string `json:"en"`
+			Ar string `json:"ar"`
+		} `json:"name"`
+	} `json:"size"`
+}
+type child_shirt_size_resp struct {
+	Status  int                `json:"status"`
+	Message string             `json:"message"`
+	Data    []child_shirt_size `json:"data"`
+}
 
 func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 
@@ -148,18 +318,20 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 	coll := docking.PakTradeDb.Collection("size_chart")
 	objectIDS, _ := primitive.ObjectIDFromHex(search1.Child_cat_id)
 	type_Feild := "chart." + search1.Type1 + ".size"
-	type_Feild1 := "$chart." + search1.Type1 + ".size"
+	type_Feild1 := "$chart." + search1.Type1
 
-	mongoqury := bson.A{
+	result_selecttion_type, err := coll.Aggregate(context.TODO(), bson.A{
 		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
-		bson.D{
-			{"$unwind",
-				bson.D{
-					{"path", type_Feild1},
-					{"includeArrayIndex", "index"},
-				},
-			},
-		},
+		bson.D{{"$project", bson.D{{"name", "$name"}}}},
+	})
+
+	var abc type_selection
+
+	for result_selecttion_type.Next(context.TODO()) {
+		result_selecttion_type.Decode(&abc)
+	}
+	mongo_Qury := bson.A{
+		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
 		bson.D{
 			{"$lookup",
 				bson.D{
@@ -170,157 +342,304 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 				},
 			},
 		},
-		bson.D{{"$set", bson.D{{"result", bson.D{{"$first", "$result"}}}}}},
 		bson.D{
-			{"$group",
+			{"$project",
 				bson.D{
-					{"_id", "$_id"},
-					{"size", bson.D{{"$push", "$result"}}},
+					{"name", "$name"},
+					{"sub_cat_child_id", "$sub_cat_child_id"},
+					{"chart", type_Feild1},
+					{"size", "$result"},
 				},
 			},
 		},
 	}
-	cursor, err1 := coll.Aggregate(context.TODO(), mongoqury)
+
+	cursor, err1 := coll.Aggregate(context.TODO(), mongo_Qury)
 	if err1 != nil {
 		fmt.Println("errror retrieving user userid : " + objectIDS.Hex())
 	}
+	if search1.Type1 == "women" {
 
-	// end findOne
-	var results []size_chart
-	if err = cursor.All(context.TODO(), &results); err != nil {
-		panic(err)
-	}
+		if abc.Name == "Cloth" {
+			var results []women_size_show
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
 
-	for cursor.Next(context.TODO()) {
-		var abc size_chart
-		cursor.Decode(&abc)
-		results = append(results, abc)
-	}
-	//// size chart with respt to men women and junior
-	var men_results []men_fashion_size_cahrt
-	var women_results []women_fashion_size_cahrt
-	var child_results []child_fashion_size_cahrt
+			for cursor.Next(context.TODO()) {
+				var abc women_size_show
+				cursor.Decode(&abc)
+				results = append(results, abc)
+			}
+			var responce women_resp
+			if results != nil {
+				responce.Status = http.StatusOK
+				responce.Message = "success"
+				responce.Data = results
+			} else {
+				responce.Status = http.StatusBadRequest
+				responce.Message = "declined"
+			}
+			output, err := json.MarshalIndent(responce, "", "    ")
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, "%s\n", output)
+		} else if abc.Name == "T-Shirt" {
+			var results []women_size_tshirt
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
 
-	if search1.Type1 == "men" {
-		men_query := bson.A{
-			bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
-			bson.D{
-				{"$project",
-					bson.D{
-						{"name", "$name"},
-						{"chart", "$chart.men"},
-					},
-				},
-			},
-		}
-		gender_result, err1 := coll.Aggregate(context.TODO(), men_query)
-		if err1 != nil {
-			fmt.Println("errror retrieving user userid : " + objectIDS.Hex())
-		}
-		for gender_result.Next(context.TODO()) {
-			var abc men_fashion_size_cahrt
-			gender_result.Decode(&abc)
-			men_results = append(men_results, abc)
+			for cursor.Next(context.TODO()) {
+				var abc women_size_tshirt
+				cursor.Decode(&abc)
+				results = append(results, abc)
+			}
+			var responce women_tShirt_Resp
+			if results != nil {
+				responce.Status = http.StatusOK
+				responce.Message = "success"
+				responce.Data = results
+			} else {
+				responce.Status = http.StatusBadRequest
+				responce.Message = "declined"
+			}
+			output, err := json.MarshalIndent(responce, "", "    ")
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, "%s\n", output)
+		} else if abc.Name == "Shose" {
+			var results []Men_women_shoze
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
 
+			for cursor.Next(context.TODO()) {
+				var abc Men_women_shoze
+				cursor.Decode(&abc)
+				results = append(results, abc)
+			}
+			var responce men_wonen_shoze_resp
+			if results != nil {
+				responce.Status = http.StatusOK
+				responce.Message = "success"
+				responce.Data = results
+			} else {
+				responce.Status = http.StatusBadRequest
+				responce.Message = "declined"
+			}
+			output, err := json.MarshalIndent(responce, "", "    ")
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, "%s\n", output)
 		}
+	} else if search1.Type1 == "men" {
+		if abc.Name == "Cloth" {
+			var results []men_pent_size
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
 
-		var responce men_respone_struct_child
-		if results != nil {
-			responce.Status = http.StatusOK
-			responce.Message = "success"
-			responce.Data = results
-			responce.Size_Chart = men_results
-		} else {
-			responce.Status = http.StatusBadRequest
-			responce.Message = "declined"
-		}
-		output, err := json.MarshalIndent(responce, "", "    ")
-		if err != nil {
-			panic(err)
-		}
-		fmt.Fprintf(w, "%s\n", output)
+			for cursor.Next(context.TODO()) {
+				var abc men_pent_size
+				cursor.Decode(&abc)
+				results = append(results, abc)
+			}
+			var responce men_pent_size_resp
+			if results != nil {
+				responce.Status = http.StatusOK
+				responce.Message = "success"
+				responce.Data = results
+			} else {
+				responce.Status = http.StatusBadRequest
+				responce.Message = "declined"
+			}
+			output, err := json.MarshalIndent(responce, "", "    ")
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, "%s\n", output)
+		} else if abc.Name == "T-Shirt" {
+			var results []men_shirt_size
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
 
-	} else if search1.Type1 == "women" {
+			for cursor.Next(context.TODO()) {
+				var abc men_shirt_size
+				cursor.Decode(&abc)
+				results = append(results, abc)
+			}
+			var responce men_shirt_size_resp
+			if results != nil {
+				responce.Status = http.StatusOK
+				responce.Message = "success"
+				responce.Data = results
+			} else {
+				responce.Status = http.StatusBadRequest
+				responce.Message = "declined"
+			}
+			output, err := json.MarshalIndent(responce, "", "    ")
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, "%s\n", output)
+		} else if abc.Name == "Shose" {
+			var results []Men_women_shoze
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
 
-		women_query := bson.A{
-			bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
-			bson.D{
-				{"$project",
-					bson.D{
-						{"name", "$name"},
-						{"chart", "$chart.women"},
-					},
-				},
-			},
+			for cursor.Next(context.TODO()) {
+				var abc Men_women_shoze
+				cursor.Decode(&abc)
+				results = append(results, abc)
+			}
+			var responce men_wonen_shoze_resp
+			if results != nil {
+				responce.Status = http.StatusOK
+				responce.Message = "success"
+				responce.Data = results
+			} else {
+				responce.Status = http.StatusBadRequest
+				responce.Message = "declined"
+			}
+			output, err := json.MarshalIndent(responce, "", "    ")
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, "%s\n", output)
 		}
-
-		gender_result, err1 := coll.Aggregate(context.TODO(), women_query)
-		if err1 != nil {
-			fmt.Println("errror retrieving user userid : " + objectIDS.Hex())
-		}
-		for gender_result.Next(context.TODO()) {
-			var abc women_fashion_size_cahrt
-			gender_result.Decode(&abc)
-			women_results = append(women_results, abc)
-		}
-		var responce women_respone_struct_child
-		if results != nil {
-			responce.Status = http.StatusOK
-			responce.Message = "success"
-			responce.Data = results
-			responce.Size_Chart = women_results
-		} else {
-			responce.Status = http.StatusBadRequest
-			responce.Message = "declined"
-		}
-		output, err := json.MarshalIndent(responce, "", "    ")
-		if err != nil {
-			panic(err)
-		}
-		fmt.Fprintf(w, "%s\n", output)
-
 	} else if search1.Type1 == "junior" {
+		if abc.Name == "Cloth" {
+			var results []child_pent_size
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
 
-		women_query := bson.A{
+			for cursor.Next(context.TODO()) {
+				var abc child_pent_size
+				cursor.Decode(&abc)
+				results = append(results, abc)
+			}
+			var responce child_pent_size_resp
+			if results != nil {
+				responce.Status = http.StatusOK
+				responce.Message = "success"
+				responce.Data = results
+			} else {
+				responce.Status = http.StatusBadRequest
+				responce.Message = "declined"
+			}
+			output, err := json.MarshalIndent(responce, "", "    ")
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, "%s\n", output)
+		} else if abc.Name == "T-Shirt" {
+			var results []child_shirt_size
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
+
+			for cursor.Next(context.TODO()) {
+				var abc child_shirt_size
+				cursor.Decode(&abc)
+				results = append(results, abc)
+			}
+			var responce child_shirt_size_resp
+			if results != nil {
+				responce.Status = http.StatusOK
+				responce.Message = "success"
+				responce.Data = results
+			} else {
+				responce.Status = http.StatusBadRequest
+				responce.Message = "declined"
+			}
+			output, err := json.MarshalIndent(responce, "", "    ")
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, "%s\n", output)
+		} else if abc.Name == "Shose" {
+			var results []Men_women_shoze
+			if err = cursor.All(context.TODO(), &results); err != nil {
+				panic(err)
+			}
+
+			for cursor.Next(context.TODO()) {
+				var abc Men_women_shoze
+				cursor.Decode(&abc)
+				results = append(results, abc)
+			}
+			var responce men_wonen_shoze_resp
+			if results != nil {
+				responce.Status = http.StatusOK
+				responce.Message = "success"
+				responce.Data = results
+			} else {
+				responce.Status = http.StatusBadRequest
+				responce.Message = "declined"
+			}
+			output, err := json.MarshalIndent(responce, "", "    ")
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(w, "%s\n", output)
+		}
+	} else {
+		mongoqury := bson.A{
 			bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
 			bson.D{
-				{"$project",
+				{"$unwind",
 					bson.D{
-						{"name", "$name"},
-						{"chart", "$chart.junior"},
+						{"path", type_Feild1},
+						{"includeArrayIndex", "index"},
+					},
+				},
+			},
+			bson.D{
+				{"$lookup",
+					bson.D{
+						{"from", "size"},
+						{"localField", type_Feild},
+						{"foreignField", "_id"},
+						{"as", "result"},
+					},
+				},
+			},
+			bson.D{{"$set", bson.D{{"result", bson.D{{"$first", "$result"}}}}}},
+			bson.D{
+				{"$group",
+					bson.D{
+						{"_id", "$_id"},
+						{"size", bson.D{{"$push", "$result"}}},
 					},
 				},
 			},
 		}
-
-		gender_result, err1 := coll.Aggregate(context.TODO(), women_query)
+		cursor, err1 := coll.Aggregate(context.TODO(), mongoqury)
 		if err1 != nil {
 			fmt.Println("errror retrieving user userid : " + objectIDS.Hex())
 		}
-		for gender_result.Next(context.TODO()) {
-			var abc child_fashion_size_cahrt
-			gender_result.Decode(&abc)
-			child_results = append(child_results, abc)
-		}
-		var responce child_respone_struct_child
-		if results != nil {
-			responce.Status = http.StatusOK
-			responce.Message = "success"
-			responce.Data = results
-			responce.Size_Chart = child_results
-		} else {
-			responce.Status = http.StatusBadRequest
-			responce.Message = "declined"
-		}
-		output, err := json.MarshalIndent(responce, "", "    ")
-		if err != nil {
+
+		// end findOne
+		var results []size_chart
+		if err = cursor.All(context.TODO(), &results); err != nil {
 			panic(err)
 		}
-		fmt.Fprintf(w, "%s\n", output)
 
-	} else {
+		for cursor.Next(context.TODO()) {
+			var abc size_chart
+			cursor.Decode(&abc)
+			results = append(results, abc)
+		}
+
 		var responce respone_struct_child
-		if results != nil {
+		if result_selecttion_type != nil {
 			responce.Status = http.StatusOK
 			responce.Message = "success"
 			responce.Data = results
@@ -335,6 +654,7 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(w, "%s\n", output)
 
 	}
+
 }
 
 // ////////// Add size
@@ -403,90 +723,3 @@ func Add_size(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "%s\n", output)
 
 }
-
-// func Size_chart(w http.ResponseWriter, req *http.Request) {
-
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-// 	var search1 size_chart_search
-// 	err := json.NewDecoder(req.Body).Decode(&search1)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	coll := docking.PakTradeDb.Collection("size_chart")
-// 	objectIDS, _ := primitive.ObjectIDFromHex(search1.Child_cat_id)
-
-// 	//// size chart with respt to men women and junior
-// 	var men_results []men_fashion_size_cahrt
-// 	//	var women_results []women_fashion_size_cahrt
-
-// 	//	if search1.Type1 == "men" {
-
-// 	men_query := bson.A{
-// 		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
-// 		bson.D{
-// 			{"$project",
-// 				bson.D{
-// 					{"name", "$name"},
-// 					{"chart", "$chart.men"},
-// 				},
-// 			},
-// 		},
-// 	}
-// 	gender_result, err1 := coll.Aggregate(context.TODO(), men_query)
-// 	if err1 != nil {
-// 		fmt.Println("errror retrieving user userid : " + objectIDS.Hex())
-// 	}
-// 	for gender_result.Next(context.TODO()) {
-// 		var abc men_fashion_size_cahrt
-// 		gender_result.Decode(&abc)
-// 		men_results = append(men_results, abc)
-
-// 	}
-// 	// } else if search1.Type1 == "women" {
-
-// 	// women_query := bson.A{
-// 	// 	bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
-// 	// 	bson.D{
-// 	// 		{"$group",
-// 	// 			bson.D{
-// 	// 				{"_id",
-// 	// 					bson.D{
-// 	// 						{"name", "$name"},
-// 	// 						{"chart", "$chart.women"},
-// 	// 					},
-// 	// 				},
-// 	// 			},
-// 	// 		},
-// 	// 	},
-// 	// }
-
-// 	// gender_result, err1 := coll.Aggregate(context.TODO(), women_query)
-// 	// if err1 != nil {
-// 	// 	fmt.Println("errror retrieving user userid : " + objectIDS.Hex())
-// 	// }
-// 	// for gender_result.Next(context.TODO()) {
-// 	// 	var abc women_fashion_size_cahrt
-// 	// 	gender_result.Decode(&abc)
-// 	// 	women_results = append(women_results, abc)
-// 	// }
-
-// 	// }
-// 	////////end of if else men women
-// 	//var responce respone_struct_child
-// 	// if results != nil {
-// 	// 	responce.Status = http.StatusOK
-// 	// 	responce.Message = "success"
-// 	// 	responce.Data = results
-// 	// } else {
-// 	// 	responce.Status = http.StatusBadRequest
-// 	// 	responce.Message = "declined"
-// 	// }
-// 	output, err := json.MarshalIndent(men_results, "", "    ")
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	fmt.Fprintf(w, "%s\n", output)
-
-//}
