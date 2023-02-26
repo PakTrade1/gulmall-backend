@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	docking "pak-trade-go/Docking"
 
@@ -319,9 +320,16 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 	objectIDS, _ := primitive.ObjectIDFromHex(search1.Child_cat_id)
 	type_Feild := "chart." + search1.Type1 + ".size"
 	type_Feild1 := "$chart." + search1.Type1
+	var objectIDFromHex = func(hex string) primitive.ObjectID {
+		objectID, err := primitive.ObjectIDFromHex(hex)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return objectID
+	}
 
 	result_selecttion_type, err := coll.Aggregate(context.TODO(), bson.A{
-		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
+		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDFromHex(search1.Child_cat_id)}}}},
 		bson.D{{"$project", bson.D{{"name", "$name"}}}},
 	})
 
@@ -330,6 +338,7 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 	for result_selecttion_type.Next(context.TODO()) {
 		result_selecttion_type.Decode(&abc)
 	}
+
 	mongo_Qury := bson.A{
 		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
 		bson.D{
@@ -655,6 +664,10 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 
 	}
 
+}
+
+func objectIDFromHex(s string) {
+	panic("unimplemented")
 }
 
 // ////////// Add size
