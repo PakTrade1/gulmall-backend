@@ -11,6 +11,7 @@ import (
 
 	//	"pak-trade-go/api/weight"
 
+	shipping_addres "pak-trade-go/api/address"
 	item "pak-trade-go/api/items"
 	User "pak-trade-go/api/mammals"
 	payment_service "pak-trade-go/api/payment"
@@ -34,6 +35,7 @@ func main() {
 
 	r.HandleFunc("/add-cart", Allcart.Update_cart)
 	r.HandleFunc("/add-size", size.Add_size)
+	r.HandleFunc("/add-address", shipping_addres.Add_shipping_address)
 
 	r.HandleFunc("/add-category", categories.Add_category)
 	// UPDATE ROUTE
@@ -62,6 +64,8 @@ func main() {
 	r.HandleFunc("/get-weight", weight.Weight)
 	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
 	r.HandleFunc("/get-child-categories", categories.Child_Categories_select_by__sub_Cat_id)
+	r.HandleFunc("/get-address", shipping_addres.Get_shipping_address_with_mammal_id)
+
 	// UPLOAD FILE
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
 	c := cors.New(cors.Options{
