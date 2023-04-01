@@ -1,0 +1,70 @@
+ http://localhost:8080/delete-address
+Request
+{
+	"mammal_id":"6362226f605d6df44f2ea018",
+	"uid":"9a0ced8e-ce0b-4364-9516-b5d5398678b4"
+}
+resp
+{
+	"status": 200,
+	"message": "success",
+	"data": null
+}
+
+http://localhost:8080/add-address
+req
+{ 
+	"Address": [
+    {
+      "name": "office",
+      "address_line_1": "al_qouz",
+      "address_line_2": "67 street",
+      "subrub": "near pound park",
+      "city": "dubai",
+      "postal_code": "001000a"
+    }
+  ],
+  "mammal_id": "6362226f605d6df44f2ea018"
+}
+resp
+{
+	"status": 200,
+	"message": "success",
+	"data": null
+}
+// get address with id
+http://localhost:8080/get-address
+req
+{
+	"mammal_id":"6362226f605d6df44f2ea018"
+}
+resp
+{
+	"status": 200,
+	"message": "success",
+	"data": [
+		{
+			"Address": [
+				{
+					"name": "home",
+					"address_line_1": "al_qouz",
+					"address_line_2": "67 street",
+					"subrub": "near pound park",
+					"city": "dubai",
+					"postal_code": "001000a",
+					"uid": "26077e45-ef3a-4591-b86d-0ef296f51835"
+				},
+				{
+					"name": "office",
+					"address_line_1": "al_qouz",
+					"address_line_2": "67 street",
+					"subrub": "near pound park",
+					"city": "dubai",
+					"postal_code": "001000a",
+					"uid": "8b922e8f-df52-4152-b9ab-d99124cbd21e"
+				}
+			],
+			"mammal_id": "6362226f605d6df44f2ea018"
+		}
+	]
+}
