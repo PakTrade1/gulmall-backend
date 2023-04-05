@@ -23,6 +23,7 @@ func handleError(err error) {
 type Categories struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty"`
 	Gender_flag bool               `json:"gender_flag"`
+	Icon        string             `json:"icon"`
 	Name        struct {
 		En string `json:"en"`
 		Ar string `json:"ar"`
@@ -93,6 +94,7 @@ type respone_struct_sub_Cat struct {
 type sub_Categoies_selected struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
 	Cat_id string             `json:"cat_id"`
+	Icon   string             `json:"icon"`
 	Name   struct {
 		En string `json:"en"`
 		Ar string `json:"ar"`
