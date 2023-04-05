@@ -21,11 +21,16 @@ func handleError(err error) {
 }
 
 type ItemType struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	Price  int32              `json:"price,omitempty`
-	Status string             `json:"status"`
-
-	Name struct {
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	Price         int32              `json:"price,omitempty`
+	Status        string             `json:"status"`
+	Category      string             `json:"category"`
+	Gender        string             `json:"gender"`
+	Sub_category  string             `json:"sub_category"`
+	Country       string             `json:"country"`
+	Qty           int                `json:"qty"`
+	Remaining_qty int                `json:"remaining_qty"`
+	Name          struct {
 		En string `json:"en,omitempty"`
 		Ar string `json:"ar,omitempty"`
 	} `json:"name,omitempty"`
@@ -638,6 +643,12 @@ func Get_all_items(w http.ResponseWriter, req *http.Request) {
 							{Key: "_id", Value: "$_id"},
 							{Key: "price", Value: "$price"},
 							{Key: "status", Value: "$status"},
+							{Key: "category", Value: "$category"},
+							{Key: "sub_category", Value: "$sub_category"},
+							{Key: "gender", Value: "$gender"},
+							{Key: "country", Value: "$country"},
+							{Key: "qty", Value: "$qty"},
+							{Key: "remaining_qty", Value: "$remaining_qty"},
 						},
 					},
 					{Key: "colors", Value: bson.D{{Key: "$push", Value: "$result"}}},
@@ -655,6 +666,12 @@ func Get_all_items(w http.ResponseWriter, req *http.Request) {
 					{Key: "price", Value: "$_id.price"},
 					{Key: "status", Value: "$_id.status"},
 					{Key: "available_color", Value: "$colors"},
+					{Key: "category", Value: "$_id.category"},
+					{Key: "sub_category", Value: "$_id.sub_category"},
+					{Key: "gender", Value: "$_id.gender"},
+					{Key: "country", Value: "$_id.country"},
+					{Key: "qty", Value: "$_id.qty"},
+					{Key: "remaining_qty", Value: "$_id.remaining_qty"},
 				},
 			},
 		},
