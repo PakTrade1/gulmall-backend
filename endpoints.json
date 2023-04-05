@@ -1,4 +1,5 @@
- http://localhost:8080/delete-address
+// Address ******************************************
+http://localhost:8080/delete-address
 Request
 {
 	"mammal_id":"6362226f605d6df44f2ea018",
@@ -65,6 +66,184 @@ resp
 				}
 			],
 			"mammal_id": "6362226f605d6df44f2ea018"
+		}
+	]
+}
+
+// ********************* categoris ******************************************
+
+http://localhost:8080/get-sub-categories
+resq
+{
+	"cat_id":"63a9a76fd38789473ba919e6"	
+}
+resp
+{
+	"status": 200,
+	"message": "success",
+	"data": [
+		{
+			"ID": "63a9aa42d38789473ba919ec",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "",
+			"name": {
+				"en": "Clothing",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "63a9b1d4d38789473ba91a15",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "",
+			"name": {
+				"en": "Foot-wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "63c04a61cb47acbcba3e59a5",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Fsun-glasses.jpeg?alt=media&token=cf5ced42-6c09-458c-a6af-b6295fff53eb",
+			"name": {
+				"en": "Eye wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "63c04a8ecb47acbcba3e59a6",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Fwomen-bag.jpeg?alt=media&token=b2909c35-3ca6-4e78-970f-3999daf21e5f",
+			"name": {
+				"en": "Hand Bag",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "6426389beb8a1adb9c3c7dc5",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Fmen.jpeg?alt=media&token=9e40a6b5-b5a8-451c-9ac1-15adb2c7520f",
+			"name": {
+				"en": "Men's Western Wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "642638bdeb8a1adb9c3c7dc6",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Fwomen-west.jpeg?alt=media&token=daa7c712-147a-4547-8f65-ee2b99afb390",
+			"name": {
+				"en": "Women's Western Wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "642638ceeb8a1adb9c3c7dc7",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Fmen-trad.jpeg?alt=media&token=bdb0f01d-ecf9-4cd6-9413-3c5b075339ff",
+			"name": {
+				"en": "Men's Traditional Wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "642638daeb8a1adb9c3c7dc8",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Fwomen-trad.jpeg?alt=media&token=303bfac1-b095-49a4-b4d1-731603a0fcf3",
+			"name": {
+				"en": "Women's Traditional Wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "642638eaeb8a1adb9c3c7dc9",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Fmen-foot-wart.jpeg?alt=media&token=8f3605aa-d448-46e3-b69f-b61e0cad2b08",
+			"name": {
+				"en": "Men's Foot Wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "642638f1eb8a1adb9c3c7dca",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Fwomen-foot-wear.jpeg?alt=media&token=7fb2d31e-de10-4fdc-99ed-bd59daaea54b",
+			"name": {
+				"en": "Women's Foot Wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "64263902eb8a1adb9c3c7dcb",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Fmen-inner.jpeg?alt=media&token=24d9f402-2505-49c1-afe4-14485151d879",
+			"name": {
+				"en": "Men's Inner Wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "64263925eb8a1adb9c3c7dcc",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/sub-category%2Flingre-sleep.jpeg?alt=media&token=c3e4ded8-0bcf-4d6b-9a76-6c391ea5a238",
+			"name": {
+				"en": "Lingerie & Sleep Wear",
+				"ar": "لکساجفدل"
+			}
+		},
+		{
+			"ID": "64263934eb8a1adb9c3c7dcd",
+			"cat_id": "63a9a76fd38789473ba919e6",
+			"icon": "",
+			"name": {
+				"en": "Women's Bag",
+				"ar": "لکساجفدل"
+			}
+		}
+	]
+}
+
+http://localhost:8080/get-categories
+req
+No json request
+{
+	"status": 200,
+	"message": "success",
+	"data": [
+		{
+			"ID": "63a9a76fd38789473ba919e6",
+			"gender_flag": true,
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/categories%2Ffashion.png?alt=media&token=2e33451b-4370-452b-87af-129d882d5385",
+			"name": {
+				"en": "Fashion",
+				"ar": " asdlf"
+			}
+		},
+		{
+			"ID": "63bdb52116cccb9bb8b48388",
+			"gender_flag": false,
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/categories%2Fbeauty.png?alt=media&token=3446f5e8-2012-467e-b084-75abade25849",
+			"name": {
+				"en": "Mart",
+				"ar": " Mart"
+			}
+		},
+		{
+			"ID": "63c41eee00b3e91e0a673ae6",
+			"gender_flag": false,
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/categories%2Fbeauty.png?alt=media&token=3446f5e8-2012-467e-b084-75abade25849",
+			"name": {
+				"en": "Beauty",
+				"ar": "Beauty"
+			}
+		},
+		{
+			"ID": "6426c8deeb8a1adb9c3c7dd1",
+			"gender_flag": false,
+			"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/categories%2Fhome-decor.png?alt=media&token=17bf837f-4ef6-4de4-83e9-8b3b0dbbb019",
+			"name": {
+				"en": "Home & Decor",
+				"ar": "Beauty"
+			}
 		}
 	]
 }
