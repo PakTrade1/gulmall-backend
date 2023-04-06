@@ -260,15 +260,6 @@ resp
 	"message": "success",
 	"data": [
 		{
-			"ID": "637fdb345b36af712791b69a",
-			"Price": 30,
-			"status": "active",
-			"category": "63a9a76fd38789473ba919e6",
-			"gender": "63a9572cd6ba395211aab1da",
-			"sub_category": "63a9aa42d38789473ba919ec",
-			"country": "pakistan",
-			"qty": 1,
-			"remaining_qty": 1,
 			"name": {
 				"en": "Item 1",
 				"ar": "Item 1"
@@ -307,6 +298,42 @@ resp
 					]
 				}
 			],
+			"ID": "637fdb345b36af712791b69a",
+			"category": [
+				{
+					"ID": "63a9a76fd38789473ba919e6",
+					"name": {
+						"en": "Fashion",
+						"ar": " asdlf"
+					},
+					"gender_flag": true,
+					"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/categories%2Ffashion.png?alt=media&token=2e33451b-4370-452b-87af-129d882d5385"
+				}
+			],
+			"sub_category": [
+				{
+					"ID": "63a9aa42d38789473ba919ec",
+					"Cat_id": "63a9a76fd38789473ba919e6",
+					"name": {
+						"en": "Clothing",
+						"ar": "لکساجفدل"
+					}
+				}
+			],
+			"gender": [
+				{
+					"ID": "63a9572cd6ba395211aab1da",
+					"name": {
+						"en": "junior",
+						"ar": "junior"
+					}
+				}
+			],
+			"price": 30,
+			"qty": 1,
+			"remaining_qty": 1,
+			"status": "active",
+			"country": "pakistan",
 			"available_color": [
 				{
 					"ID": "6352f8123e006819c56246c6",
@@ -317,25 +344,32 @@ resp
 					}
 				},
 				{
-					"ID": "6352f8123e006819c56246c6",
-					"cssHex": "#FFFFFF",
+					"ID": "6352f8123e006819c56246c8",
+					"cssHex": "#F5F5DC",
 					"name": {
-						"en": "White",
-						"ar": "أبيض"
+						"en": "Beige",
+						"ar": "بايج"
+					}
+				}
+			],
+			"available_size": [
+				{
+					"ID": "63a9af30d38789473ba91a0c",
+					"name": {
+						"en": "S",
+						"ar": "سمسف"
+					}
+				},
+				{
+					"ID": "63ab3919a4638c2133128aaf",
+					"name": {
+						"en": "L",
+						"ar": "سمسف"
 					}
 				}
 			]
 		},
 		{
-			"ID": "63b12d1b90f5b42b5d3e2f2e",
-			"Price": 30,
-			"status": "pending",
-			"category": "63a9a76fd38789473ba919e6",
-			"gender": "63a9572cd6ba395211aab1da",
-			"sub_category": "63a9aa42d38789473ba929e1",
-			"country": "uae",
-			"qty": 1,
-			"remaining_qty": 1,
 			"name": {
 				"en": "Item 1",
 				"ar": "Item 1"
@@ -360,10 +394,6 @@ resp
 					}
 				}
 			],
-			"available_size": [
-				"63a9af30d38789473ba91a0c",
-				"63a9af30d38789473ba91a0c"
-			],
 			"images": [
 				{
 					"low_quility": [
@@ -378,6 +408,42 @@ resp
 					]
 				}
 			],
+			"ID": "63b12d1b90f5b42b5d3e2f2e",
+			"category": [
+				{
+					"ID": "63a9a76fd38789473ba919e6",
+					"name": {
+						"en": "Fashion",
+						"ar": " asdlf"
+					},
+					"gender_flag": true,
+					"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/categories%2Ffashion.png?alt=media&token=2e33451b-4370-452b-87af-129d882d5385"
+				}
+			],
+			"sub_category": [
+				{
+					"ID": "63a9aa42d38789473ba919ec",
+					"Cat_id": "63a9a76fd38789473ba919e6",
+					"name": {
+						"en": "Clothing",
+						"ar": "لکساجفدل"
+					}
+				}
+			],
+			"gender": [
+				{
+					"ID": "63a9572cd6ba395211aab1da",
+					"name": {
+						"en": "junior",
+						"ar": "junior"
+					}
+				}
+			],
+			"price": 30,
+			"qty": 1,
+			"remaining_qty": 1,
+			"status": "pending",
+			"country": "uae",
 			"available_color": [
 				{
 					"ID": "6352f8123e006819c56246c6",
@@ -388,19 +454,42 @@ resp
 					}
 				},
 				{
-					"ID": "6352f8123e006819c56246c6",
-					"cssHex": "#FFFFFF",
+					"ID": "6352f8123e006819c56246c8",
+					"cssHex": "#F5F5DC",
 					"name": {
-						"en": "White",
-						"ar": "أبيض"
+						"en": "Beige",
+						"ar": "بايج"
 					}
 				},
 				{
-					"ID": "6352f8123e006819c56246c6",
-					"cssHex": "#FFFFFF",
+					"ID": "6352f8123e006819c56246ce",
+					"cssHex": "#964B00",
 					"name": {
-						"en": "White",
-						"ar": "أبيض"
+						"en": "Brown",
+						"ar": "بني"
+					}
+				}
+			],
+			"available_size": [
+				{
+					"ID": "63a9af30d38789473ba91a0c",
+					"name": {
+						"en": "S",
+						"ar": "سمسف"
+					}
+				},
+				{
+					"ID": "63ab3919a4638c2133128aaf",
+					"name": {
+						"en": "L",
+						"ar": "سمسف"
+					}
+				},
+				{
+					"ID": "63ab394ea4638c2133128ab2",
+					"name": {
+						"en": "20",
+						"ar": "20"
 					}
 				}
 			]
