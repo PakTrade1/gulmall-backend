@@ -200,13 +200,19 @@ func Add_data_to_mongo(image_array []string) *mongo.InsertOneResult {
 			},
 			"size_chart": "",
 		},
-		"images": bson.A{
-			bson.M{
-				"low_quility": image_array,
-			},
-			bson.M{
-				"high_quility": dumy_array,
-			},
+		// "images": bson.A{
+		// 	bson.M{
+		// 		"low_quility": image_array,
+		// 	},
+		// 	bson.M{
+		// 		"high_quility": dumy_array,
+		// 	},
+		// },
+		"images": bson.M{
+
+			"low_quility": bson.A{image_array},
+
+			"high_quility": bson.A{dumy_array},
 		},
 		"price":        0,
 		"status":       "pending",
