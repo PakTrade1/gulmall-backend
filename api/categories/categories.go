@@ -258,7 +258,8 @@ type respone_add_category struct {
 	Data    status_result `json:"data"`
 }
 type status_result struct {
-	Status string `json:"status"`
+	Status    string      `json:"status"`
+	Insert_id interface{} `json:"category_id"`
 }
 
 func Add_category(w http.ResponseWriter, req *http.Request) {
@@ -278,12 +279,13 @@ func Add_category(w http.ResponseWriter, req *http.Request) {
 			"ar": strcutinit.Name.Ar,
 		},
 		"gender_flag": strcutinit.Gender_flag,
+		"icon":        strcutinit.Icon,
 	}
 
 	//fmt.Print(body)
 	coll := docking.PakTradeDb.Collection("categories")
 
-	// // // insert a user
+	// // // insert a category
 	var results respone_add_category
 
 	inset, err3 := coll.InsertOne(context.TODO(), insertdat)
@@ -297,6 +299,7 @@ func Add_category(w http.ResponseWriter, req *http.Request) {
 		results.Status = http.StatusOK
 		results.Message = "success"
 		results.Data.Status = "add cetegory successfully"
+		results.Data.Insert_id = inset.InsertedID
 	} else {
 		results.Message = "decline"
 		results.Data.Status = "not added "
@@ -404,6 +407,155 @@ func Delete_category(w http.ResponseWriter, req *http.Request) {
 	} else {
 		results.Message = "decline"
 		results.Data.Status = "no data delete"
+
+	}
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+
+	fmt.Fprintf(w, "%s\n", output)
+
+}
+
+// ////////////// Insert Sub cetogery and responce id and name
+type Sub_cat_requset struct {
+	Cat_id primitive.ObjectID `json:"cat_id"`
+	Icon   string             `json:"icon"`
+	Name   struct {
+		En string `json:"en"`
+		Ar string `json:"ar"`
+	} `json:"name"`
+}
+
+type respone_add_sub_category struct {
+	Status  int                   `json:"status"`
+	Message string                `json:"message"`
+	Data    status_result_sub_cat `json:"data"`
+}
+type status_result_sub_cat struct {
+	Status    string      `json:"status"`
+	Insert_id interface{} `json:"category_id"`
+}
+
+func Add_sub_category(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var strcutinit Sub_cat_requset
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+
+	insertdat := bson.M{
+		"cat_id": strcutinit.Cat_id,
+		"icon":   strcutinit.Icon,
+		"name": bson.M{
+			"en": strcutinit.Name.En,
+			"ar": strcutinit.Name.Ar,
+		},
+	}
+
+	//fmt.Print(body)
+	coll := docking.PakTradeDb.Collection("sub_category")
+
+	// // // insert a category
+	var results respone_add_category
+
+	inset, err3 := coll.InsertOne(context.TODO(), insertdat)
+	if err3 != nil {
+		fmt.Fprintf(w, "%s\n", err3)
+	}
+
+	//	fmt.Fprintf(w, "%s\n", inset)
+
+	if inset != nil && inset.InsertedID != "" {
+		results.Status = http.StatusOK
+		results.Message = "success"
+		results.Data.Status = "add sub-cetegory successfully"
+		results.Data.Insert_id = inset.InsertedID
+	} else {
+		results.Message = "decline"
+		results.Data.Status = "not added "
+
+	}
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+
+	fmt.Fprintf(w, "%s\n", output)
+
+}
+
+// //////////// add sub child  cetegory
+type Sub_Child_cat struct {
+	// ID          primitive.ObjectID `bson:"_id,omitempty"`
+
+	Sub_category_id primitive.ObjectID `json:"sub_category_id"`
+	Icon            string             `json:"icon"`
+	Name            struct {
+		En string `json:"en"`
+		Ar string `json:"ar"`
+	} `json:"name"`
+	Available_size []string `json:"available_size"`
+}
+type respone_add_sub_category_child struct {
+	Status  int                   `json:"status"`
+	Message string                `json:"message"`
+	Data    status_result_sub_cat `json:"data"`
+}
+type status_result_sub_cat_child struct {
+	Status    string      `json:"status"`
+	Insert_id interface{} `json:"category_id"`
+}
+
+func Add_sub_child_category(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var strcutinit Sub_Child_cat
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+
+	insertdat := bson.M{
+		"sub_category_id": strcutinit.Sub_category_id,
+		"icon":            strcutinit.Icon,
+		"name": bson.M{
+			"en": strcutinit.Name.En,
+			"ar": strcutinit.Name.Ar,
+		},
+		"available_size": strcutinit.Available_size,
+	}
+
+	//fmt.Print(body)
+	coll := docking.PakTradeDb.Collection("sub_category_child")
+
+	// // // insert a category
+	var results respone_add_sub_category_child
+
+	inset, err3 := coll.InsertOne(context.TODO(), insertdat)
+	if err3 != nil {
+		fmt.Fprintf(w, "%s\n", err3)
+	}
+
+	//	fmt.Fprintf(w, "%s\n", inset)
+
+	if inset != nil && inset.InsertedID != "" {
+		results.Status = http.StatusOK
+		results.Message = "success"
+		results.Data.Status = "add sub-cetegory-child successfully"
+		results.Data.Insert_id = inset.InsertedID
+	} else {
+		results.Message = "decline"
+		results.Data.Status = "not added "
 
 	}
 	output, err := json.MarshalIndent(results, "", "    ")

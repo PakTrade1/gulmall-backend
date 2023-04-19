@@ -36,8 +36,10 @@ func main() {
 	r.HandleFunc("/add-cart", Allcart.Update_cart)
 	r.HandleFunc("/add-size", size.Add_size)
 	r.HandleFunc("/add-address", shipping_addres.Add_shipping_address)
-
 	r.HandleFunc("/add-category", categories.Add_category)
+	r.HandleFunc("/add-sub-category", categories.Add_sub_category)
+	r.HandleFunc("/add-sub-category-child", categories.Add_sub_child_category)
+
 	// UPDATE ROUTE
 	r.HandleFunc("/update-category", categories.Update_Category)
 	r.HandleFunc("/update-user", User.Mammals_update_one)

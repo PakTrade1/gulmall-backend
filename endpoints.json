@@ -580,3 +580,72 @@ resp
 
 
 //******************************
+// Category Add 
+http://localhost:8080/add-category
+request
+{
+	"name": {
+	  "en": "fashion 2",
+	  "ar": "nn" 
+	},
+	"gender_flag": false,
+	"icon": "https://firebasestorage.googleapis.com/v0/b/gul-e-mall-app.appspot.com/o/categories%2Ffashion.png?alt=media&token=2e33451b-4370-452b-87af-129d882d5385"
+  }
+  responce
+  {
+	"status": 200,
+	"message": "success",
+	"data": {
+		"status": "add cetegory successfully",
+		"category_id": "644017c190a4ebc36756f951"
+	}
+}
+
+//////////////// 
+////// Add sub Category
+http://localhost:8080/add-sub-category
+Requset
+{
+	"cat_id":"644017c190a4ebc36756f951",
+	"icon":"abc"
+  "name": {
+    "en": "Men's Kurta",
+    "ar": "مردوں کا لباس " 
+  }
+}
+responce 
+{
+	"status": 200,
+	"message": "success",
+	"data": {
+		"status": "add sub-cetegory successfully",
+		"category_id": "64401a6ea4af21e85d8eed25"
+	}
+}
+///////
+/////// Add sub category child 
+http://localhost:8080/add-sub-category-child 
+request 
+{
+ 
+	"sub_category_id": "6440250f1180d0f31d83462b",
+	   "icon":"image url here",
+	"name": {
+	  "en": "Louis viton underware",
+	  "ar": "جدسالکفجدسف"
+	},
+	"available_size": [
+	   "63a9af30d38789473ba91a0c",
+		 "63a9af30d38789473ba91a0c"
+	]
+  }
+
+  responce 
+  {
+	"status": 200,
+	"message": "success",
+	"data": {
+		"status": "add sub-cetegory-child successfully",
+		"category_id": "644025bb4c30afd22a87280a"
+	}
+}
