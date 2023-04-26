@@ -835,4 +835,156 @@ func Update_cart(w http.ResponseWriter, req *http.Request) {
 	}
 
 }
-//Test
+
+//////////////////////// ORDER with All Data needed
+
+type Order_resp struct {
+	ID             primitive.ObjectID `bson:"_id,omitempty"`
+	Item_id        primitive.ObjectID `json:"item_id,omitempty"`
+	Color          string             `json:"color"`
+	Size           string             `json:"size"`
+	Seller_phone   string             `json:"seller_phone"`
+	Customer_phone string             `json:"customer_phone"`
+	Status         string             `json:"Status"`
+	Discount       string             `json:"discount"`
+	Total_price    int                `json:"total_price"`
+	Quantity       int                `json:"quantity"`
+	Price          int                `json:"price"`
+	Currency       string             `json:"currency"`
+}
+type resp_order_mesege struct {
+	Status  int          `json:"status"`
+	Message string       `json:"message"`
+	Data    []Order_resp `json:"data"`
+}
+
+func Order_with_need_data(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	coll := docking.PakTradeDb.Collection("cart_mammals")
+
+	mongoDb_query := bson.A{
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "size"},
+					{"localField", "size_id"},
+					{"foreignField", "_id"},
+					{"as", "size"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "color"},
+					{"localField", "color_id"},
+					{"foreignField", "_id"},
+					{"as", "color"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "mammals"},
+					{"localField", "mammal_id"},
+					{"foreignField", "_id"},
+					{"as", "user"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "seller_info"},
+					{"localField", "seller_info"},
+					{"foreignField", "_id"},
+					{"as", "seller"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "payment_services"},
+					{"localField", "payement_method"},
+					{"foreignField", "_id"},
+					{"as", "payment"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "cloths"},
+					{"localField", "item_id"},
+					{"foreignField", "_id"},
+					{"as", "item"},
+				},
+			},
+		},
+		bson.D{
+			{"$set",
+				bson.D{
+					{"color", bson.D{{"$first", "$color"}}},
+					{"size", bson.D{{"$first", "$size"}}},
+					{"user", bson.D{{"$first", "$user"}}},
+					{"seller", bson.D{{"$first", "$seller"}}},
+					{"payment", bson.D{{"$first", "$payment"}}},
+					{"item", bson.D{{"$first", "$item"}}},
+				},
+			},
+		},
+		bson.D{
+			{"$project",
+				bson.D{
+					{"_id", "$_id"},
+					{"item_id", "$item_id"},
+					{"color", "$color.name.en"},
+					{"size", "$size.name.en"},
+					{"seller_phone", "$seller.phone"},
+					{"customer_phone", "$user.phone"},
+					{"Status", "$delivery_status"},
+					{"discount", "$discount"},
+					{"total_price", "$total_price"},
+					{"quantity", "$quantity"},
+					{"price", "$price"},
+					{"currency", "$item.currency"},
+				},
+			},
+		},
+	}
+	cursor, err := coll.Aggregate(context.TODO(), mongoDb_query)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var results1 []Order_resp
+	for cursor.Next(context.TODO()) {
+		var abc Order_resp
+		cursor.Decode(&abc)
+		results1 = append(results1, abc)
+
+	}
+
+	var results resp_order_mesege
+	if results1 != nil {
+		results.Status = http.StatusOK
+		results.Message = "success"
+	} else {
+		results.Message = "decline"
+
+	}
+	results.Data = results1
+	//objectIDS, _ := primitive.ObjectIDFromHex(string(result.Id))
+
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+
+	fmt.Fprintf(w, "%s\n", output)
+}

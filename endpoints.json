@@ -649,3 +649,43 @@ request
 		"category_id": "644025bb4c30afd22a87280a"
 	}
 }
+
+/////// get all orders 
+http://localhost:8080/get-order-details
+request
+no body 
+response
+{
+	"status": 200,
+	"message": "success",
+	"data": [
+		{
+			"ID": "6394da00cdfd12833654b7a3",
+			"item_id": "637fdb345b36af712791b69a",
+			"color": "Off White",
+			"size": "Xs",
+			"seller_phone": "03005500332",
+			"customer_phone": "0312342123",
+			"Status": "pending",
+			"discount": "0%",
+			"total_price": 369,
+			"quantity": 3,
+			"price": 123,
+			"currency": "OMR"
+		},
+		{
+			"ID": "6394da4ccdfd12833654b7a4",
+			"item_id": "635c38c5fac4c1329eb00b41",
+			"color": "Off White",
+			"size": "",
+			"seller_phone": "",
+			"customer_phone": "0312342123",
+			"Status": "pending",
+			"discount": "0%",
+			"total_price": 68,
+			"quantity": 2,
+			"price": 34,
+			"currency": ""
+		}
+	]
+}

@@ -62,6 +62,7 @@ func main() {
 	r.HandleFunc("/get-item-by-id", item.Serch_item_by_id)
 	r.HandleFunc("/get-cart-with-id", Allcart.Get_cart_with_id)
 	r.HandleFunc("/get-cart", Allcart.Cart_getall)
+	r.HandleFunc("/get-order-details", Allcart.Order_with_need_data)
 	r.HandleFunc("/get-all-cart", Allcart.Get_cart_all_with_id_data)
 	r.HandleFunc("/get-all-item", item.Get_all_items)
 	r.HandleFunc("/get-weight", weight.Weight)

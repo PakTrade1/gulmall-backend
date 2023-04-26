@@ -338,7 +338,7 @@ func Size_select_by_child_id(w http.ResponseWriter, req *http.Request) {
 	for result_selecttion_type.Next(context.TODO()) {
 		result_selecttion_type.Decode(&abc)
 	}
-
+	fmt.Print(abc)
 	mongo_Qury := bson.A{
 		bson.D{{"$match", bson.D{{"sub_cat_child_id", objectIDS}}}},
 		bson.D{
