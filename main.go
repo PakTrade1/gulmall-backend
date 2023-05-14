@@ -39,6 +39,7 @@ func main() {
 	r.HandleFunc("/add-category", categories.Add_category)
 	r.HandleFunc("/add-sub-category", categories.Add_sub_category)
 	r.HandleFunc("/add-sub-category-child", categories.Add_sub_child_category)
+	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 
 	// UPDATE ROUTE
 	r.HandleFunc("/update-category", categories.Update_Category)
@@ -78,5 +79,5 @@ func main() {
 	})
 	handler := c.Handler(r)
 	fmt.Println("Runging server port ===> 80")
-	http.ListenAndServe(":80", handler)
+	http.ListenAndServe(":8080", handler)
 }

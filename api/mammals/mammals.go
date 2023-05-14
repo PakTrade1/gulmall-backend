@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	docking "pak-trade-go/Docking"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -241,6 +242,100 @@ func Mammals_update_one(w http.ResponseWriter, req *http.Request) {
 	output, err2 := json.MarshalIndent(result1, "", "    ")
 	if err2 != nil {
 		panic(err2)
+	}
+
+	fmt.Fprintf(w, "%s\n", output)
+
+}
+
+////////////// Mammalas Registration...././//////././
+
+type mammals_reg_insert struct {
+	// ID              primitive.ObjectID `bson:"_id,omitempty"`
+	CreationDate    time.Time `json:"creationDate"`
+	DisplayName     string    `json:"displayName"`
+	Email           string    `json:"email"`
+	IsAnonymour     bool      `json:"isAnonymour"`
+	IsEmailVerified bool      `json:"isEmailVerified"`
+	LastSignedIn    time.Time `json:"lastSignedIn"`
+	PhoneNumber     string    `json:"phoneNumber"`
+	PhotoURL        string    `json:"photoUrl"`
+	ProviderID      string    `json:"providerId"`
+	ProviderInfo    []struct {
+		DisplyName  string `json:"displyName"`
+		Email       string `json:"email"`
+		PhoneNumber string `json:"phoneNumber"`
+		PhotoURL    string `json:"photoUrl"`
+		ProviderID  string `json:"providerId"`
+		UID         string `json:"uid"`
+	} `json:"providerInfo"`
+	PublicID     string `json:"publicId"`
+	RefreshToken string `json:"refreshToken"`
+}
+type resp_insert struct {
+	Status  int         `json:"status"`
+	Message string      `json:"message"`
+	Id      interface{} `json:"id"`
+}
+
+func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var mammals_reg mammals_reg_insert
+	err := json.NewDecoder(req.Body).Decode(&mammals_reg)
+	if err != nil {
+		panic(err)
+	}
+	// mongo query
+	mongo_query := bson.M{
+		"creationDate":    mammals_reg.CreationDate,
+		"displayName":     mammals_reg.DisplayName,
+		"email":           mammals_reg.Email,
+		"isAnonymour":     mammals_reg.IsAnonymour,
+		"isEmailVerified": mammals_reg.IsEmailVerified,
+		"lastSignedIn":    mammals_reg.LastSignedIn,
+		"phoneNumber":     mammals_reg.PhoneNumber,
+		"photoUrl":        mammals_reg.PhotoURL,
+		"providerId":      mammals_reg.ProviderID,
+		"providerInfo": bson.A{
+			bson.M{
+				"displyName":  mammals_reg.ProviderInfo[0].DisplyName,
+				"email":       mammals_reg.ProviderInfo[0].Email,
+				"phoneNumber": mammals_reg.ProviderInfo[0].PhoneNumber,
+				"photoUrl":    mammals_reg.ProviderInfo[0].PhotoURL,
+				"providerId":  mammals_reg.ProviderInfo[0].ProviderID,
+				"uid":         mammals_reg.ProviderInfo[0].UID,
+			},
+		},
+		"publicId":     mammals_reg.PublicID,
+		"refreshToken": mammals_reg.RefreshToken,
+	}
+
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
+
+	// // // insert a user
+
+	inset, err3 := coll.InsertOne(context.TODO(), mongo_query)
+	if err3 != nil {
+		fmt.Fprintf(w, "%s\n", err3)
+	}
+	var results resp_insert
+	if inset != nil {
+		results.Status = http.StatusOK
+		results.Message = "success"
+
+	} else {
+		results.Message = "decline"
+
+	}
+
+	results.Id = inset.InsertedID
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
 	}
 
 	fmt.Fprintf(w, "%s\n", output)

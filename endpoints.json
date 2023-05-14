@@ -689,3 +689,42 @@ response
 		}
 	]
 }
+
+
+
+//////////////////// Mammals Registration
+endpoint
+http://localhost:8080/add-mammals_registration
+request 
+{
+  
+	"creationDate": "2020-10-09T20:00:00.000Z",
+	
+	"displayName": "gull",
+	"email": "gull@gmail.com",
+	"isAnonymour": false,
+	"isEmailVerified": true,
+	"lastSignedIn": "2023-10-09T20:00:00.000Z",
+	"phoneNumber": "0300890981",
+	"photoUrl": "abcxyzuserl",
+	"providerId": "firebase",
+	"providerInfo": [
+	  {
+		"displyName": "gull",
+		"email": "gul@gmail.com",
+		"phoneNumber": "",
+		"photoUrl": "url",
+		"providerId": "google.com",
+		"uid": "08181918181891"
+	  }
+	],
+	"publicId": "1",
+	"refreshToken": "tokenof "
+  }
+  resp
+
+  {
+	"status": 200,
+	"message": "success",
+	"id": "6460ddcc781504cc0b89a667"
+}
