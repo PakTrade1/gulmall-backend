@@ -728,3 +728,90 @@ request
 	"message": "success",
 	"id": "6460ddcc781504cc0b89a667"
 }
+
+
+////////////////////////////////// Tier Get 
+http://localhost:8080/get-tier
+req 
+no body
+resp
+{
+	"status": 200,
+	"message": "success",
+	"data": [
+		{
+			"ID": "646d3338f9e3260506559802",
+			"name": "Diamond",
+			"order": 1,
+			"iconUrl": ""
+		},
+		{
+			"ID": "646d3390f9e3260506559803",
+			"name": "Gold",
+			"order": 2,
+			"iconUrl": ""
+		},
+		{
+			"ID": "646d339df9e3260506559804",
+			"name": "Silver",
+			"order": 3,
+			"iconUrl": ""
+		},
+		{
+			"ID": "646d33b2f9e3260506559805",
+			"name": "Basic",
+			"order": 4,
+			"iconUrl": ""
+		}
+	]
+}
+//////// get plans with id
+http://localhost:8080/get-plans
+{
+	"tierId":"646d3338f9e3260506559802"
+}
+
+Response
+{
+	"status": 200,
+	"message ": "success",
+	"data": [
+		{
+			"_id": "",
+			"week": 1,
+			"ad_duration": 0,
+			"special_duration": 0,
+			"price": 1.1,
+			"tierId": "646d3338f9e3260506559802",
+			"discount": "0%"
+		},
+		{
+			"_id": "",
+			"week": 2,
+			"ad_duration": 0,
+			"special_duration": 0,
+			"price": 2.1,
+			"tierId": "646d3338f9e3260506559802",
+			"discount": "0%"
+		},
+		{
+			"_id": "",
+			"week": 3,
+			"ad_duration": 0,
+			"special_duration": 0,
+			"price": 3.1,
+			"tierId": "646d3338f9e3260506559802",
+			"discount": "5%"
+		},
+		{
+			"_id": "",
+			"week": 4,
+			"ad_duration": 0,
+			"special_duration": 0,
+			"price": 3.9,
+			"tierId": "646d3338f9e3260506559802",
+			"discount": ""
+		}
+
+	]
+}

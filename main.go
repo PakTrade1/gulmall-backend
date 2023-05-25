@@ -8,6 +8,7 @@ import (
 	categories "pak-trade-go/api/categories"
 	color "pak-trade-go/api/color"
 	gender "pak-trade-go/api/gender"
+	tier "pak-trade-go/api/tier"
 
 	//	"pak-trade-go/api/weight"
 
@@ -56,6 +57,10 @@ func main() {
 	r.HandleFunc("/delete-item-by-id", item.Item_delete_by_id)
 	// GET ROUTE
 	r.HandleFunc("/get-color", color.Color)
+	r.HandleFunc("/get-tier", tier.Tier_get)
+
+	r.HandleFunc("/get-plans", tier.Plan_select)
+
 	r.HandleFunc("/get-size-chart", size.Size_select_by_child_id)
 	r.HandleFunc("/get-payment-service", payment_service.Get_payment_method)
 	r.HandleFunc("/get-item-with-status", item.Items)
