@@ -815,3 +815,88 @@ Response
 
 	]
 }
+
+////////// Add image insert
+http://localhost:8080/add-item-img
+req
+{
+	"catId":"63a9a76fd38789473ba919e6",
+  "images": {
+    "highQuility": [
+      "no image"
+    ],
+    "lowQuility": [
+      {
+        "image": "https://s.alicdn.com/@sc04/kf/H18a9493b052641c9aa80982e6705a5448/240336033/H18a9493b052641c9aa80982e6705a5448.jpg?quality=close",
+        "color": "Black"
+      },
+      {
+        "image": "https://s.alicdn.com/@sc04/kf/H5044cbcbc9804b539070b8e298a69fb4z/240336033/H5044cbcbc9804b539070b8e298a69fb4z.jpg?quality=close",
+        "color": "Black"
+      }
+    ]
+  }
+  }
+  resp
+  {
+	"status": 200,
+	"message ": "success",
+	"data": {
+		"parentId": "6472ba44c126162dd4a0e8a5"
+	}
+}
+///////////// Update Parent w.r.t category
+http://localhost:8080/update-item
+req
+{
+	"itemId":"6472ae46106e67e380494c6e",
+  "price": 50,
+  "status": "pending",
+  "category":  "63a9a76fd38789473ba919e6",
+  "country": "pakistan",
+  "qty": 1,
+  "currency": "PAK",
+  "rating": 3.2,
+  "title": "Item Title will be here",
+  "ownerId":"6470faec14caaa4ada837968",
+  "numberRatings": 5,
+  "remainingQty": 1,
+  "subCategory": "642638daeb8a1adb9c3c7dc8",
+ 
+	
+	"feature": [
+    {
+      "name": "Feature 01"
+    },
+    {
+      "name": "fe 2"
+    },
+    {
+      "name": "fetuer 3"
+    }
+  ],
+  "name": "Cloth_number_5",
+  "size": {
+    "availableSize": [
+      "63a9af30d38789473ba91a0c",
+       "63ab3919a4638c2133128aaf"
+    ],
+    "sizeChart":  "63a9b958d38789473ba91a23"
+  },
+  "gender":  "63a9572cd6ba395211aab1da",
+  "hasDimension": false,
+  "parentId":"64711071ec2cef59678b2164",
+  "availableColor": [
+     "6352f8123e006819c56246c6",
+     "6352f8123e006819c56246c8"
+  ]
+}
+resp
+{
+	"status": 200,
+	"message ": "success",
+	"data": {
+		"statusParent": "1",
+		"statusChild": "1"
+	}
+}
