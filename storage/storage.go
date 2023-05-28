@@ -183,23 +183,24 @@ func Deltefile(w http.ResponseWriter, r *http.Request) {
 func Add_data_to_mongo(image_array []string) *mongo.InsertOneResult {
 	dumy_array := [1]string{"no image"}
 
-	insertdat := bson.M{"name": bson.M{
-		"en": "",
-		"ar": "",
-	},
-		"feature": bson.A{
-			"",
-		},
-		"available_color": bson.A{
-			"",
-		},
-		"size": bson.M{
-			"available_size": bson.A{
-				"",
-				"",
-			},
-			"size_chart": "",
-		},
+	insertdat := bson.M{
+		// 	"name": bson.M{
+		// 	"en": "",
+		// 	"ar": "",
+		// },
+		// 	"feature": bson.A{
+		// 		"",
+		// 	},
+		// 	"available_color": bson.A{
+		// 		"",
+		// 	},
+		// 	"size": bson.M{
+		// 		"available_size": bson.A{
+		// 			"",
+		// 			"",
+		// 		},
+		// 		"size_chart": "",
+		// 	},
 		// "images": bson.A{
 		// 	bson.M{
 		// 		"low_quility": image_array,
@@ -219,10 +220,11 @@ func Add_data_to_mongo(image_array []string) *mongo.InsertOneResult {
 		"gender":       "",
 		"category":     "",
 		"sub-category": "",
+		"country":      "",
 	}
 
 	//fmt.Print(body)
-	coll := docking.PakTradeDb.Collection("cloths")
+	coll := docking.PakTradeDb.Collection("items-parent")
 
 	// // // insert a user
 
@@ -230,5 +232,15 @@ func Add_data_to_mongo(image_array []string) *mongo.InsertOneResult {
 	if err3 != nil {
 		fmt.Print(err3)
 	}
+
+	inster_parent_id := bson.M{
+		"parentId": responceid.InsertedID,
+	}
+	coll1 := docking.PakTradeDb.Collection("cloths")
+	_, err4 := coll1.InsertOne(context.TODO(), inster_parent_id)
+	if err4 != nil {
+		fmt.Print(err4)
+	}
 	return responceid
+
 }

@@ -42,6 +42,7 @@ func main() {
 	r.HandleFunc("/add-sub-category-child", categories.Add_sub_child_category)
 	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 	r.HandleFunc("/mammals_registration", User.Mammals_user_registration)
+	r.HandleFunc("/add-item-img", item.Add_item_img_wrt_category)
 
 	//	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 
@@ -49,7 +50,9 @@ func main() {
 	r.HandleFunc("/update-category", categories.Update_Category)
 	r.HandleFunc("/update-user", User.Mammals_update_one)
 	r.HandleFunc("/update-cart-in", Allcart.Update_cart)
-	r.HandleFunc("/update-item", item.Item_update_one)
+	// r.HandleFunc("/update-item", item.Item_update_one)
+	r.HandleFunc("/update-item", item.Add_item_update)
+
 	// DELETE ROUTE
 	r.HandleFunc("/delete-address", shipping_addres.Delete_shipping_address)
 	r.HandleFunc("/delete-category", categories.Delete_category)
@@ -87,5 +90,5 @@ func main() {
 	})
 	handler := c.Handler(r)
 	fmt.Println("Runging server port ===> 80")
-	http.ListenAndServe(":80", handler)
+	http.ListenAndServe(":8080", handler)
 }

@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	docking "pak-trade-go/Docking"
+	"strconv"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -287,7 +289,7 @@ func Item_update_one(w http.ResponseWriter, req *http.Request) {
 				"status":       "pending",
 				"gender":       gender_objectIDS,
 				"category":     category_objectIDS,
-				"sub_category": sub_category_objectIDS,
+				"sub-category": sub_category_objectIDS,
 			}},
 		},
 	)
@@ -905,5 +907,272 @@ func Get_all_items(w http.ResponseWriter, req *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%s\n", output)
+
+}
+
+type Item_struct_insert struct {
+	ItemId string "itemId"
+
+	Price   int    `json:"price"`
+	Name    string `json:"name"`
+	Feature []struct {
+		Name string `json:"name"`
+	} `json:"feature"`
+	Available_color []primitive.ObjectID `json:"availableColor"`
+	Images          struct {
+		LowQuility []struct {
+			Image string `json:"image"`
+			Color string `json:"color"`
+		} `json:"lowQuility"`
+		HighQuility []string `json:"highQuility"`
+	} `json:"images"`
+	Status   string `json:"status"`
+	Gender   string `json:"gender"`
+	Category string `json:"category"`
+	Size     struct {
+		Available_size []primitive.ObjectID `json:"availableSize"`
+		SizeChart      primitive.ObjectID   `json:"sizeChart"`
+	} `json:"size"`
+	Country       string  `json:"country"`
+	Qty           int     `json:"qty"`
+	Currency      string  `json:"currency"`
+	Rating        float64 `json:"rating"`
+	Title         string  `json:"title"`
+	OwnerID       string  `json:"ownerId"`
+	NumberRatings int     `json:"numberRatings"`
+	RemainingQty  int     `json:"remainingQty"`
+	SubCategory   string  `json:"subCategory"`
+	// CreationTimestamp time.Time `json:"creationTimestamp"`
+	HasDimension bool   `json:"hasDimension"`
+	ParentID     string `json:"parentId"`
+}
+type Prant_struct struct {
+	Price  int `json:"price"`
+	Images struct {
+		HighQuility []string `json:"highQuility"`
+		LowQuility  []struct {
+			Image string `json:"image"`
+			Color string `json:"color"`
+		} `json:"lowQuility"`
+	} `json:"images"`
+	Status        string             `json:"status"`
+	Category      primitive.ObjectID `json:"category"`
+	Country       string             `json:"country"`
+	Qty           int                `json:"qty"`
+	Currency      string             `json:"currency"`
+	Rating        float64            `json:"rating"`
+	Title         string             `json:"title"`
+	OwnerID       primitive.ObjectID `json:"ownerId"`
+	NumberRatings int                `json:"numberRatings"`
+	RemainingQty  int                `json:"remainingQty"`
+	SubCategory   primitive.ObjectID `json:"subCategory"`
+	// CreationTimestamp time.Time `json:"creationTimestamp"`
+}
+type update_parent_item_cat struct {
+	Status  int        `json:"status"`
+	Message string     `json:"message "`
+	Data    update_res `json:"data"`
+}
+type update_res struct {
+	StatusParent string `json:"statusParent"`
+	StatusChild  string `json:"statusChild"`
+}
+
+func Add_item_update(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var strcutinit Item_struct_insert
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+	item_id, err := primitive.ObjectIDFromHex(strcutinit.ItemId)
+	handleError(err)
+
+	Cat, err := primitive.ObjectIDFromHex(strcutinit.Category)
+	handleError(err)
+	subCat, err := primitive.ObjectIDFromHex(strcutinit.SubCategory)
+	handleError(err)
+	OwID, err := primitive.ObjectIDFromHex(strcutinit.OwnerID)
+	handleError(err)
+
+	parentstruct_in := new(Prant_struct)
+	parentstruct_in.Price = strcutinit.Price
+	parentstruct_in.Status = strcutinit.Status
+	parentstruct_in.Category = Cat
+	parentstruct_in.Country = strcutinit.Country
+	parentstruct_in.Qty = strcutinit.Qty
+	parentstruct_in.Currency = strcutinit.Currency
+	parentstruct_in.Rating = strcutinit.Rating
+	parentstruct_in.Title = strcutinit.Title
+	parentstruct_in.OwnerID = OwID
+	parentstruct_in.NumberRatings = strcutinit.NumberRatings
+	parentstruct_in.RemainingQty = strcutinit.RemainingQty
+	parentstruct_in.SubCategory = subCat
+	// parentstruct_in.CreationTimestamp = strcutinit.CreationTimestamp
+
+	coll := docking.PakTradeDb.Collection("items-parent")
+	// Requires the MongoDB Go Driver
+	// https://go.mongodb.org/mongo-driver
+	ctx := context.TODO()
+
+	result1, err := coll.UpdateOne(
+		ctx,
+		bson.M{"_id": item_id},
+		bson.D{
+			{Key: "$set", Value: bson.M{
+				"price":             strcutinit.Price,
+				"status":            "pending",
+				"category":          Cat,
+				"subCategory":       subCat,
+				"country":           parentstruct_in.Country,
+				"qty":               parentstruct_in.Qty,
+				"currency":          parentstruct_in.Currency,
+				"rating":            parentstruct_in.Rating,
+				"title":             parentstruct_in.Title,
+				"ownerId":           OwID,
+				"numberRatings":     parentstruct_in.NumberRatings,
+				"remainingQty":      parentstruct_in.RemainingQty,
+				"creationTimestamp": primitive.NewDateTimeFromTime(time.Now()),
+			}},
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var clot_update_status = 0
+	a := new(update_res)
+	coll1 := docking.PakTradeDb.Collection("cloths")
+
+	if strcutinit.Category == "63a9a76fd38789473ba919e6" {
+		result1, err := coll1.UpdateOne(
+			ctx,
+			bson.M{"parentId": item_id},
+			bson.D{
+				{Key: "$set", Value: bson.M{
+					"feature": strcutinit.Feature,
+					"name":    "Cloth_number_5",
+					"size": bson.M{
+						"availableSize": strcutinit.Size.Available_size,
+						"sizeChart":     strcutinit.Size.SizeChart,
+					},
+					"gender":         strcutinit.Gender,
+					"hasDimension":   strcutinit.HasDimension,
+					"availableColor": strcutinit.Available_color,
+				}},
+			},
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+		clot_update_status = int(result1.ModifiedCount)
+	}
+	var results update_parent_item_cat
+	a.StatusParent = strconv.Itoa(int(result1.ModifiedCount))
+	a.StatusChild = strconv.Itoa(clot_update_status)
+
+	if result1.ModifiedCount >= 1 {
+		results.Status = http.StatusOK
+		results.Message = "success"
+		results.Data = *a
+
+	} else {
+		results.Message = "decline"
+
+	}
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+	fmt.Fprintf(w, "%s\n", output)
+
+}
+
+// /////////// Add Image to Parint item with respt to thier cetegory like mart and cloth
+type img_add_struct struct {
+	CatId  string `json:"catId"`
+	Images struct {
+		HighQuility []string `json:"highQuility"`
+		LowQuility  []struct {
+			Image string `json:"image"`
+			Color string `json:"color"`
+		} `json:"lowQuility"`
+	} `json:"images"`
+}
+type add_img_itme_result struct {
+	Status  int    `json:"status"`
+	Message string `json:"message "`
+	Data    PID    `json:"data"`
+}
+type PID struct {
+	ParentID interface{} `json:"parentId"`
+}
+
+func Add_item_img_wrt_category(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var strcutinit img_add_struct
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+	dumy_array := [1]string{"no image"}
+	insertdat := bson.M{
+		"images": bson.M{
+			"highQuility": dumy_array,
+
+			"lowQuility": strcutinit.Images.LowQuility,
+		},
+	}
+
+	//fmt.Print(body)
+	coll := docking.PakTradeDb.Collection("items-parent")
+
+	// // // insert a user
+
+	responceid, err3 := coll.InsertOne(context.TODO(), insertdat)
+	if err3 != nil {
+		fmt.Print(err3)
+	}
+	inster_parent_id := bson.M{
+		"parentId": responceid.InsertedID,
+	}
+	if strcutinit.CatId == "63a9a76fd38789473ba919e6" {
+		coll1 := docking.PakTradeDb.Collection("cloths")
+		_, err4 := coll1.InsertOne(context.TODO(), inster_parent_id)
+		if err4 != nil {
+			fmt.Print(err4)
+		}
+	} else if strcutinit.CatId == "63bdb52116cccb9bb8b48388" {
+		coll1 := docking.PakTradeDb.Collection("item-mart")
+		_, err4 := coll1.InsertOne(context.TODO(), inster_parent_id)
+		if err4 != nil {
+			fmt.Print(err4)
+		}
+
+	}
+	////////// Result
+	ObjectID_parent := new(PID)
+	ObjectID_parent.ParentID = responceid.InsertedID
+
+	var results add_img_itme_result
+
+	if responceid.InsertedID != nil {
+		results.Status = http.StatusOK
+		results.Message = "success"
+		results.Data = *ObjectID_parent
+
+	} else {
+		results.Message = "decline"
+
+	}
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+	fmt.Fprintf(w, "%s\n", output)
+	//////////////// End of image upload_insert
 
 }
