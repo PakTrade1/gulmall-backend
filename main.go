@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	docking "pak-trade-go/Docking"
+	ads "pak-trade-go/api/ads"
 	Allcart "pak-trade-go/api/cart"
 	categories "pak-trade-go/api/categories"
 	color "pak-trade-go/api/color"
@@ -81,6 +82,7 @@ func main() {
 	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
 	r.HandleFunc("/get-child-categories", categories.Child_Categories_select_by__sub_Cat_id)
 	r.HandleFunc("/get-address", shipping_addres.Get_shipping_address_with_mammal_id)
+	r.HandleFunc("/get-ads-by-id", ads.Get_ads_user_by_post_id)
 
 	// UPLOAD FILE
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
@@ -89,6 +91,12 @@ func main() {
 		AllowCredentials: true,
 	})
 	handler := c.Handler(r)
+	// <<<<<<< HEAD
 	fmt.Println("Runging server port ===> 80")
-	http.ListenAndServe(":8080", handler)
+	http.ListenAndServe(":80", handler)
+	// =======
+	// fmt.Println("Runging server port ==> 80")
+	// http.ListenAndServe(":80", handler)
+	//
+	// >>>>>>> e315a59a8ba0a26a2426b2132873019210ed34f7
 }
