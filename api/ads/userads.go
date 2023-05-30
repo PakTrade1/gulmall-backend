@@ -19,23 +19,26 @@ type Ads_resp struct {
 	// ID         primitive.ObjectID `json:"id"`
 	// EndDate    time.Time `json:"endDate"`
 	// StartDate  time.Time `json:"startDate"`
-	Title      string  `json:"title"`
-	Country    string  `json:"country"`
-	Price      int     `json:"price"`
-	Currency   string  `json:"currency"`
-	Rating     float64 `json:"rating"`
-	ViewsCount int     `json:"views_count"`
-	CallCount  int     `json:"call_count"`
-	ChatCount  int     `json:"chat_count"`
-	Images     []struct {
-		Image string `json:"image"`
-		Color string `json:"color"`
-	} `json:"images"`
 	Post_status struct {
 		Name  string `json:"name"`
 		Order int    `json:"order"`
 	} `json:"post_status"`
-	DaysRemening int `json:"daysRemening"`
+	Price  int `json:"price"`
+	Images struct {
+		HighQuility []string `json:"highQuility"`
+		LowQuility  []struct {
+			Image string `json:"image"`
+			Color string `json:"color"`
+		} `json:"lowQuility"`
+	} `json:"images"`
+	Status       string  `json:"status"`
+	Rating       float64 `json:"rating"`
+	ViewsCount   int     `json:"viewsCount"`
+	CallCount    int     `json:"callCount"`
+	ChatCount    int     `json:"chatCount"`
+	FavCount     int     `json:"favCount"`
+	CategoryName string  `json:"categoryName"`
+	DaysRemening int     `json:"daysRemening"`
 }
 
 func handleError(err error) {
@@ -53,6 +56,11 @@ type respone_struct struct {
 func Get_ads_user_by_post_id(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	// urlParts := strings.Split(req.URL.Path, "/")
+	// id := urlParts[len(urlParts)-1]
+
+	id := req.URL.Query().Get("id")
+
 	var strcutinit ads_init
 	err := json.NewDecoder(req.Body).Decode(&strcutinit)
 	if err != nil {
@@ -66,14 +74,55 @@ func Get_ads_user_by_post_id(w http.ResponseWriter, req *http.Request) {
 	ctx := context.TODO()
 	cursor, err := coll.Aggregate(
 		ctx, bson.A{
-			bson.D{{"$match", bson.D{{"postId", strcutinit.Postid}}}},
 			bson.D{
 				{"$lookup",
 					bson.D{
 						{"from", "items-parent"},
 						{"localField", "postId"},
+						{"foreignField", "ownerId"},
+						{"as", "test"},
+					},
+				},
+			},
+			bson.D{
+				{"$lookup",
+					bson.D{
+						{"from", "Mammalas_login"},
+						{"localField", "result.ownerId"},
+						{"foreignField", "ownerId"},
+						{"as", "u"},
+					},
+				},
+			},
+			bson.D{{"$unwind", bson.D{{"path", "$u"}}}},
+			bson.D{{"$match", bson.D{{"u.publicId", id}}}},
+			bson.D{
+				{"$lookup",
+					bson.D{
+						{"from", "items-parent"},
+						{"localField", "u._id"},
+						{"foreignField", "ownerId"},
+						{"as", "allpost"},
+					},
+				},
+			},
+			bson.D{
+				{"$lookup",
+					bson.D{
+						{"from", "plans"},
+						{"localField", "u.planId"},
 						{"foreignField", "_id"},
-						{"as", "postItems"},
+						{"as", "plans"},
+					},
+				},
+			},
+			bson.D{
+				{"$lookup",
+					bson.D{
+						{"from", "tier"},
+						{"localField", "plans.tierId"},
+						{"foreignField", "_id"},
+						{"as", "tier"},
 					},
 				},
 			},
@@ -91,83 +140,38 @@ func Get_ads_user_by_post_id(w http.ResponseWriter, req *http.Request) {
 				{"$lookup",
 					bson.D{
 						{"from", "categories"},
-						{"localField", "_id"},
+						{"localField", "allpost.category"},
 						{"foreignField", "_id"},
-						{"as", "result"},
+						{"as", "catName"},
 					},
 				},
 			},
-			bson.D{
-				{"$lookup",
-					bson.D{
-						{"from", "plans"},
-						{"localField", "postPlan"},
-						{"foreignField", "_id"},
-						{"as", "plans"},
-					},
-				},
-			},
-			bson.D{
-				{"$lookup",
-					bson.D{
-						{"from", "tier"},
-						{"localField", "tierId"},
-						{"foreignField", "_id"},
-						{"as", "tier"},
-					},
-				},
-			},
-			bson.D{
-				{"$lookup",
-					bson.D{
-						{"from", "categories"},
-						{"localField", "catID"},
-						{"foreignField", "_id"},
-						{"as", "cat_name"},
-					},
-				},
-			},
-			bson.D{
-				{"$lookup",
-					bson.D{
-						{"from", "tier"},
-						{"localField", "tierID"},
-						{"foreignField", "_id"},
-						{"as", "tier_id"},
-					},
-				},
-			},
+			bson.D{{"$unwind", bson.D{{"path", "$allpost"}}}},
 			bson.D{
 				{"$set",
 					bson.D{
-						{"postItems", bson.D{{"$first", "$postItems"}}},
-						{"plans", bson.D{{"$first", "$plans"}}},
+						{"cat", bson.D{{"$first", "$catName.name.en"}}},
 						{"statistics", bson.D{{"$first", "$statistics"}}},
-						{"cat_name", bson.D{{"$first", "$cat_name"}}},
-						{"tier_id", bson.D{{"$first", "$tier_id"}}},
+						{"post_status", bson.D{{"$first", "$tier"}}},
 					},
 				},
 			},
 			bson.D{
 				{"$project",
 					bson.D{
-						// {"endDate", "$endDate"},
-						// {"startDate", "$postItems.creationTimestamp"},
-						{"title", "$postItems.title"},
-						{"category", "$cat_name.title"},
-						{"country", "$postItems.country"},
-						{"price", "$postItems.price"},
-						{"currency", "$postItems.currency"},
-						{"rating", "$postItems.rating"},
-						{"views_count", "$statistics.views"},
-						{"call_count", "$statistics.calls"},
-						{"chat_count", "$statistics.chats"},
-						{"fav_count", "$statistics.fav_count"},
-						{"images", "$postItems.images.lowQuility"},
+						{"price", "$allpost.price"},
+						{"images", "$allpost.images"},
+						{"status", "$allpost.status"},
+						{"rating", "$allpost.rating"},
+						{"viewsCount", "$statistics.views"},
+						{"callCount", "$statistics.calls"},
+						{"chatCount", "$statistics.chats"},
+						{"favCount", "$statistics.favorites"},
+						{"categoryName", "$cat"},
 						{"post_status",
 							bson.D{
-								{"name", "$tier_id.name"},
-								{"order", "$tier_id.order"},
+								{"name", "$post_status.name"},
+								{"order", "$post_status.order"},
 							},
 						},
 						{"daysRemening",
@@ -180,7 +184,7 @@ func Get_ads_user_by_post_id(w http.ResponseWriter, req *http.Request) {
 													{"$subtract",
 														bson.A{
 															bson.D{{"$toDate", "$endDate"}},
-															bson.D{{"$toDate", "$postItems.creationTimestamp"}},
+															bson.D{{"$toDate", "$allpost.creationTimestamp"}},
 														},
 													},
 												},
@@ -202,7 +206,7 @@ func Get_ads_user_by_post_id(w http.ResponseWriter, req *http.Request) {
 
 	var resp1 []Ads_resp
 	var results respone_struct
-	// fmt.Println(cursor)
+	//  fmt.Println(cursor)
 
 	for cursor.Next(context.TODO()) {
 
