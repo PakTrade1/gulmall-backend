@@ -61,12 +61,12 @@ func Get_ads_user_by_post_id(w http.ResponseWriter, req *http.Request) {
 
 	id := req.URL.Query().Get("id")
 
-	var strcutinit ads_init
-	err := json.NewDecoder(req.Body).Decode(&strcutinit)
-	if err != nil {
-		panic(err)
-	}
-	handleError(err)
+	// var strcutinit ads_init
+	// err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// handleError(err)
 
 	coll := docking.PakTradeDb.Collection("post-status")
 	// Requires the MongoDB Go Driver
