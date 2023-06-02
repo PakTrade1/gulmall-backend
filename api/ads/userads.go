@@ -170,8 +170,8 @@ func Get_ads_user_by_post_id(w http.ResponseWriter, req *http.Request) {
 						{"categoryName", "$cat"},
 						{"post_status",
 							bson.D{
-								{"name", "$post_status.name"},
-								{"order", "$post_status.order"},
+								{"name", "$tier_id.name"},
+								{"order", "$tier_id.order"},
 							},
 						},
 						{"daysRemening",
