@@ -80,7 +80,7 @@ type Mammals_user1 struct {
 	Email           interface{} `json:"email"`
 	IsEmailVerified bool        `json:"isEmailVerified"`
 	LastSignedIn    time.Time   `json:"lastSignedIn"`
-	PhotoURL        string      `json:"photoUrl"`
+	PhotoURL        string      `json:"photoURL"`
 	ProviderInfo    []struct {
 		DisplyName  interface{} `json:"displyName"`
 		Email       interface{} `json:"email"`
@@ -277,7 +277,7 @@ func Mammals_update_one(w http.ResponseWriter, req *http.Request) {
 type mammals_reg_insert struct {
 	// ID              primitive.ObjectID `bson:"_id,omitempty"`
 
-	CreationDate    time.Time `json:"creationDate"`
+	CreationDate    string    `json:"creationDate"`
 	DisplayName     string    `json:"displayName"`
 	Email           string    `json:"email"`
 	IsAnonymour     bool      `json:"isAnonymour"`
@@ -342,6 +342,7 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 	refreshToken1 := getStringValue(mammals_reg.RefreshToken)
 	mongo_query := bson.M{
 		"creationDate":    mammals_reg.CreationDate,
+		"serverDate":      time.Now(),
 		"displayName":     displayName,
 		"email":           email,
 		"isAnonymour":     mammals_reg.IsAnonymour,
@@ -355,7 +356,7 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 				"displyName":  displyName1,
 				"email":       email1,
 				"phoneNumber": phoneNumber1,
-				"photoUrl":    photoUrl1,
+				"photoURL":    photoUrl1,
 				"providerId":  mammals_reg.ProviderInfo[0].ProviderID,
 				"uid":         uid1,
 			},
