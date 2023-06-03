@@ -839,6 +839,7 @@ type Prant_struct struct {
 	NumberRatings int                `json:"numberRatings"`
 	RemainingQty  int                `json:"remainingQty"`
 	SubCategory   primitive.ObjectID `json:"subCategory"`
+	PlanId        primitive.ObjectID `json:"planId"`
 	// CreationTimestamp time.Time `json:"creationTimestamp"`
 }
 type update_parent_item_cat struct {
@@ -907,6 +908,7 @@ func Add_item_update(w http.ResponseWriter, req *http.Request) {
 				"numberRatings":     parentstruct_in.NumberRatings,
 				"remainingQty":      parentstruct_in.RemainingQty,
 				"creationTimestamp": primitive.NewDateTimeFromTime(time.Now()),
+				"planId":            parentstruct_in.PlanId,
 			}},
 		},
 	)
@@ -997,6 +999,8 @@ func Add_item_img_wrt_category(w http.ResponseWriter, req *http.Request) {
 
 			"lowQuality": strcutinit.Images.LowQuility,
 		},
+		"planId": "64735fe18f737b74c13bd6d3",
+		"credit": 5,
 	}
 
 	//fmt.Print(body)
@@ -1047,5 +1051,29 @@ func Add_item_img_wrt_category(w http.ResponseWriter, req *http.Request) {
 	}
 	fmt.Fprintf(w, "%s\n", output)
 	//////////////// End of image upload_insert
+
+}
+
+func Test(w http.ResponseWriter, r *http.Request) {
+	// Retrieve all the form values from the request
+	var payload map[string]interface{}
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		// Handle JSON decoding error
+		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		return
+	}
+	fmt.Println(payload)
+	data := map[string]interface{}{
+		"itemId": "64735d5a89c9caa76da4e958",
+		"name":   "Cloth_number_5",
+	}
+
+	// Access the stored data
+	itemID := data["itemId"].(string)
+	name := data["name"].(string)
+
+	fmt.Println("Item ID:", itemID)
+	fmt.Println("Name:", name)
 
 }

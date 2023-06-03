@@ -44,6 +44,7 @@ func main() {
 	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 	r.HandleFunc("/mammals_registration", User.Mammals_user_registration)
 	r.HandleFunc("/add-item-img", item.Add_item_img_wrt_category)
+	r.HandleFunc("/test", item.Test)
 
 	//	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 
