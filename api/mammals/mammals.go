@@ -73,6 +73,30 @@ type Mammals_user_update struct {
 	Phone   string `json:"phone" bson:"phone"`
 	Profile string `json:"profile" bson:"profile"`
 }
+type Mammals_user1 struct {
+	ID              primitive.ObjectID `json:"_id"`
+	CreationDate    time.Time          `json:"creationDate"`
+	DisplayName     interface{}        `json:"displayName"`
+	Email           interface{}        `json:"email"`
+	IsEmailVerified bool               `json:"isEmailVerified"`
+	LastSignedIn    time.Time          `json:"lastSignedIn"`
+	PhotoURL        string             `json:"photoUrl"`
+	ProviderInfo    []struct {
+		DisplyName  interface{} `json:"displyName"`
+		Email       interface{} `json:"email"`
+		PhoneNumber interface{} `json:"phoneNumber"`
+		PhotoURL    interface{} `json:"photoUrl"`
+		ProviderID  interface{} `json:"providerId"`
+		UID         interface{} `json:"uid"`
+	} `json:"providerInfo"`
+	IsAnonymour  bool        `json:"isAnonymour"`
+	PhoneNumber  interface{} `json:"phoneNumber"`
+	ProviderID   interface{} `json:"providerId"`
+	PublicID     int         `json:"publicId"`
+	RefreshToken interface{} `json:"refreshToken"`
+	Credit       int         `json:"credit"`
+	PlanId       string      `json:"planId"`
+}
 
 func Mammals_getall(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -88,9 +112,9 @@ func Mammals_getall(w http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	var results []Mammals_user
+	var results []Mammals_user1
 	for cursor.Next(context.TODO()) {
-		var abc Mammals_user
+		var abc Mammals_user1
 		cursor.Decode(&abc)
 		results = append(results, abc)
 
@@ -297,6 +321,15 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 	// mongo
+	inputString := "64735fe18f737b74c13bd6d3"
+
+	// Convert string to ObjectID
+	Planid, err := primitive.ObjectIDFromHex(inputString)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
 	displayName := getStringValue(mammals_reg.DisplayName)
 	email := getStringValue(mammals_reg.Email)
 	phoneNumber := getStringValue(mammals_reg.PhoneNumber)
@@ -330,7 +363,7 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 		"publicId":     mammals_reg.PublicID,
 		"refreshToken": refreshToken1,
 		"credit":       5,
-		"planId":       "64735fe18f737b74c13bd6d3",
+		"planId":       Planid,
 	}
 
 	coll := docking.PakTradeDb.Collection("Mammalas_login")
