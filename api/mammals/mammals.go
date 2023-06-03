@@ -277,15 +277,15 @@ func Mammals_update_one(w http.ResponseWriter, req *http.Request) {
 type mammals_reg_insert struct {
 	// ID              primitive.ObjectID `bson:"_id,omitempty"`
 
-	CreationDate    string    `json:"creationDate"`
-	DisplayName     string    `json:"displayName"`
-	Email           string    `json:"email"`
-	IsAnonymour     bool      `json:"isAnonymour"`
-	IsEmailVerified bool      `json:"isEmailVerified"`
-	LastSignedIn    time.Time `json:"lastSignedIn"`
-	PhoneNumber     string    `json:"phoneNumber"`
-	PhotoURL        string    `json:"photoUrl"`
-	ProviderID      string    `json:"providerId"`
+	CreationDate    string `json:"creationDate"`
+	DisplayName     string `json:"displayName"`
+	Email           string `json:"email"`
+	IsAnonymour     bool   `json:"isAnonymous"`
+	IsEmailVerified bool   `json:"isEmailVerified"`
+	LastSignedIn    string `json:"lastSignedIn"`
+	PhoneNumber     string `json:"phoneNumber"`
+	PhotoURL        string `json:"photoUrl"`
+	ProviderID      string `json:"providerId"`
 	ProviderInfo    []struct {
 		DisplyName  string `json:"displyName"`
 		Email       string `json:"email"`
@@ -345,7 +345,7 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 		"serverDate":      time.Now(),
 		"displayName":     displayName,
 		"email":           email,
-		"isAnonymour":     mammals_reg.IsAnonymour,
+		"isAnonymous":     mammals_reg.IsAnonymour,
 		"isEmailVerified": mammals_reg.IsEmailVerified,
 		"lastSignedIn":    mammals_reg.LastSignedIn,
 		"phoneNumber":     phoneNumber,
