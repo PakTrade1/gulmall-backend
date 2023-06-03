@@ -78,7 +78,7 @@ func Mammals_getall(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	coll := docking.PakTradeDb.Collection("mammals")
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
 
 	// Requires the MongoDB Go Driver
 	// https://go.mongodb.org/mongo-driver
@@ -167,7 +167,7 @@ func Mammals_select_one(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	coll := docking.PakTradeDb.Collection("mammals")
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
 	objectIDS, _ := primitive.ObjectIDFromHex(search1.ID)
 
 	var result Mammals_user
@@ -252,6 +252,7 @@ func Mammals_update_one(w http.ResponseWriter, req *http.Request) {
 
 type mammals_reg_insert struct {
 	// ID              primitive.ObjectID `bson:"_id,omitempty"`
+
 	CreationDate    time.Time `json:"creationDate"`
 	DisplayName     string    `json:"displayName"`
 	Email           string    `json:"email"`
@@ -269,13 +270,20 @@ type mammals_reg_insert struct {
 		ProviderID  string `json:"providerId"`
 		UID         string `json:"uid"`
 	} `json:"providerInfo"`
-	PublicID     string `json:"publicId"`
+	PublicID     int    `json:"publicId"`
 	RefreshToken string `json:"refreshToken"`
 }
 type resp_insert struct {
 	Status  int         `json:"status"`
 	Message string      `json:"message"`
 	Id      interface{} `json:"id"`
+}
+
+func getStringValue(value string) interface{} {
+	if value == "" {
+		return primitive.Null{}
+	}
+	return value
 }
 
 func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
@@ -288,29 +296,39 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	// mongo query
+	// mongo
+	displayName := getStringValue(mammals_reg.DisplayName)
+	email := getStringValue(mammals_reg.Email)
+	phoneNumber := getStringValue(mammals_reg.PhoneNumber)
+	photoUrl := getStringValue(mammals_reg.PhotoURL)
+	displyName1 := getStringValue(mammals_reg.ProviderInfo[0].DisplyName)
+	email1 := getStringValue(mammals_reg.ProviderInfo[0].Email)
+	phoneNumber1 := getStringValue(mammals_reg.ProviderInfo[0].PhoneNumber)
+	photoUrl1 := getStringValue(mammals_reg.ProviderInfo[0].PhotoURL)
+	uid1 := getStringValue(mammals_reg.ProviderInfo[0].UID)
+	refreshToken1 := getStringValue(mammals_reg.RefreshToken)
 	mongo_query := bson.M{
 		"creationDate":    mammals_reg.CreationDate,
-		"displayName":     mammals_reg.DisplayName,
-		"email":           mammals_reg.Email,
+		"displayName":     displayName,
+		"email":           email,
 		"isAnonymour":     mammals_reg.IsAnonymour,
 		"isEmailVerified": mammals_reg.IsEmailVerified,
 		"lastSignedIn":    mammals_reg.LastSignedIn,
-		"phoneNumber":     mammals_reg.PhoneNumber,
-		"photoUrl":        mammals_reg.PhotoURL,
+		"phoneNumber":     phoneNumber,
+		"photoUrl":        photoUrl,
 		"providerId":      mammals_reg.ProviderID,
 		"providerInfo": bson.A{
 			bson.M{
-				"displyName":  mammals_reg.ProviderInfo[0].DisplyName,
-				"email":       mammals_reg.ProviderInfo[0].Email,
-				"phoneNumber": mammals_reg.ProviderInfo[0].PhoneNumber,
-				"photoUrl":    mammals_reg.ProviderInfo[0].PhotoURL,
+				"displyName":  displyName1,
+				"email":       email1,
+				"phoneNumber": phoneNumber1,
+				"photoUrl":    photoUrl1,
 				"providerId":  mammals_reg.ProviderInfo[0].ProviderID,
-				"uid":         mammals_reg.ProviderInfo[0].UID,
+				"uid":         uid1,
 			},
 		},
 		"publicId":     mammals_reg.PublicID,
-		"refreshToken": mammals_reg.RefreshToken,
+		"refreshToken": refreshToken1,
 		"credit":       5,
 		"planId":       "64735fe18f737b74c13bd6d3",
 	}
