@@ -975,15 +975,36 @@ func Add_item_update(w http.ResponseWriter, req *http.Request) {
 }
 
 // /////////// Add Image to Parint item with respt to thier cetegory like mart and cloth
-type img_add_struct struct {
-	CatId  string `json:"catId"`
-	Images struct {
-		HighQuility []string `json:"highQuality"`
-		LowQuility  []struct {
-			Image string `json:"image"`
-			Color string `json:"color"`
-		} `json:"lowQuality"`
+type postadd struct {
+	Images []struct {
+		Image string `json:"image"`
+		Color string `json:"color"`
 	} `json:"images"`
+	Category primitive.ObjectID `json:"category"`
+	Country  string             `json:"country"`
+	// CreationTimestamp time.Time `json:"creationTimestamp"`
+	Currency string `json:"currency"`
+	// NumberRatings     int                `json:"numberRatings"`
+	OwnerID primitive.ObjectID `json:"ownerId"`
+	Price   int                `json:"price"`
+	Qty     int                `json:"qty"`
+	// Rating            float64            `json:"rating"`
+	RemainingQty int `json:"remainingQty"`
+	// Status            string             `json:"status"`
+	SubCategory primitive.ObjectID `json:"subCategory"`
+	Title       string             `json:"title"`
+	PlanID      primitive.ObjectID `json:"planId"`
+	// ParentID          primitive.ObjectID `json:"parentId"`
+	AvailableColor []primitive.ObjectID `json:"availableColor"`
+	Feature        []struct {
+		Name string `json:"name"`
+	} `json:"feature"`
+	Gender       primitive.ObjectID `json:"gender"`
+	HasDimension bool               `json:"hasDimension"`
+	Name         string             `json:"name"`
+	Size         struct {
+		AvailableSize []primitive.ObjectID `json:"availableSize"`
+	} `json:"size"`
 }
 type add_img_itme_result struct {
 	Status  int    `json:"status"`
@@ -994,25 +1015,32 @@ type PID struct {
 	ParentID interface{} `json:"parentId"`
 }
 
-func Add_item_img_wrt_category(w http.ResponseWriter, req *http.Request) {
+func Add_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	var strcutinit img_add_struct
+	var strcutinit postadd
 	err := json.NewDecoder(req.Body).Decode(&strcutinit)
 	if err != nil {
 		panic(err)
 	}
-	dumy_array := [1]string{"no image"}
+	// fmt.Println(strcutinit)
 	insertdat := bson.M{
-		"images": bson.M{
-			"highQuality": dumy_array,
-
-			"lowQuality": strcutinit.Images.LowQuility,
-		},
-		"planId": "64735fe18f737b74c13bd6d3",
-		"credit": 5,
+		"images":            strcutinit.Images,
+		"category":          strcutinit.Category,
+		"country":           strcutinit.Country,
+		"creationTimestamp": time.Now(),
+		"currency":          strcutinit.Currency,
+		"numberRatings":     5,
+		"ownerId":           strcutinit.OwnerID,
+		"price":             strcutinit.Price,
+		"qty":               strcutinit.Price,
+		"rating":            0,
+		"remainingQty":      strcutinit.Qty,
+		"status":            "pending",
+		"subCategory":       strcutinit.SubCategory,
+		"title":             strcutinit.Title,
+		"planId":            strcutinit.PlanID,
 	}
-
 	//fmt.Print(body)
 	coll := docking.PakTradeDb.Collection("items-parent")
 
@@ -1022,18 +1050,29 @@ func Add_item_img_wrt_category(w http.ResponseWriter, req *http.Request) {
 	if err3 != nil {
 		fmt.Print(err3)
 	}
-	inster_parent_id := bson.M{
-		"parentId": responceid.InsertedID,
+
+	inster_cloths := bson.M{
+
+		"parentId":       responceid.InsertedID,
+		"availableColor": strcutinit.AvailableColor,
+		"feature":        strcutinit.Feature,
+		"gender":         strcutinit.Gender,
+		"hasDimension":   strcutinit.HasDimension,
+		"name":           strcutinit.Name,
+		"size": bson.M{
+			"availableSize": strcutinit.Size.AvailableSize,
+			"sizeChart":     "",
+		},
 	}
-	if strcutinit.CatId == "63a9a76fd38789473ba919e6" {
+	if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
 		coll1 := docking.PakTradeDb.Collection("cloths")
-		_, err4 := coll1.InsertOne(context.TODO(), inster_parent_id)
+		_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
 		if err4 != nil {
 			fmt.Print(err4)
 		}
-	} else if strcutinit.CatId == "63bdb52116cccb9bb8b48388" {
+	} else if strcutinit.Category.Hex() == "63bdb52116cccb9bb8b48388" {
 		coll1 := docking.PakTradeDb.Collection("item-mart")
-		_, err4 := coll1.InsertOne(context.TODO(), inster_parent_id)
+		_, err4 := coll1.InsertOne(context.TODO(), responceid.InsertedID)
 		if err4 != nil {
 			fmt.Print(err4)
 		}
@@ -1060,30 +1099,6 @@ func Add_item_img_wrt_category(w http.ResponseWriter, req *http.Request) {
 
 	}
 	fmt.Fprintf(w, "%s\n", output)
-	//////////////// End of image upload_insert
-
-}
-
-func Test(w http.ResponseWriter, r *http.Request) {
-	// Retrieve all the form values from the request
-	var payload map[string]interface{}
-	err := json.NewDecoder(r.Body).Decode(&payload)
-	if err != nil {
-		// Handle JSON decoding error
-		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
-		return
-	}
-	fmt.Println(payload)
-	data := map[string]interface{}{
-		"itemId": "64735d5a89c9caa76da4e958",
-		"name":   "Cloth_number_5",
-	}
-
-	// Access the stored data
-	itemID := data["itemId"].(string)
-	name := data["name"].(string)
-
-	fmt.Println("Item ID:", itemID)
-	fmt.Println("Name:", name)
+	////////////// End of image upload_insert
 
 }
