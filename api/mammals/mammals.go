@@ -408,6 +408,7 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 		"refreshToken": refreshToken1,
 		"credit":       5,
 		"planId":       Planid,
+		"adsRemaining": 5,
 	}
 
 	coll := docking.PakTradeDb.Collection("Mammalas_login")
