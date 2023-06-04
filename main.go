@@ -9,6 +9,7 @@ import (
 	categories "pak-trade-go/api/categories"
 	color "pak-trade-go/api/color"
 	gender "pak-trade-go/api/gender"
+	keyword "pak-trade-go/api/serchKeyWord"
 	tier "pak-trade-go/api/tier"
 
 	//	"pak-trade-go/api/weight"
@@ -35,7 +36,9 @@ func main() {
 	// API ENDPOINTS
 	// ADD ROUTES
 
+	r.HandleFunc("/add-keyword", keyword.Serchkeywordinsert)
 	r.HandleFunc("/add-cart", Allcart.Update_cart)
+
 	r.HandleFunc("/add-size", size.Add_size)
 	r.HandleFunc("/add-address", shipping_addres.Add_shipping_address)
 	r.HandleFunc("/add-category", categories.Add_category)

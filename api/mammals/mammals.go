@@ -14,7 +14,17 @@ import (
 )
 
 type Mammals_serch struct {
-	ID string `json:"_id"`
+	ID int `json:"id"`
+}
+type respone_struct struct {
+	Status  int             `json:"status"`
+	Message string          `json:"message"`
+	Data    []Mammals_user1 `json:"data"`
+}
+type respone_struct1 struct {
+	Status  int           `json:"status"`
+	Message string        `json:"message"`
+	Data    Mammals_user1 `json:"data"`
 }
 type Mammals_user struct {
 	ID primitive.ObjectID `bson:"_id,omitempty"`
@@ -74,29 +84,29 @@ type Mammals_user_update struct {
 	Profile string `json:"profile" bson:"profile"`
 }
 type Mammals_user1 struct {
-	// ID string `json:"_id"`
-	// CreationDate    string      `json:"creationDate"`
-	DisplayName     interface{} `json:"displayName"`
-	Email           interface{} `json:"email"`
-	IsEmailVerified bool        `json:"isEmailVerified"`
-	ServerDate      time.Time   `json:"serverDate"`
-	// LastSignedIn       `json:"lastSignedIn"`
-	PhotoURL     string `json:"photoURL"`
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	ProviderID   interface{}        `json:"providerId"`
+	PublicID     int                `json:"publicId"`
+	RefreshToken interface{}        `json:"refreshToken"`
+	DisplayName  interface{}        `json:"displayName"`
+	LastSignedIn interface{}        `json:"lastSignedIn"`
 	ProviderInfo []struct {
+		PhotoURL    interface{} `json:"photoURL"`
+		ProviderID  interface{} `json:"providerId"`
+		UID         interface{} `json:"uid"`
 		DisplyName  interface{} `json:"displyName"`
 		Email       interface{} `json:"email"`
 		PhoneNumber interface{} `json:"phoneNumber"`
-		PhotoURL    interface{} `json:"photoUrl"`
-		ProviderID  int         `json:"providerId"`
-		UID         interface{} `json:"uid"`
 	} `json:"providerInfo"`
-	IsAnonymour  bool        `json:"isAnonymour"`
-	PhoneNumber  interface{} `json:"phoneNumber"`
-	ProviderID   interface{} `json:"providerId"`
-	PublicID     int         `json:"publicId"`
-	RefreshToken interface{} `json:"refreshToken"`
-	Credit       int         `json:"credit"`
-	PlanId       string      `json:"planId"`
+	Credit          int         `json:"credit"`
+	PhoneNumber     interface{} `json:"phoneNumber"`
+	PhotoURL        interface{} `json:"photoUrl"`
+	IsAnonymous     bool        `json:"isAnonymous"`
+	IsEmailVerified bool        `json:"isEmailVerified"`
+	CreationDate    interface{} `json:"creationDate"`
+	ServerDate      time.Time   `json:"serverDate"`
+	Email           interface{} `json:"email"`
+	PlanID          string      `json:"planId"`
 }
 
 func Mammals_getall(w http.ResponseWriter, req *http.Request) {
@@ -114,14 +124,25 @@ func Mammals_getall(w http.ResponseWriter, req *http.Request) {
 	}
 
 	var results []Mammals_user1
+	var data respone_struct
+
 	for cursor.Next(context.TODO()) {
 		var abc Mammals_user1
 		cursor.Decode(&abc)
 		results = append(results, abc)
 
 	}
+	if results != nil {
+		data.Status = http.StatusOK
+		data.Message = "success"
+		data.Data = results
 
-	output, err := json.MarshalIndent(results, "", "    ")
+	} else {
+		data.Message = "decline"
+
+	}
+
+	output, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		panic(err)
 
@@ -182,6 +203,11 @@ func Mammals_insertone(w http.ResponseWriter, req *http.Request) {
 
 }
 
+type datanotfound struct {
+	Message string `json:"message"`
+	Status  string `json:"status"`
+}
+
 func Mammals_select_one(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
@@ -193,24 +219,39 @@ func Mammals_select_one(w http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 	coll := docking.PakTradeDb.Collection("Mammalas_login")
-	objectIDS, _ := primitive.ObjectIDFromHex(search1.ID)
+	// objectIDS, _ := primitive.ObjectIDFromHex(search1.ID)
 
-	var result Mammals_user
-	filter := bson.M{"_id": objectIDS}
+	var result Mammals_user1
+	filter := bson.M{"publicId": search1.ID}
 
 	err1 := coll.FindOne(context.TODO(), filter).Decode(&result)
 	if err1 != nil {
-		fmt.Println("errror retrieving user userid : " + objectIDS.Hex())
+		fmt.Println("errror retrieving user userid : ")
 	}
 
 	// end findOne
+	var data respone_struct1
+	var datanot datanotfound
+	if result.CreationDate != nil {
+		data.Status = http.StatusOK
+		data.Message = "success"
+		data.Data = result
+		output, err2 := json.MarshalIndent(data, "", "    ")
+		if err2 != nil {
+			panic(err2)
+		}
+		fmt.Fprintf(w, "%s\n", output)
 
-	output, err2 := json.MarshalIndent(result, "", "    ")
-	if err2 != nil {
-		panic(err2)
+	} else {
+		datanot.Message = "decline"
+		datanot.Status = "not found"
+		output, err2 := json.MarshalIndent(datanot, "", "    ")
+		if err2 != nil {
+			panic(err2)
+		}
+		fmt.Fprintf(w, "%s\n", output)
+
 	}
-
-	fmt.Fprintf(w, "%s\n", output)
 
 }
 func Mammals_update_one(w http.ResponseWriter, req *http.Request) {
@@ -330,7 +371,8 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 		fmt.Println("Error:", err)
 		return
 	}
-
+	providerID := getStringValue(mammals_reg.ProviderID)
+	providerID1 := getStringValue(mammals_reg.ProviderInfo[0].ProviderID)
 	displayName := getStringValue(mammals_reg.DisplayName)
 	email := getStringValue(mammals_reg.Email)
 	phoneNumber := getStringValue(mammals_reg.PhoneNumber)
@@ -351,14 +393,14 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 		"lastSignedIn":    mammals_reg.LastSignedIn,
 		"phoneNumber":     phoneNumber,
 		"photoUrl":        photoUrl,
-		"providerId":      mammals_reg.ProviderID,
+		"providerId":      providerID,
 		"providerInfo": bson.A{
 			bson.M{
 				"displyName":  displyName1,
 				"email":       email1,
 				"phoneNumber": phoneNumber1,
 				"photoURL":    photoUrl1,
-				"providerId":  mammals_reg.ProviderInfo[0].ProviderID,
+				"providerId":  providerID1,
 				"uid":         uid1,
 			},
 		},
