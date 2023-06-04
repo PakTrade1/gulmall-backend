@@ -74,19 +74,20 @@ type Mammals_user_update struct {
 	Profile string `json:"profile" bson:"profile"`
 }
 type Mammals_user1 struct {
-	ID              string      `json:"_id"`
-	CreationDate    string      `json:"creationDate"`
+	// ID string `json:"_id"`
+	// CreationDate    string      `json:"creationDate"`
 	DisplayName     interface{} `json:"displayName"`
 	Email           interface{} `json:"email"`
 	IsEmailVerified bool        `json:"isEmailVerified"`
-	LastSignedIn    time.Time   `json:"lastSignedIn"`
-	PhotoURL        string      `json:"photoURL"`
-	ProviderInfo    []struct {
+	ServerDate      time.Time   `json:"serverDate"`
+	// LastSignedIn       `json:"lastSignedIn"`
+	PhotoURL     string `json:"photoURL"`
+	ProviderInfo []struct {
 		DisplyName  interface{} `json:"displyName"`
 		Email       interface{} `json:"email"`
 		PhoneNumber interface{} `json:"phoneNumber"`
 		PhotoURL    interface{} `json:"photoUrl"`
-		ProviderID  interface{} `json:"providerId"`
+		ProviderID  int         `json:"providerId"`
 		UID         interface{} `json:"uid"`
 	} `json:"providerInfo"`
 	IsAnonymour  bool        `json:"isAnonymour"`
