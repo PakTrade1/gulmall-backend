@@ -19,7 +19,7 @@ type Name struct {
 type Color1 struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
 	CSSHex string             `json:"cssHex,omitempty"`
-	Name   `json:"name,omitempty"`
+	Name   string             `json:"name,omitempty"`
 }
 type respone_struct struct {
 	Status  int      `json:"status"`
