@@ -1043,9 +1043,17 @@ type postadd struct {
 	Size         struct {
 		AvailableSize []primitive.ObjectID `json:"availableSize"`
 	} `json:"size"`
-	measurement struct {
-		length float32 `josn:"lenght"`
-		Widht  float32 `json:"width"`
+	Fabric           string `json:"fabric"`
+	Careinstructions string `josn:"careInstructions"`
+	dimension        struct {
+		length struct {
+			Value float32 `json:"value"`
+			Unit  string  `json:"unit"`
+		} `josn:"lenght"`
+		Widht struct {
+			Value float32 `json:"value"`
+			Unit  string  `json:"unit"`
+		} `json:"width"`
 	}
 }
 type add_img_itme_result struct {
@@ -1115,12 +1123,14 @@ func Add_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 		if strcutinit.HasDimension == false {
 			inster_cloths := bson.M{
 
-				"parentId":       responceid.InsertedID,
-				"availableColor": strcutinit.AvailableColor,
-				"feature":        strcutinit.Feature,
-				"gender":         strcutinit.Gender,
-				"hasDimension":   strcutinit.HasDimension,
-				"name":           strcutinit.Name,
+				"parentId":         responceid.InsertedID,
+				"availableColor":   strcutinit.AvailableColor,
+				"feature":          strcutinit.Feature,
+				"gender":           strcutinit.Gender,
+				"hasDimension":     strcutinit.HasDimension,
+				"name":             strcutinit.Name,
+				"fabric":           strcutinit.Fabric,
+				"careInstructions": strcutinit.Careinstructions,
 				"size": bson.M{
 					"availableSize": strcutinit.Size.AvailableSize,
 					"sizeChart":     "",
@@ -1155,10 +1165,15 @@ func Add_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 					"availableSize": strcutinit.Size.AvailableSize,
 					"sizeChart":     "",
 				},
-				"measurement": bson.M{
-					"length": strcutinit.measurement.length,
-					"width":  strcutinit.measurement.Widht,
-				},
+				"dimension": bson.M{
+					"length": bson.M{
+						"unit":  strcutinit.dimension.length.Unit,
+						"value": strcutinit.dimension.length.Value,
+					},
+					"width": bson.M{
+						"unit":  strcutinit.dimension.Widht.Unit,
+						"value": strcutinit.dimension.Widht.Value,
+					}},
 			}
 
 			if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
