@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	docking "pak-trade-go/Docking"
@@ -25,6 +26,13 @@ type respone_struct1 struct {
 	Status  int           `json:"status"`
 	Message string        `json:"message"`
 	Data    Mammals_user1 `json:"data"`
+}
+type respone_update struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+	Data    struct {
+		Status string `json:"status_update"`
+	} `json:"data"`
 }
 type Mammals_user struct {
 	ID primitive.ObjectID `bson:"_id,omitempty"`
@@ -275,40 +283,46 @@ func Mammals_update_one(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	var search1 mamal_login_update
-	err := json.NewDecoder(req.Body).Decode(&search1)
+	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		panic(err)
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
 	}
-	coll := docking.PakTradeDb.Collection("Mammalas_login")
-	// fmt.Print(objectIDS)
 
-	result1, err := coll.UpdateOne(
-		context.TODO(),
-		bson.M{"_id": search1.ID},
-		bson.D{
-			{Key: "$set", Value: bson.M{
-				"displayName": search1.DisplayName,
-				"phoneNumber": search1.PhoneNumber,
-				"photoUrl":    search1.PhotoURL,
-				"providerInfo": bson.A{
-					bson.M{
-						"phoneNumber": search1.ProviderInfo[0].PhoneNumber,
-						"photoURL":    search1.ProviderInfo[0].PhotoURL,
-						"displyName":  search1.ProviderInfo[0].DisplyName,
-						"email":       search1.ProviderInfo[0].Email,
-					},
-				},
-				"email": search1.Email,
-			}},
-		},
-	)
+	var payloadMap map[string]interface{}
+	err1 := json.Unmarshal([]byte(body), &payloadMap)
+	if err1 != nil {
+		log.Fatal(err1)
+	}
+	userID := payloadMap["userId"].(string)
+	objectID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	filter := bson.M{"_id": objectID} // Assuming userId is the unique identifier for the document
+	update := bson.M{"$set": payloadMap}
+
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
+	result, err := coll.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var result_updte respone_update
+	if result.ModifiedCount != 0 {
+		result_updte.Status = http.StatusOK
+		result_updte.Message = "success"
+		result_updte.Data.Status = "Record updated"
+	} else {
+		result_updte.Message = "decline"
+		result_updte.Data.Status = "No Change"
+	}
+
+	// fmt.Print(objectIDS)
+
 	//end update
 
-	output, err2 := json.MarshalIndent(result1.ModifiedCount, "", "    ")
+	output, err2 := json.MarshalIndent(result_updte, "", "    ")
 	if err2 != nil {
 		panic(err2)
 	}
