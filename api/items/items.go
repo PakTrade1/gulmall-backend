@@ -1077,6 +1077,9 @@ func Add_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 
 // //////////// item serch by id
 func Serch_item_by_id(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	coll := docking.PakTradeDb.Collection("cloths")
 
 	var id_get delete_id
