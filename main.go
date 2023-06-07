@@ -75,7 +75,7 @@ func main() {
 	r.HandleFunc("/get-user", User.Mammals_getall)
 	r.HandleFunc("/get-gender", gender.Gender)
 	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
-	r.HandleFunc("/get-item-by-id", item.Serch_item_by_id)
+	// r.HandleFunc("/get-item-by-id", item.Serch_item_by_id)
 	r.HandleFunc("/get-cart-with-id", Allcart.Get_cart_with_id)
 	r.HandleFunc("/get-cart", Allcart.Cart_getall)
 	r.HandleFunc("/get-order-details", Allcart.Order_with_need_data)
