@@ -254,49 +254,52 @@ func Mammals_select_one(w http.ResponseWriter, req *http.Request) {
 	}
 
 }
+
+type mamal_login_update struct {
+	ID           primitive.ObjectID `json:"userId"`
+	DisplayName  string             `json:"displayName"`
+	PhoneNumber  string             `json:"phoneNumber"`
+	PhotoURL     string             `json:"photoUrl"`
+	ProviderInfo []struct {
+		PhoneNumber string `json:"phoneNumber"`
+		PhotoURL    string `json:"photoURL"`
+		ProviderID  string `json:"providerId"`
+		UID         string `json:"uid"`
+		DisplyName  string `json:"displyName"`
+		Email       string `json:"email"`
+	} `json:"providerInfo"`
+	Email string `json:"email"`
+}
+
 func Mammals_update_one(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	var search1 Mammals_user_update
+	var search1 mamal_login_update
 	err := json.NewDecoder(req.Body).Decode(&search1)
 	if err != nil {
 		panic(err)
 	}
-	coll := docking.PakTradeDb.Collection("mammals")
-	objectIDS, _ := primitive.ObjectIDFromHex(search1.ID)
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
 	// fmt.Print(objectIDS)
 
 	result1, err := coll.UpdateOne(
 		context.TODO(),
-		bson.M{"_id": objectIDS},
+		bson.M{"_id": search1.ID},
 		bson.D{
 			{Key: "$set", Value: bson.M{
-				"name": bson.M{
-					"firt_name": search1.Name.Firt_name,
-					"last_name": search1.Name.Last_name,
-				},
-				"address": bson.A{
+				"displayName": search1.DisplayName,
+				"phoneNumber": search1.PhoneNumber,
+				"photoUrl":    search1.PhotoURL,
+				"providerInfo": bson.A{
 					bson.M{
-						"home_address": bson.M{
-							"address":  search1.Address[0].Home_address.Address,
-							"country":  search1.Address[0].Home_address.Country,
-							"city":     search1.Address[0].Home_address.City,
-							"province": search1.Address[0].Home_address.Province,
-							"zip_code": search1.Address[0].Home_address.Zip_code,
-						},
-						"shipping_address": bson.M{
-							"address":  search1.Address[0].Shipping_address.Address,
-							"country":  search1.Address[0].Shipping_address.Country,
-							"city":     search1.Address[0].Shipping_address.City,
-							"province": search1.Address[0].Shipping_address.Province,
-							"zip_code": search1.Address[0].Shipping_address.Zip_code,
-						},
+						"phoneNumber": search1.ProviderInfo[0].PhoneNumber,
+						"photoURL":    search1.ProviderInfo[0].PhotoURL,
+						"displyName":  search1.ProviderInfo[0].DisplyName,
+						"email":       search1.ProviderInfo[0].Email,
 					},
 				},
-				"email":   search1.Email,
-				"phone":   search1.Phone,
-				"profile": search1.Profile,
+				"email": search1.Email,
 			}},
 		},
 	)
@@ -305,7 +308,7 @@ func Mammals_update_one(w http.ResponseWriter, req *http.Request) {
 	}
 	//end update
 
-	output, err2 := json.MarshalIndent(result1, "", "    ")
+	output, err2 := json.MarshalIndent(result1.ModifiedCount, "", "    ")
 	if err2 != nil {
 		panic(err2)
 	}

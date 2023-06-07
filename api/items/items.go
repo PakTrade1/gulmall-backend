@@ -667,7 +667,7 @@ func Get_all_items(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// results.Data =
-	output, err := json.MarshalIndent(resp1, "", "    ")
+	output, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
 		panic(err)
 
