@@ -1312,16 +1312,34 @@ func Serch_item_by_id(w http.ResponseWriter, req *http.Request) {
 /////// end item serch by id
 
 // //////// serch item by keyword
-func Serch_item_by_keyword(w http.ResponseWriter, r *http.Request) {
-	coll := docking.PakTradeDb.Collection("cloths")
+type find_doc struct {
+	Keyword string `json:"keyword"`
+}
 
-	var id_get delete_id
-	err := json.NewDecoder(r.Body).Decode(&id_get)
+func Serch_item_by_keyword(w http.ResponseWriter, r *http.Request) {
+	coll := docking.PakTradeDb.Collection("items-parent")
+
+	var keyword find_doc
+	keywordString := fmt.Sprintf("%v", keyword)
+
+	// Construct the regex pattern
+	regexPattern := fmt.Sprintf(".*%v.*", keywordString)
+
+	err := json.NewDecoder(r.Body).Decode(&keyword)
 	handleError(err)
 	// objectId, err := primitive.ObjectIDFromHex(id_get.Item_id)
 	// handleError(err)
 	mongoquery := []bson.D{
-		bson.D{{Key: "$match", Value: bson.D{{Key: "parentId", Value: id_get.Item_id}}}},
+
+		bson.D{
+			{"$match", bson.D{
+				{"$or", bson.A{
+					bson.D{{"status", bson.D{{"$regex", regexPattern}, {"$options", "i"}}}},
+					bson.D{{"title", bson.D{{"$regex", regexPattern}, {"$options", "i"}}}},
+				}},
+			}},
+		},
+
 		bson.D{
 			{"$lookup",
 				bson.D{
@@ -1441,6 +1459,7 @@ func Serch_item_by_keyword(w http.ResponseWriter, r *http.Request) {
 					{"status", "$parent.status"},
 					{"country", "$parent.country"},
 					{"currency", "$parent.currency"},
+					{"publicId", "$parent.publicId"},
 
 					{"color", "$color"},
 					{"size", "$size"},

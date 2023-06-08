@@ -24,10 +24,7 @@ type Categories struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty"`
 	Gender_flag bool               `json:"gender_flag"`
 	Icon        string             `json:"icon"`
-	Name        struct {
-		En string `json:"en"`
-		Ar string `json:"ar"`
-	} `json:"name"`
+	Name        string             `json:"name"`
 }
 type status_req struct {
 	Status string `json:"status"`
@@ -95,10 +92,7 @@ type sub_Categoies_selected struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
 	Cat_id string             `json:"cat_id"`
 	Icon   string             `json:"icon"`
-	Name   struct {
-		En string `json:"en"`
-		Ar string `json:"ar"`
-	} `json:"name"`
+	Name   string             `json:"name"`
 }
 
 // // this functhion  is for sub_category collection that serch data w.r.t category id
@@ -152,16 +146,13 @@ func Sub_Categories_select_by_Cat_id(w http.ResponseWriter, req *http.Request) {
 }
 
 type Chaild_cat_id_serch struct {
-	Chaild_cat_id string `json:"sub_category_id"`
+	Chaild_cat_id primitive.ObjectID `json:"sub_category_id"`
 }
 type Chaild_sub_Categoies_selected struct {
 	ID              primitive.ObjectID `bson:"_id,omitempty"`
 	Sub_category_id string             `json:"sub_category_id"`
-	Name            struct {
-		En string `json:"en"`
-		Ar string `json:"ar"`
-	} `json:"name"`
-	Gender_flag bool `json:"gneder_flag"`
+	Name            string             `json:"name"`
+	Gender_flag     bool               `json:"gneder_flag"`
 }
 type respone_struct_child_cat struct {
 	Status  int                             `json:"status"`
@@ -180,12 +171,12 @@ func Child_Categories_select_by__sub_Cat_id(w http.ResponseWriter, req *http.Req
 		panic(err)
 	}
 	coll := docking.PakTradeDb.Collection("sub_category_child")
-	objectIDS, _ := primitive.ObjectIDFromHex(search1.Chaild_cat_id)
+	// objectIDS, _ := primitive.ObjectIDFromHex(search1.Chaild_cat_id)
 
 	//	var result sub_Categoies_selected
 	//	filter := bson.M{"cat_id": objectIDS}
 	cursor, err := coll.Aggregate(context.TODO(), bson.A{
-		bson.D{{"$match", bson.D{{"sub_category_id", objectIDS}}}},
+		bson.D{{"$match", bson.D{{"sub_category_id", search1.Chaild_cat_id}}}},
 		bson.D{
 			{"$lookup",
 				bson.D{
@@ -274,10 +265,7 @@ func Add_category(w http.ResponseWriter, req *http.Request) {
 	}
 
 	insertdat := bson.M{
-		"name": bson.M{
-			"en": strcutinit.Name.En,
-			"ar": strcutinit.Name.Ar,
-		},
+		"name":        strcutinit.Name,
 		"gender_flag": strcutinit.Gender_flag,
 		"icon":        strcutinit.Icon,
 	}

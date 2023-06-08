@@ -67,6 +67,7 @@ func main() {
 	r.HandleFunc("/get-tier", tier.Tier_get)
 
 	r.HandleFunc("/get-plans", tier.Plan_select)
+	r.HandleFunc("/get-item-by-keyword", item.Serch_item_by_keyword)
 
 	r.HandleFunc("/get-size-chart", size.Size_select_by_child_id)
 	r.HandleFunc("/get-payment-service", payment_service.Get_payment_method)
