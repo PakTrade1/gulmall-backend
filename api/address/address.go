@@ -25,6 +25,8 @@ type shipping_table struct {
 		City        string `json:"city"`
 		Postal_code string `json:"postal_code"`
 		Uid         string `json:"uid"`
+		Country     string `json:"country"`
+		State       string `json:"state"`
 	} `json:"Address"`
 	Mammal_id string `json:"mammal_id"`
 }
@@ -124,6 +126,8 @@ func Add_shipping_address(w http.ResponseWriter, req *http.Request) {
 						"city":        shipping_req.Address[0].City,
 						"postal_code": shipping_req.Address[0].Postal_code,
 						"uid":         newUUID,
+						"country":     shipping_req.Address[0].Country,
+						"state":       shipping_req.Address[0].State,
 					},
 				}},
 			},
@@ -162,6 +166,8 @@ func Add_shipping_address(w http.ResponseWriter, req *http.Request) {
 					"city":        shipping_req.Address[0].City,
 					"postal_code": shipping_req.Address[0].Postal_code,
 					"uid":         newUUID,
+					"country":     shipping_req.Address[0].Country,
+					"state":       shipping_req.Address[0].State,
 				},
 			},
 			"mammal_id": shipping_req.Mammal_id,

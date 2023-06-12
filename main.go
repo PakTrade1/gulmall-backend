@@ -37,7 +37,7 @@ func main() {
 	// ADD ROUTES
 
 	r.HandleFunc("/add-keyword", keyword.Serchkeywordinsert)
-	r.HandleFunc("/add-cart", Allcart.Update_cart)
+	// r.HandleFunc("/add-cart", Allcart.Update_cart)
 
 	r.HandleFunc("/add-size", size.Add_size)
 	r.HandleFunc("/add-address", shipping_addres.Add_shipping_address)
@@ -53,14 +53,14 @@ func main() {
 	// UPDATE ROUTE
 	r.HandleFunc("/update-category", categories.Update_Category)
 	r.HandleFunc("/update-user", User.Mammals_update_one)
-	r.HandleFunc("/update-cart-in", Allcart.Update_cart)
+	// r.HandleFunc("/update-cart-in", Allcart.Update_cart)
 	// r.HandleFunc("/update-item", item.Item_update_one)
 	r.HandleFunc("/update-item", item.Add_item_update)
 
 	// DELETE ROUTE
 	r.HandleFunc("/delete-address", shipping_addres.Delete_shipping_address)
 	r.HandleFunc("/delete-category", categories.Delete_category)
-	r.HandleFunc("/delete-cart", Allcart.Cart_delete)
+	// r.HandleFunc("/delete-cart", Allcart.Cart_delete)
 	r.HandleFunc("/delete-item-by-id", item.Item_delete_by_id)
 	// GET ROUTE
 	r.HandleFunc("/get-color", color.Color)
@@ -77,10 +77,10 @@ func main() {
 	r.HandleFunc("/get-gender", gender.Gender)
 	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
 	r.HandleFunc("/get-item-by-id", item.Serch_item_by_id)
-	r.HandleFunc("/get-cart-with-id", Allcart.Get_cart_with_id)
+	// r.HandleFunc("/get-cart-with-id", Allcart.Get_cart_with_id)
 	r.HandleFunc("/get-cart", Allcart.Cart_getall)
-	r.HandleFunc("/get-order-details", Allcart.Order_with_need_data)
-	r.HandleFunc("/get-all-cart", Allcart.Get_cart_all_with_id_data)
+	// r.HandleFunc("/get-order-details", Allcart.Order_with_need_data)
+	// r.HandleFunc("/get-all-cart", Allcart.Get_cart_all_with_id_data)
 	r.HandleFunc("/get-all-item", item.Get_all_items)
 	r.HandleFunc("/get-weight", weight.Weight)
 	r.HandleFunc("/get-sub-categories", categories.Sub_Categories_select_by_Cat_id)
