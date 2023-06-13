@@ -262,7 +262,7 @@ func Delete_shipping_address(w http.ResponseWriter, req *http.Request) {
 		panic(err)
 
 	}
-
+	//..a.a.
 	fmt.Fprintf(w, "%s\n", output)
 
 }

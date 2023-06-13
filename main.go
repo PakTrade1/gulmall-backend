@@ -87,6 +87,8 @@ func main() {
 	r.HandleFunc("/get-child-categories", categories.Child_Categories_select_by__sub_Cat_id)
 	r.HandleFunc("/get-address", shipping_addres.Get_shipping_address_with_mammal_id)
 	r.HandleFunc("/get-ads-by-id", ads.Get_ads_user_by_post_id)
+	r.HandleFunc("/get-keyword", keyword.Get_all_items_serchkey)
+
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
 	// UPLOAD FILE
@@ -98,7 +100,7 @@ func main() {
 	handler := c.Handler(r)
 	// <<<<<<< HEAD
 	fmt.Println("Runging server port ===> 80")
-	http.ListenAndServe(":80", handler)
+	http.ListenAndServe(":8080", handler)
 	// =======
 	// fmt.Println("Runging server port ==> 80")
 	// http.ListenAndServe(":80", handler)
