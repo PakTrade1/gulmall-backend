@@ -42,6 +42,17 @@ type Address struct {
 	Country     string `json:"country"`
 	State       string `json:"state"`
 }
+type Address1 struct {
+	Name        string `json:"name"`
+	Line_1      string `json:"address_line_1"`
+	Line_2      string `json:"address_line_2"`
+	Subrub      string `json:"subrub"`
+	City        string `json:"city"`
+	Postal_code string `json:"postal_code"`
+	Uid         string `json:"uid"`
+	Country     string `json:"country"`
+	State       string `json:"state"`
+}
 
 type respone_struct struct {
 	Status  int    `json:"status"`
@@ -50,9 +61,9 @@ type respone_struct struct {
 }
 
 type respone_struct1 struct {
-	Status  int              `json:"status"`
-	Message string           `json:"message"`
-	Data    []shipping_table `json:"data"`
+	Status  int        `json:"status"`
+	Message string     `json:"message"`
+	Data    []Address1 `json:"data"`
 }
 
 func Get_shipping_address_with_mammal_id(w http.ResponseWriter, req *http.Request) {
@@ -72,6 +83,22 @@ func Get_shipping_address_with_mammal_id(w http.ResponseWriter, req *http.Reques
 
 	mongo_query := bson.A{
 		bson.D{{Key: "$match", Value: bson.D{{Key: "mammal_id", Value: objID}}}},
+		bson.D{{"$unwind", bson.D{{"path", "$Address"}}}},
+		bson.D{
+			{"$project",
+				bson.D{
+					{"line_1", "$Address.line_1"},
+					{"line_2", "$address.line2"},
+					{"postal_code", "$Address.postal_code"},
+					{"state", "$Address.state"},
+					{"country", "$Address.country"},
+					{"name", "$Address.name"},
+					{"subrub", "$Address.subrub"},
+					{"city", "$Address.city"},
+					{"uid", "$Address.uid"},
+				},
+			},
+		},
 	}
 	// Open an aggregation cursor
 	cursor, err := coll.Aggregate(ctx, mongo_query)
@@ -79,13 +106,11 @@ func Get_shipping_address_with_mammal_id(w http.ResponseWriter, req *http.Reques
 		log.Fatal(err)
 	}
 	var results respone_struct1
-	var resp1 []shipping_table
+	var resp1 []Address1
 	for cursor.Next(context.TODO()) {
-
-		var xy shipping_table
+		var xy Address1
 		cursor.Decode(&xy)
 		resp1 = append(resp1, xy)
-
 	}
 	if cursor != nil {
 		results.Status = http.StatusOK
