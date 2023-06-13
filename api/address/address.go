@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	docking "pak-trade-go/Docking"
@@ -288,6 +289,76 @@ func Delete_shipping_address(w http.ResponseWriter, req *http.Request) {
 
 	}
 	//..a.a.
+	fmt.Fprintf(w, "%s\n", output)
+
+}
+
+type respone_update struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+	Data    struct {
+		Status string `json:"status_update"`
+	} `json:"data"`
+}
+
+func Address_update_one(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+
+	var payloadMap map[string]interface{}
+	err1 := json.Unmarshal([]byte(body), &payloadMap)
+	if err1 != nil {
+		log.Fatal(err1)
+	}
+	userID := req.URL.Query().Get("uid")
+
+	// objectID, err := primitive.ObjectIDFromHex(userID)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	filter := bson.D{{"Address", bson.D{{"$elemMatch", bson.D{{"uid", userID}}}}}}
+	// Assuming userId is the unique identifier for the document
+	// update := bson.M{"$set": payloadMap}
+
+	updateFields := bson.D{}
+	for key, value := range payloadMap {
+		updateFields = append(updateFields, bson.E{Key: "Address.$." + key, Value: value})
+	}
+
+	update := bson.D{
+		{"$set", updateFields},
+	}
+
+	coll := docking.PakTradeDb.Collection("Mammals_address")
+	result, err := coll.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var result_updte respone_update
+	if result.ModifiedCount != 0 {
+		result_updte.Status = http.StatusOK
+		result_updte.Message = "success"
+		result_updte.Data.Status = "Record updated"
+	} else {
+		result_updte.Message = "decline"
+		result_updte.Data.Status = "No Change"
+	}
+
+	// fmt.Print(objectIDS)
+
+	//end update
+
+	output, err2 := json.MarshalIndent(result_updte, "", "    ")
+	if err2 != nil {
+		panic(err2)
+	}
+
 	fmt.Fprintf(w, "%s\n", output)
 
 }

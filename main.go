@@ -56,6 +56,7 @@ func main() {
 	// r.HandleFunc("/update-cart-in", Allcart.Update_cart)
 	// r.HandleFunc("/update-item", item.Item_update_one)
 	r.HandleFunc("/update-item", item.Add_item_update)
+	r.HandleFunc("/update-address", shipping_addres.Address_update_one)
 
 	// DELETE ROUTE
 	r.HandleFunc("/delete-address", shipping_addres.Delete_shipping_address)
