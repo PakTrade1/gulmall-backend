@@ -314,6 +314,8 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 				},
 			},
 		},
+		bson.D{{"$count", "totalRecord"}},
+
 		bson.D{
 			{"$project",
 				bson.D{
