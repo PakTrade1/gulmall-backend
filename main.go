@@ -36,7 +36,7 @@ func main() {
 	// API ENDPOINTS
 	// ADD ROUTES
 
-	r.HandleFunc("/add-keyword", keyword.Serchkeywordinsert)
+	// r.HandleFunc("/add-keyword", keyword.Serchkeywordinsert)
 	// r.HandleFunc("/add-cart", Allcart.Update_cart)
 
 	r.HandleFunc("/add-size", size.Add_size)

@@ -16,7 +16,7 @@ import (
 )
 
 type serchkey struct {
-	User_public_id string `json:"user_id"`
+	User_public_id int    `json:"userId"`
 	Keyword        string `json:"keyword"`
 }
 type resp_insert struct {
@@ -25,63 +25,63 @@ type resp_insert struct {
 	Id      interface{} `json:"id"`
 }
 
-func Serchkeywordinsert(w http.ResponseWriter, req *http.Request) {
+// func Serchkeywordinsert(w http.ResponseWriter, req *http.Request) {
 
-	w.Header().Set("Content-Type", "application/json")
-	// w.Header().Set("Access-Control-Allow-Origin", "*")
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var keyserch serchkey
-	err := json.NewDecoder(req.Body).Decode(&keyserch)
-	if err != nil {
-		panic(err)
-	}
+// 	var keyserch serchkey
+// 	err := json.NewDecoder(req.Body).Decode(&keyserch)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	// mongo
+// 	// mongo
 
-	// Convert string to ObjectID
-	inputString := keyserch.User_public_id
+// 	// Convert string to ObjectID
+// 	inputString := keyserch.User_public_id
 
-	// Convert string to ObjectID
-	objectID, err := primitive.ObjectIDFromHex(inputString)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
+// 	// Convert string to ObjectID
+// 	objectID, err := primitive.ObjectIDFromHex(inputString)
+// 	if err != nil {
+// 		fmt.Println("Error:", err)
+// 		return
+// 	}
 
-	mongo_query := bson.M{
-		"keyword": keyserch.Keyword,
-		"userId":  objectID,
-		"time":    time.Now(),
-	}
+// 	coll := docking.PakTradeDb.Collection("searched_keyword")
 
-	coll := docking.PakTradeDb.Collection("searched_keyword")
+// 	mongo_query := bson.M{
+// 		"keyword": keyserch.Keyword,
+// 		"userId":  objectID,
+// 		"time":    time.Now(),
+// 	}
 
-	// // // insert a user
+// 	// // // insert a user
 
-	inset, err3 := coll.InsertOne(context.TODO(), mongo_query)
-	if err3 != nil {
-		fmt.Fprintf(w, "%s\n", err3)
-	}
-	var results resp_insert
-	if inset != nil {
-		results.Status = http.StatusOK
-		results.Message = "success"
+// 	inset, err3 := coll.InsertOne(context.TODO(), mongo_query)
+// 	if err3 != nil {
+// 		fmt.Fprintf(w, "%s\n", err3)
+// 	}
+// 	var results resp_insert
+// 	if inset != nil {
+// 		results.Status = http.StatusOK
+// 		results.Message = "success"
 
-	} else {
-		results.Message = "decline"
+// 	} else {
+// 		results.Message = "decline"
 
-	}
+// 	}
 
-	results.Id = inset.InsertedID
-	output, err := json.MarshalIndent(results, "", "    ")
-	if err != nil {
-		panic(err)
+// 	results.Id = inset.InsertedID
+// 	output, err := json.MarshalIndent(results, "", "    ")
+// 	if err != nil {
+// 		panic(err)
 
-	}
+// 	}
 
-	fmt.Fprintf(w, "%s\n", output)
+// 	fmt.Fprintf(w, "%s\n", output)
 
-}
+// }
 
 type respone_struct1 struct {
 	Status      int             `json:"status"`
@@ -160,13 +160,34 @@ type Dimension struct {
 		Value int    `json:"value"`
 	} `json:"width"`
 }
+type recordCount struct {
+	RecodTotal int `bson:"totalRecord"`
+}
 
 func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var keyserch serchkey
+	err := json.NewDecoder(req.Body).Decode(&keyserch)
+	if err != nil {
+		panic(err)
+	}
 
-	coll := docking.PakTradeDb.Collection("cloths")
-	coll1 := docking.PakTradeDb.Collection("items-parent")
+	coll := docking.PakTradeDb.Collection("items-parent")
+	coll1 := docking.PakTradeDb.Collection("searched_keyword")
+
+	mongo_query := bson.M{
+		"keyword": keyserch.Keyword,
+		"userId":  keyserch.User_public_id,
+		"time":    time.Now(),
+	}
+
+	// // // insert a user
+
+	_, err3 := coll1.InsertOne(context.TODO(), mongo_query)
+	if err3 != nil {
+		fmt.Fprintf(w, "%s\n", err3)
+	}
 
 	pageN := req.URL.Query().Get("pageNumber")
 	pageNu, err := strconv.Atoi(pageN)
@@ -177,14 +198,53 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 	ctx := context.TODO()
 	pageNumber := pageNu
 	pageSize := 10
-	mongoquery := bson.A{
+	mongoquery := bson.A{bson.D{
+		{"$lookup",
+			bson.D{
+				{"from", "cloths"},
+				{"localField", "_id"},
+				{"foreignField", "parentId"},
+				{"as", "cloths"},
+			},
+		},
+	},
 		bson.D{
 			{"$lookup",
 				bson.D{
-					{"from", "items-parent"},
-					{"localField", "parentId"},
+					{"from", "Mammalas_login"},
+					{"localField", "ownerId"},
 					{"foreignField", "_id"},
-					{"as", "parent"},
+					{"as", "name"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "categories"},
+					{"localField", "category"},
+					{"foreignField", "_id"},
+					{"as", "category"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "sub_category"},
+					{"localField", "category._id"},
+					{"foreignField", "cat_id"},
+					{"as", "subcat"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "sub_category_child"},
+					{"localField", "subcat._id"},
+					{"foreignField", "sub_category_id"},
+					{"as", "child"},
 				},
 			},
 		},
@@ -192,7 +252,7 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 			{"$lookup",
 				bson.D{
 					{"from", "color"},
-					{"localField", "availableColor"},
+					{"localField", "cloths.availableColor"},
 					{"foreignField", "_id"},
 					{"as", "color"},
 				},
@@ -202,7 +262,7 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 			{"$lookup",
 				bson.D{
 					{"from", "size"},
-					{"localField", "size.availableSize"},
+					{"localField", "cloths.size.availableSize"},
 					{"foreignField", "_id"},
 					{"as", "size"},
 				},
@@ -211,50 +271,10 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 		bson.D{
 			{"$lookup",
 				bson.D{
-					{"from", "size_chart"},
-					{"localField", "size.sizeChart"},
-					{"foreignField", "_id"},
-					{"as", "sizeChart"},
-				},
-			},
-		},
-		bson.D{
-			{"$lookup",
-				bson.D{
-					{"from", "sub_category"},
-					{"localField", "parent.subCategory"},
-					{"foreignField", "_id"},
-					{"as", "sub_cat"},
-				},
-			},
-		},
-		bson.D{
-			{"$lookup",
-				bson.D{
-					{"from", "categories"},
-					{"localField", "parent.category"},
-					{"foreignField", "_id"},
-					{"as", "cat"},
-				},
-			},
-		},
-		bson.D{
-			{"$lookup",
-				bson.D{
 					{"from", "plans"},
-					{"localField", "parent.planId"},
+					{"localField", "planId"},
 					{"foreignField", "_id"},
-					{"as", "plans"},
-				},
-			},
-		},
-		bson.D{
-			{"$lookup",
-				bson.D{
-					{"from", "Mammalas_login"},
-					{"localField", "parent.ownerId"},
-					{"foreignField", "_id"},
-					{"as", "owner"},
+					{"as", "plan"},
 				},
 			},
 		},
@@ -262,38 +282,26 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 			{"$lookup",
 				bson.D{
 					{"from", "tier"},
-					{"localField", "plans.tierId"},
+					{"localField", "plan.tierId"},
 					{"foreignField", "_id"},
 					{"as", "tier"},
 				},
 			},
 		},
 		bson.D{
-			{"$lookup",
-				bson.D{
-					{"from", "sub_category_child"},
-					{"localField", "sub_cat._id"},
-					{"foreignField", "sub_category_id"},
-					{"as", "child"},
-				},
-			},
-		},
-		bson.D{
 			{"$set",
 				bson.D{
-					{"parent", bson.D{{"$first", "$parent"}}},
-					{"category", bson.D{{"$first", "$cat"}}},
-					{"subCategory", bson.D{{"$first", "$sub_cat"}}},
-					{"plans", bson.D{{"$first", "$plans"}}},
-					{"tier", bson.D{{"$first", "$tier"}}},
-					{"owner", bson.D{{"$first", "$owner"}}},
-					{"title", bson.D{{"$first", "$parent.title"}}},
-					{"country", bson.D{{"$first", "$parent.country"}}},
-					{"image", bson.D{{"$first", "$parent.image"}}},
-					{"category1", bson.D{{"$first", "$cat.name"}}},
-					{"subcat", bson.D{{"$first", "$sub_cat.name"}}},
+					{"name", bson.D{{"$first", "$name.displayName"}}},
 					{"child", bson.D{{"$first", "$child.name"}}},
-					{"name", bson.D{{"$first", "$owner.displayName"}}},
+					{"categoryName", bson.D{{"$first", "$category.name"}}},
+					{"category", bson.D{{"$first", "$category"}}},
+					{"subcat", bson.D{{"$first", "$subcat"}}},
+					{"subcatName", bson.D{{"$first", "$subcat.name"}}},
+					{"clothName", bson.D{{"$first", "$cloths.name"}}},
+					{"tier", bson.D{{"$first", "$tier"}}},
+					{"tierName", bson.D{{"$first", "$tier.name"}}},
+					{"item", bson.D{{"$first", "$cloths"}}},
+					{"plan", bson.D{{"$first", "$plan"}}},
 				},
 			},
 		},
@@ -302,46 +310,217 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 				bson.D{
 					{"$or",
 						bson.A{
-							bson.D{{"title", bson.D{{"$regex", "oman"}}}},
-							bson.D{{"country", bson.D{{"$regex", "pak"}}}},
-							bson.D{{"image", bson.D{{"$regex", "oman"}}}},
-							bson.D{{"category", bson.D{{"$regex", "oman"}}}},
-							bson.D{{"subcat", bson.D{{"$regex", "oman"}}}},
-							bson.D{{"child", bson.D{{"$regex", "oman"}}}},
-							bson.D{{"name", bson.D{{"$regex", "oman"}}}},
+							bson.D{{"title", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"country", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"image", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"categoryName", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"subcatName", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"child", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"name", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"clothName", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"tier.name", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"color.name", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"item.feature.name", bson.D{{"$regex", keyserch.Keyword}}}},
 						},
 					},
 				},
 			},
 		},
-		bson.D{{"$count", "totalRecord"}},
-
 		bson.D{
 			{"$project",
 				bson.D{
-					{"name", "$name"},
-					{"feature", "$feature"},
-					{"images", "$parent.images"},
-					{"_id", "$_id"},
-					{"parentId", "$parent._id"},
+					{"name", "$item.name"},
+					{"feature", "$item.feature"},
+					{"images", "$images"},
+					{"_id", "$item._id"},
+					{"parentId", "$item.parentId"},
 					{"category", "$category"},
-					{"sub_category", "$subCategory"},
-					{"gender", "$gender"},
-					{"price", "$parent.price"},
-					{"qty", "$parent.qty"},
-					{"remaining_qty", "$parent.remainingQty"},
-					{"status", "$parent.status"},
-					{"country", "$_id.country"},
+					{"sub_category", "$subcat"},
+					{"gender", "$item.gender"},
+					{"price", "$price"},
+					{"qty", "$qty"},
+					{"remaining_qty", "$remainingQty"},
+					{"status", "$status"},
+					{"country", "$country"},
 					{"color", "$color"},
 					{"size", "$size"},
-					{"title", "$parent.title"},
-					{"ownerName", "$owner.displayName"},
+					{"title", "$title"},
+					{"ownerName", "$name"},
 					{"plan",
 						bson.D{
-							{"price", "$plans.price"},
+							{"price", "$plan.price"},
 							{"name", "$tier.name"},
 							{"order", "$tier.order"},
-							{"adDuration", "$plans.ad_duration"},
+							{"adDuration", "$plan.ad_duration"},
+						},
+					},
+				},
+			},
+		},
+		// bson.D{
+		// 	{"$skip", (pageNumber - 1) * pageSize},
+		// },
+		// bson.D{
+		// 	{"$limit", pageSize},
+		// },
+		bson.D{{"$count", "totalRecord"}},
+	}
+	mongoquery1 := bson.A{
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "cloths"},
+					{"localField", "_id"},
+					{"foreignField", "parentId"},
+					{"as", "cloths"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "Mammalas_login"},
+					{"localField", "ownerId"},
+					{"foreignField", "_id"},
+					{"as", "name"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "categories"},
+					{"localField", "category"},
+					{"foreignField", "_id"},
+					{"as", "category"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "sub_category"},
+					{"localField", "category._id"},
+					{"foreignField", "cat_id"},
+					{"as", "subcat"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "sub_category_child"},
+					{"localField", "subcat._id"},
+					{"foreignField", "sub_category_id"},
+					{"as", "child"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "color"},
+					{"localField", "cloths.availableColor"},
+					{"foreignField", "_id"},
+					{"as", "color"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "size"},
+					{"localField", "cloths.size.availableSize"},
+					{"foreignField", "_id"},
+					{"as", "size"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "plans"},
+					{"localField", "planId"},
+					{"foreignField", "_id"},
+					{"as", "plan"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "tier"},
+					{"localField", "plan.tierId"},
+					{"foreignField", "_id"},
+					{"as", "tier"},
+				},
+			},
+		},
+		bson.D{
+			{"$set",
+				bson.D{
+					{"name", bson.D{{"$first", "$name.displayName"}}},
+					{"child", bson.D{{"$first", "$child.name"}}},
+					{"categoryName", bson.D{{"$first", "$category.name"}}},
+					{"category", bson.D{{"$first", "$category"}}},
+					{"subcat", bson.D{{"$first", "$subcat"}}},
+					{"subcatName", bson.D{{"$first", "$subcat.name"}}},
+					{"clothName", bson.D{{"$first", "$cloths.name"}}},
+					{"tier", bson.D{{"$first", "$tier"}}},
+					{"tierName", bson.D{{"$first", "$tier.name"}}},
+					{"item", bson.D{{"$first", "$cloths"}}},
+					{"plan", bson.D{{"$first", "$plan"}}},
+					{"colorName", bson.D{{"$first", "$color.Name"}}},
+				},
+			},
+		},
+		bson.D{
+			{"$match",
+				bson.D{
+					{"$or",
+						bson.A{
+							bson.D{{"title", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"country", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"image", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"categoryName", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"subcatName", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"child", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"name", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"clothName", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"tier.name", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"color.name", bson.D{{"$regex", keyserch.Keyword}}}},
+							bson.D{{"item.feature.name", bson.D{{"$regex", keyserch.Keyword}}}},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
+			{"$project",
+				bson.D{
+					{"name", "$item.name"},
+					{"feature", "$item.feature"},
+					{"images", "$images"},
+					{"_id", "$item._id"},
+					{"parentId", "$item.parentId"},
+					{"category", "$category"},
+					{"sub_category", "$subcat"},
+					{"gender", "$item.gender"},
+					{"price", "$price"},
+					{"qty", "$qty"},
+					{"remaining_qty", "$remainingQty"},
+					{"status", "$status"},
+					{"country", "$country"},
+					{"color", "$color"},
+					{"size", "$size"},
+					{"title", "$title"},
+					{"ownerName", "$name"},
+					{"plan",
+						bson.D{
+							{"price", "$plan.price"},
+							{"name", "$tier.name"},
+							{"order", "$tier.order"},
+							{"adDuration", "$plan.ad_duration"},
 						},
 					},
 				},
@@ -354,211 +533,22 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 			{"$limit", pageSize},
 		},
 	}
-	// []bson.D{
 
-	// 	bson.D{
-	// 		{"$lookup",
-	// 			bson.D{
-	// 				{"from", "items-parent"},
-	// 				{"localField", "parentId"},
-	// 				{"foreignField", "_id"},
-	// 				{"as", "parent"},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$lookup",
-	// 			bson.D{
-	// 				{"from", "color"},
-	// 				{"localField", "availableColor"},
-	// 				{"foreignField", "_id"},
-	// 				{"as", "color"},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$lookup",
-	// 			bson.D{
-	// 				{"from", "size"},
-	// 				{"localField", "size.availableSize"},
-	// 				{"foreignField", "_id"},
-	// 				{"as", "size"},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$lookup",
-	// 			bson.D{
-	// 				{"from", "size_chart"},
-	// 				{"localField", "size.sizeChart"},
-	// 				{"foreignField", "_id"},
-	// 				{"as", "sizeChart"},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$lookup",
-	// 			bson.D{
-	// 				{"from", "sub_category"},
-	// 				{"localField", "parent.subCategory"},
-	// 				{"foreignField", "_id"},
-	// 				{"as", "sub_cat"},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$lookup",
-	// 			bson.D{
-	// 				{"from", "categories"},
-	// 				{"localField", "parent.category"},
-	// 				{"foreignField", "_id"},
-	// 				{"as", "cat"},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$lookup",
-	// 			bson.D{
-	// 				{"from", "plans"},
-	// 				{"localField", "parent.planId"},
-	// 				{"foreignField", "_id"},
-	// 				{"as", "plans"},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$lookup",
-	// 			bson.D{
-	// 				{"from", "Mammalas_login"},
-	// 				{"localField", "parent.ownerId"},
-	// 				{"foreignField", "_id"},
-	// 				{"as", "owner"},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$lookup",
-	// 			bson.D{
-	// 				{"from", "tier"},
-	// 				{"localField", "plans.tierId"},
-	// 				{"foreignField", "_id"},
-	// 				{"as", "tier"},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$set",
-	// 			bson.D{
-	// 				{"parent", bson.D{{"$first", "$parent"}}},
-	// 				{"category", bson.D{{"$first", "$cat"}}},
-	// 				{"subCategory", bson.D{{"$first", "$sub_cat"}}},
-	// 				{"plans", bson.D{{"$first", "$plans"}}},
-	// 				{"tier", bson.D{{"$first", "$tier"}}},
-	// 				{"owner", bson.D{{"$first", "$owner"}}},
-	// 			},
-	// 		},
-	// 	},
-
-	// 	bson.D{
-	// 		{"$project",
-	// 			bson.D{
-	// 				{"name", "$name"},
-	// 				{"hasDimension", "$hasDimension"},
-	// 				{"feature", "$feature"},
-	// 				{"images", "$parent.images"},
-	// 				{"_id", "$_id"},
-	// 				{"parentId", "$parentId"},
-	// 				{"category", "$category"},
-	// 				{"sub_category", "$subCategory"},
-	// 				{"gender", "$gender"},
-	// 				{"price", "$parent.price"},
-	// 				{"qty", "$parent.qty"},
-	// 				{"remaining_qty", "$parent.remainingQty"},
-	// 				{"status", "$parent.status"},
-	// 				{"country", "$parent.country"},
-	// 				{"currency", "$parent.currency"},
-	// 				{"publicId", "$parent.publicId"},
-
-	// 				{"color", "$color"},
-	// 				{"size", "$size"},
-	// 				{"title", "$parent.title"},
-	// 				{"ownerName", "$owner.displayName"},
-	// 				{"totalRecord", "$string"},
-	// 				{"plan",
-	// 					bson.D{
-	// 						{"price", "$plans.price"},
-	// 						{"name", "$tier.name"},
-	// 						{"order", "$tier.order"},
-	// 						{"adDuration", "$plans.ad_duration"},
-	// 					},
-	// 				},
-	// 				{"dimension",
-	// 					bson.D{
-	// 						{"width",
-	// 							bson.D{
-	// 								{"unit", "$dimension.width.unit"},
-	// 								{"value", "$dimension.width.value"},
-	// 							},
-	// 						},
-	// 						{"length",
-	// 							bson.D{
-	// 								{"unit", "$dimension.length.unit"},
-	// 								{"value", "$dimension.length.value"},
-	// 							},
-	// 						},
-	// 					},
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// 	bson.D{
-	// 		{"$sort",
-	// 			bson.D{
-	// 				{"plan.order", 1},
-	// 			},
-	// 		},
-	// 	},
-
-	// bson.D{
-	// 	{"$skip", (pageNumber - 1) * pageSize},
-	// },
-	// bson.D{
-	// 	{"$limit", pageSize},
-	// },
-	// }
-	// Open an pagination cursor
-
-	// opts := options.Find().SetSkip(int64((page - 1) * pageSize)).SetLimit(int64(pageSize))
 	aggOptions := options.Aggregate()
 	aggOptions.SetAllowDiskUse(true)
 
-	cursor, err := coll.Aggregate(ctx, mongoquery, aggOptions)
+	cursor, err := coll.Aggregate(ctx, mongoquery1, aggOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer cursor.Close(context.TODO())
+	cursorCount, err := coll.Aggregate(ctx, mongoquery, aggOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cursorCount.Close(context.TODO())
 
 	///////////////////// Totla Recrod
-	pipeline := []bson.D{
-		bson.D{
-			{"$count", "totalRecords"},
-		},
-	}
-
-	cursor1, err2 := coll1.Aggregate(ctx, pipeline)
-	if err2 != nil {
-		log.Fatal(err2)
-	}
-	defer cursor1.Close(context.TODO())
-
-	var Totalcontrecord struct {
-		TotalRecords int `json:"totalRecords"`
-	}
-	if cursor1.Next(context.TODO()) {
-		if err := cursor1.Decode(&Totalcontrecord); err != nil {
-			log.Fatal(err)
-		}
-	}
 
 	///////////////// End total record
 
@@ -572,6 +562,13 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 
 	}
 
+	var totalRecord recordCount
+	if cursorCount.Next(context.TODO()) {
+		if err := cursorCount.Decode(&totalRecord); err != nil {
+			fmt.Println("Error decoding cursor:", err)
+		}
+	}
+
 	// ///////////
 	// Populate resp1 and resp2 with data
 
@@ -580,7 +577,7 @@ func Get_all_items_serchkey(w http.ResponseWriter, req *http.Request) {
 	if resp1 != nil {
 		results.Status = http.StatusOK
 		results.Message = "success"
-		results.TotalRecord = Totalcontrecord.TotalRecords
+		results.TotalRecord = totalRecord.RecodTotal
 		results.Data = resp1
 
 	} else {
