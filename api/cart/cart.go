@@ -124,11 +124,11 @@ func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
 }
 
 type Item struct {
-	ID         primitive.ObjectID `bson:"_id"`
-	OrderDate  time.Time          `json:"orderDate"`
-	SellerInfo string             `json:"sellerInfo"`
-	Qty        int                `json:"qty"`
-	Size       []struct {
+	ID          primitive.ObjectID `bson:"_id"`
+	OrderDate   time.Time          `json:"order_date"`
+	Seller_info string             `json:"seller_info"`
+	Qty         int                `json:"qty"`
+	Size        []struct {
 		ID   primitive.ObjectID `bson:"_id"`
 		Name string             `json:"name"`
 	} `json:"size"`
@@ -137,14 +137,14 @@ type Item struct {
 		CssHex string `json:"cssHex"`
 		Name   string `json:"name"`
 	} `json:"color"`
-	TotalPrice int    `json:"totalPrice"`
-	Discount   string `json:"discount"`
-	ItemName   string `json:"itemName"`
-	Images     []struct {
+	Total_price int    `json:"total_price"`
+	Discount    string `json:"discount"`
+	Item_name   string `json:"item_name"`
+	Images      []struct {
 		Image string `json:"image"`
 		Color string `json:"color"`
 	} `json:"images"`
-	ItemPrice int `json:"itemPrice"`
+	Item_price int `json:"item_price"`
 }
 
 type Size struct {
@@ -158,7 +158,7 @@ type Color struct {
 	Name   string             `json:"name"`
 }
 type UserID struct {
-	UserID primitive.ObjectID `json:"userId"`
+	UserID primitive.ObjectID `json:"user_id"`
 }
 
 func Cart_getall(w http.ResponseWriter, req *http.Request) {
@@ -178,18 +178,18 @@ func Cart_getall(w http.ResponseWriter, req *http.Request) {
 		bson.D{
 			{"$match",
 				bson.D{
-					{"userId", cart_init.UserID},
-					{"deliveryStatus", "pending"},
+					{"mammal_id", cart_init.UserID},
+					{"delivery_status", "pending"},
 				},
 			},
 		},
-		bson.D{{"$unwind", bson.D{{"path", "$colorId"}}}},
-		bson.D{{"$unwind", bson.D{{"path", "$sizeId"}}}},
+		bson.D{{"$unwind", bson.D{{"path", "$color_id"}}}},
+		bson.D{{"$unwind", bson.D{{"path", "$size_id"}}}},
 		bson.D{
 			{"$lookup",
 				bson.D{
 					{"from", "color"},
-					{"localField", "colorId"},
+					{"localField", "color_id"},
 					{"foreignField", "_id"},
 					{"as", "color"},
 				},
@@ -199,7 +199,7 @@ func Cart_getall(w http.ResponseWriter, req *http.Request) {
 			{"$lookup",
 				bson.D{
 					{"from", "size"},
-					{"localField", "sizeId"},
+					{"localField", "size_id"},
 					{"foreignField", "_id"},
 					{"as", "size"},
 				},
@@ -209,7 +209,7 @@ func Cart_getall(w http.ResponseWriter, req *http.Request) {
 			{"$lookup",
 				bson.D{
 					{"from", "items-parent"},
-					{"localField", "itemId"},
+					{"localField", "item_id"},
 					{"foreignField", "_id"},
 					{"as", "items"},
 				},
@@ -219,7 +219,7 @@ func Cart_getall(w http.ResponseWriter, req *http.Request) {
 			{"$lookup",
 				bson.D{
 					{"from", "Mammalas_login"},
-					{"localField", "sellerInfo"},
+					{"localField", "seller_info"},
 					{"foreignField", "_id"},
 					{"as", "seller"},
 				},
@@ -236,16 +236,16 @@ func Cart_getall(w http.ResponseWriter, req *http.Request) {
 		bson.D{
 			{"$project",
 				bson.D{
-					{"orderDate", "$orderDate"},
-					{"sellerInfo", "$seller.displayName"},
+					{"order_date", "$orderDate"},
+					{"seller_info", "$seller.displayName"},
 					{"qty", "$quantity"},
 					{"size", "$size"},
 					{"color", "$color"},
-					{"totalPrice", "$totalPrice"},
+					{"total_price", "$total_price"},
 					{"discount", "$discount"},
-					{"itemName", "$items.title"},
+					{"item_name", "$items.title"},
 					{"images", "$items.images"},
-					{"itemPrice", "$items.price"},
+					{"item_price", "$items.price"},
 				},
 			},
 		},
