@@ -37,7 +37,7 @@ func main() {
 	// ADD ROUTES
 
 	// r.HandleFunc("/add-keyword", keyword.Serchkeywordinsert)
-	r.HandleFunc("/add-cart", Allcart.Cart_insertone)
+	r.HandleFunc("/add-cart-fashion", Allcart.Cart_insertone_fashion)
 
 	r.HandleFunc("/add-size", size.Add_size)
 	r.HandleFunc("/add-address", shipping_addres.Add_shipping_address)

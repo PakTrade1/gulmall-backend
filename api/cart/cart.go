@@ -14,15 +14,13 @@ import (
 )
 
 type CartMammals struct {
-	Mammal_id       primitive.ObjectID   `json:"userId"`
-	Item_id         primitive.ObjectID   `json:"itemId"`
-	Quantity        int                  `json:"quantity"`
-	Price           int                  `json:"price"`
-	Payement_method primitive.ObjectID   `json:"payementMethod"`
-	Color_id        []primitive.ObjectID `json:"colorId"`
-	Size_id         []primitive.ObjectID `json:"sizeId"`
-	Discount        string               `json:"discount"`
-	SellerInfo      primitive.ObjectID   `json:"sellerInfo"`
+	Mammal_id       primitive.ObjectID `json:"user_id"`
+	Item_id         primitive.ObjectID `json:"item_id"`
+	Quantity        int                `json:"quantity"`
+	Payement_method primitive.ObjectID `json:"payement_method"`
+	Color_id        primitive.ObjectID `json:"color_id"`
+	Size_id         primitive.ObjectID `json:"size_id"`
+	SellerInfo      primitive.ObjectID `json:"seller_info"`
 }
 
 type Resp_insert struct {
@@ -31,66 +29,81 @@ type Resp_insert struct {
 	Id      interface{} `json:"id"`
 }
 type Get_qty struct {
-	Qty int `json:"qty"`
+	Qty      int     `json:"qty"`
+	Price    float32 `json:"price"`
+	Discount string  `json:"discount"`
 }
 
-func Cart_insertone(w http.ResponseWriter, req *http.Request) {
+func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var cart_init CartMammals
+	var cart_init []CartMammals
 	err := json.NewDecoder(req.Body).Decode(&cart_init)
 	if err != nil {
 		panic(err)
 	}
-	Total_price_cart := cart_init.Price * cart_init.Quantity
-	mongo_query := bson.M{
-		"mammalId":       cart_init.Mammal_id,
-		"itemId":         cart_init.Item_id,
-		"deliveryStatus": "pending",
-		"orderDate":      time.Now(),
-		"colorId":        cart_init.Color_id,
-		"sizeId":         cart_init.Size_id,
-		"quantity":       cart_init.Quantity,
-		"price":          cart_init.Price,
-		"discount":       cart_init.Discount,
-		"payementMethod": cart_init.Payement_method,
-		"totalPrice":     Total_price_cart,
-		"sellerInfo":     cart_init.SellerInfo,
-	}
 
 	coll := docking.PakTradeDb.Collection("cart_mammals")
 	coll1 := docking.PakTradeDb.Collection("items-parent")
-	var qty Get_qty
-	filter := bson.M{"_id": cart_init.Item_id}
 
-	err12 := coll1.FindOne(context.TODO(), filter).Decode(&qty)
-	if err12 != nil {
-		log.Fatal(err12)
-	}
-	// // insert a user
-
-	inset, err3 := coll.InsertOne(context.TODO(), mongo_query)
-	if err3 != nil {
-		fmt.Fprintf(w, "%s\n", err3)
-	}
-	Qty_minus := qty.Qty - cart_init.Quantity
-	_, err1 := coll1.UpdateOne(
-		context.TODO(),
-		bson.M{"_id": cart_init.Item_id},
-		bson.D{
-			{Key: "$set", Value: bson.M{
-				"qty": Qty_minus,
-			}},
-		},
-	)
-	if err1 != nil {
-		log.Fatal(err1)
+	inset := struct {
+		InsertedID interface{}
+	}{
+		InsertedID: "",
 	}
 
+	for i := 0; i < len(cart_init); i++ {
+
+		filter := bson.M{"_id": cart_init[i].Item_id}
+		var qty Get_qty
+
+		err12 := coll1.FindOne(context.TODO(), filter).Decode(&qty)
+		if err12 != nil {
+			log.Fatal(err12)
+		}
+		// // insert a user
+
+		Price := qty.Price
+		Discount := qty.Discount
+		Total_price_cart := int(Price) * cart_init[i].Quantity
+		mongo_query := bson.M{
+			"mammal_id":       cart_init[i].Mammal_id,
+			"item_id":         cart_init[i].Item_id,
+			"delivery_status": "pending",
+			"orderDate":       time.Now(),
+			"color_id":        cart_init[i].Color_id,
+			"size_id":         cart_init[i].Size_id,
+			"quantity":        cart_init[i].Quantity,
+			"price":           Price,
+			"discount":        Discount,
+			"payement_method": cart_init[i].Payement_method,
+			"total_price":     Total_price_cart,
+			"seller_info":     cart_init[i].SellerInfo,
+		}
+
+		inset_data, err3 := coll.InsertOne(context.TODO(), mongo_query)
+		if err3 != nil {
+			fmt.Fprintf(w, "%s\n", err3)
+		}
+		inset.InsertedID = inset_data.InsertedID
+		Qty_minus := qty.Qty - cart_init[i].Quantity
+		_, err1 := coll1.UpdateOne(
+			context.TODO(),
+			bson.M{"_id": cart_init[i].Item_id},
+			bson.D{
+				{Key: "$set", Value: bson.M{
+					"qty": Qty_minus,
+				}},
+			},
+		)
+		if err1 != nil {
+			log.Fatal(err1)
+		}
+	}
 	var results Resp_insert
-	if inset != nil {
+	if inset.InsertedID != nil {
 		results.Status = http.StatusOK
 		results.Message = "success"
 		results.Id = inset.InsertedID
