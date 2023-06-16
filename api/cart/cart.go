@@ -14,7 +14,7 @@ import (
 )
 
 type CartMammals struct {
-	Data []struct {
+	Orders []struct {
 		Mammal_id       primitive.ObjectID `json:"user_id"`
 		Item_id         primitive.ObjectID `json:"item_id"`
 		Quantity        int                `json:"quantity"`
@@ -26,7 +26,7 @@ type CartMammals struct {
 		Discount        string             `json:"discount"`
 		Total_price     float32            `json:"total_price"`
 		Rem             int                `json:"items_remaining_quantity"`
-	} `json:"data"`
+	} `json:"orders"`
 }
 
 type Resp_insert struct {
