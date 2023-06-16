@@ -46,7 +46,8 @@ func main() {
 	r.HandleFunc("/add-sub-category-child", categories.Add_sub_child_category)
 	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 	r.HandleFunc("/mammals_registration", User.Mammals_user_registration)
-	r.HandleFunc("/add-item", item.Add_item_wrt_category)
+	r.HandleFunc("/add-item", item.Update_item_wrt_category)
+	r.HandleFunc("/add-item-images", item.Add_item_image)
 
 	//	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 

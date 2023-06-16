@@ -21,6 +21,10 @@ type CartMammals struct {
 	Color_id        primitive.ObjectID `json:"color_id"`
 	Size_id         primitive.ObjectID `json:"size_id"`
 	SellerInfo      primitive.ObjectID `json:"seller_info"`
+	Price           float32            `price`
+	Discount        string             `json:"discount"`
+	Total_price     float32            `json:"total_price"`
+	Rem             int                `json:"items_remaining_quantity"`
 }
 
 type Resp_insert struct {
@@ -56,18 +60,8 @@ func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
 
 	for i := 0; i < len(cart_init); i++ {
 
-		filter := bson.M{"_id": cart_init[i].Item_id}
-		var qty Get_qty
-
-		err12 := coll1.FindOne(context.TODO(), filter).Decode(&qty)
-		if err12 != nil {
-			log.Fatal(err12)
-		}
 		// // insert a user
 
-		Price := qty.Price
-		Discount := qty.Discount
-		Total_price_cart := int(Price) * cart_init[i].Quantity
 		mongo_query := bson.M{
 			"mammal_id":       cart_init[i].Mammal_id,
 			"item_id":         cart_init[i].Item_id,
@@ -76,10 +70,10 @@ func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
 			"color_id":        cart_init[i].Color_id,
 			"size_id":         cart_init[i].Size_id,
 			"quantity":        cart_init[i].Quantity,
-			"price":           Price,
-			"discount":        Discount,
+			"price":           cart_init[i].Price,
+			"discount":        cart_init[i].Discount,
 			"payement_method": cart_init[i].Payement_method,
-			"total_price":     Total_price_cart,
+			"total_price":     cart_init[i].Total_price,
 			"seller_info":     cart_init[i].SellerInfo,
 		}
 
@@ -88,7 +82,7 @@ func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
 			fmt.Fprintf(w, "%s\n", err3)
 		}
 		inset.InsertedID = inset_data.InsertedID
-		Qty_minus := qty.Qty - cart_init[i].Quantity
+		Qty_minus := cart_init[i].Rem
 		_, err1 := coll1.UpdateOne(
 			context.TODO(),
 			bson.M{"_id": cart_init[i].Item_id},

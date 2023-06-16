@@ -292,6 +292,11 @@ type update_resp struct {
 	Message       string `json:"message"`
 	Update_record int    `json:"update_record"`
 }
+type itemADD struct {
+	Status        int    `json:"status"`
+	Message       string `json:"message"`
+	Update_record string `json:"insertRecord"`
+}
 
 func Item_delete_by_id(w http.ResponseWriter, req *http.Request) {
 
@@ -873,11 +878,13 @@ func Add_item_update(w http.ResponseWriter, req *http.Request) {
 
 // /////////// Add Image to Parint item with respt to thier cetegory like mart and cloth
 type postadd struct {
-	Images []struct {
+	Item_id primitive.ObjectID `json:"itemId"`
+	Images  []struct {
 		Image string `json:"image"`
 		Color string `json:"color"`
 	} `json:"images"`
 	Category primitive.ObjectID `json:"category"`
+	PublicId int                `json:"publicId"`
 	Country  string             `json:"country"`
 	// CreationTimestamp time.Time `json:"creationTimestamp"`
 	Currency string `json:"currency"`
@@ -1605,4 +1612,249 @@ func update_item1() {
 
 }
 
-////////end serch item by keyword
+// //////end serch item by keyword
+type img struct {
+	OwnerId primitive.ObjectID `json:"ownerId"`
+	Images  []struct {
+		Image string `json:"image"`
+		Color string `json:"color"`
+	} `json:"images"`
+}
+type find_last_number struct {
+	PublicId int         `json:"publicId"`
+	ItmeId   interface{} `json:"itmeId"`
+}
+type imgRescopce struct {
+	Status  int              `json:"status"`
+	Message string           `json:"message "`
+	Data    find_last_number `json:"data"`
+}
+
+func Add_item_image(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var strcutinit img
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+
+	coll1 := docking.PakTradeDb.Collection("Mammalas_login")
+
+	// // // find user reming ads
+
+	var result_rem adsRemaining1
+	filter := bson.M{"_id": strcutinit.OwnerId}
+
+	err1 := coll1.FindOne(context.TODO(), filter).Decode(&result_rem)
+	if err1 != nil {
+		fmt.Println("errror retrieving user userid : ")
+	}
+
+	// parentstruct_in.CreationTimestamp = strcutinit.CreationTimestamp
+
+	coll := docking.PakTradeDb.Collection("items-parent")
+	sortOptions := options.FindOne().SetSort(bson.D{{"publicId", -1}})
+
+	filter1 := bson.D{{}} // Empty filter to match all documents
+	var result2 findlastNumber
+
+	err = coll.FindOne(context.TODO(), filter1, sortOptions).Decode(&result2)
+	if err != nil {
+		// Handle error
+	}
+
+	var result3 find_last_number
+	publicID := result2.PublicId + 1
+	insertdat := bson.M{
+		"images": strcutinit.Images,
+	}
+
+	if result_rem.AdsRemaining > 0 {
+		minus := result_rem.AdsRemaining - 1
+		_, err2 := coll1.UpdateOne(
+			context.TODO(),
+			bson.M{"_id": strcutinit.OwnerId},
+			bson.D{
+				{Key: "$set", Value: bson.M{
+					"adsRemaining": minus}}},
+		)
+		if err2 != nil {
+			log.Fatal(err2)
+		}
+		inset, err4 := coll.InsertOne(context.TODO(), insertdat)
+		if err4 != nil {
+			fmt.Print(err4)
+		}
+
+		// Requires the MongoDB Go Driver
+		// https://go.mongodb.org/mongo-driver
+
+		result3.PublicId = publicID
+		result3.ItmeId = inset.InsertedID
+		var results imgRescopce
+
+		if inset.InsertedID != "" {
+			results.Status = http.StatusOK
+			results.Message = "success"
+			results.Data = result3
+
+		} else {
+			results.Message = "decline"
+
+		}
+		output, err := json.MarshalIndent(results, "", "    ")
+		if err != nil {
+			panic(err)
+
+		}
+		fmt.Fprintf(w, "%s\n", output)
+	} else {
+		var results add_img_itme_result
+		results.Status = http.StatusOK
+		results.Message = "limit exceeded"
+		output, err := json.MarshalIndent(results, "", "    ")
+		if err != nil {
+			panic(err)
+
+		}
+		fmt.Fprintf(w, "%s\n", output)
+	}
+
+}
+
+func Update_item_wrt_category(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	var strcutinit postadd
+	err := json.NewDecoder(req.Body).Decode(&strcutinit)
+	if err != nil {
+		panic(err)
+	}
+
+	coll := docking.PakTradeDb.Collection("items-parent")
+
+	// // // find user reming ads
+
+	upd, err13 := coll.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": strcutinit.Item_id},
+		bson.D{
+			{Key: "$set", Value: bson.M{
+				"price":             strcutinit.Price,
+				"status":            "pending",
+				"category":          strcutinit.Category,
+				"subCategory":       strcutinit.SubCategory,
+				"country":           strcutinit.Country,
+				"qty":               strcutinit.Qty,
+				"currency":          strcutinit.Currency,
+				"title":             strcutinit.Title,
+				"ownerId":           strcutinit.OwnerID,
+				"remainingQty":      strcutinit.RemainingQty,
+				"creationTimestamp": primitive.NewDateTimeFromTime(time.Now()),
+				"planId":            strcutinit.PlanID,
+				"publicId":          strcutinit.PublicId,
+			}},
+		},
+	)
+	if err13 != nil {
+		panic(err13)
+	}
+	///////////////// end find last number
+
+	if strcutinit.HasDimension == false {
+		inster_cloths := bson.M{
+
+			"parentId":         strcutinit.Item_id,
+			"availableColor":   strcutinit.AvailableColor,
+			"feature":          strcutinit.Feature,
+			"gender":           strcutinit.Gender,
+			"hasDimension":     strcutinit.HasDimension,
+			"name":             strcutinit.Name,
+			"fabric":           strcutinit.Fabric,
+			"careInstructions": strcutinit.Careinstructions,
+			"clothType":        strcutinit.ClothType,
+			"size": bson.M{
+				"availableSize": strcutinit.Size.AvailableSize,
+				"sizeChart":     "",
+			},
+		}
+
+		if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
+			coll1 := docking.PakTradeDb.Collection("cloths")
+			_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
+			if err4 != nil {
+				fmt.Print(err4)
+			}
+
+		} else if strcutinit.Category.Hex() == "63bdb52116cccb9bb8b48388" {
+			coll1 := docking.PakTradeDb.Collection("item-mart")
+			_, err4 := coll1.InsertOne(context.TODO(), bson.M{"parentId": strcutinit.Item_id})
+			if err4 != nil {
+				fmt.Print(err4)
+			}
+
+		}
+	} else {
+		inster_cloths := bson.M{
+
+			"parentId":         strcutinit.Item_id,
+			"availableColor":   strcutinit.AvailableColor,
+			"feature":          strcutinit.Feature,
+			"gender":           strcutinit.Gender,
+			"hasDimension":     strcutinit.HasDimension,
+			"name":             strcutinit.Name,
+			"fabric":           strcutinit.Fabric,
+			"careInstructions": strcutinit.Careinstructions,
+			"dimension": bson.M{
+				"length": bson.M{
+					"unit":  strcutinit.Dimension.Length.Unit,
+					"value": strcutinit.Dimension.Length.Value,
+				},
+				"width": bson.M{
+					"unit":  strcutinit.Dimension.Widht.Unit,
+					"value": strcutinit.Dimension.Widht.Value,
+				}},
+			"size": bson.M{
+				"availableSize": strcutinit.Size.AvailableSize,
+				"sizeChart":     "",
+			},
+		}
+
+		if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
+			coll1 := docking.PakTradeDb.Collection("cloths")
+			_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
+			if err4 != nil {
+				fmt.Print(err4)
+			}
+
+		} else if strcutinit.Category.Hex() == "63bdb52116cccb9bb8b48388" {
+			coll1 := docking.PakTradeDb.Collection("item-mart")
+			_, err4 := coll1.InsertOne(context.TODO(), bson.M{"parentId": strcutinit.Item_id})
+			if err4 != nil {
+				fmt.Print(err4)
+			}
+
+		}
+	}
+	///////
+	var results itemADD
+
+	if upd.ModifiedCount > 0 {
+		results.Status = http.StatusOK
+		results.Message = "success"
+		results.Update_record = "insert sucess"
+	} else {
+		results.Status = http.StatusNotFound
+		results.Message = "declined"
+		results.Update_record = "fail"
+	}
+
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+	fmt.Fprintf(w, "%s\n", output)
+
+}
