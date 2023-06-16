@@ -60,23 +60,23 @@ func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
 		InsertedID: "",
 	}
 
-	for i := 0; i < len(cart_init.Data); i++ {
+	for i := 0; i < len(cart_init.Orders); i++ {
 
 		// // insert a user
 
 		mongo_query := bson.M{
-			"user_id":         cart_init.Data[i].Mammal_id,
-			"item_id":         cart_init.Data[i].Item_id,
+			"user_id":         cart_init.Orders[i].Mammal_id,
+			"item_id":         cart_init.Orders[i].Item_id,
 			"delivery_status": "pending",
 			"orderDate":       time.Now(),
-			"color_id":        cart_init.Data[i].Color_id,
-			"size_id":         cart_init.Data[i].Size_id,
-			"quantity":        cart_init.Data[i].Quantity,
-			"price":           cart_init.Data[i].Price,
-			"discount":        cart_init.Data[i].Discount,
-			"payement_method": cart_init.Data[i].Payement_method,
-			"total_price":     cart_init.Data[i].Total_price,
-			"seller_info":     cart_init.Data[i].SellerInfo,
+			"color_id":        cart_init.Orders[i].Color_id,
+			"size_id":         cart_init.Orders[i].Size_id,
+			"quantity":        cart_init.Orders[i].Quantity,
+			"price":           cart_init.Orders[i].Price,
+			"discount":        cart_init.Orders[i].Discount,
+			"payement_method": cart_init.Orders[i].Payement_method,
+			"total_price":     cart_init.Orders[i].Total_price,
+			"seller_info":     cart_init.Orders[i].SellerInfo,
 		}
 
 		inset_data, err3 := coll.InsertOne(context.TODO(), mongo_query)
@@ -84,10 +84,10 @@ func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
 			fmt.Fprintf(w, "%s\n", err3)
 		}
 		inset.InsertedID = inset_data.InsertedID
-		Qty_minus := cart_init.Data[i].Rem
+		Qty_minus := cart_init.Orders[i].Rem
 		_, err1 := coll1.UpdateOne(
 			context.TODO(),
-			bson.M{"_id": cart_init.Data[i].Item_id},
+			bson.M{"_id": cart_init.Orders[i].Item_id},
 			bson.D{
 				{Key: "$set", Value: bson.M{
 					"qty": Qty_minus,
