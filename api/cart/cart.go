@@ -119,7 +119,7 @@ func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
 
 type Item struct {
 	ID          primitive.ObjectID `bson:"_id"`
-	OrderDate   time.Time          `json:"order_date"`
+	OrderDate   string             `json:"order_date"`
 	Seller_info string             `json:"seller_info"`
 	Qty         int                `json:"qty"`
 	Size        []struct {
