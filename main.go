@@ -47,7 +47,7 @@ func main() {
 	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 	r.HandleFunc("/mammals_registration", User.Mammals_user_registration)
 	r.HandleFunc("/add-item", item.Update_item_wrt_category)
-	r.HandleFunc("/add-item-images", item.Add_item_image)
+	r.HandleFunc("/create-draft-item", item.Add_item_image)
 
 	//	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 
@@ -102,7 +102,7 @@ func main() {
 	handler := c.Handler(r)
 	// <<<<<<< HEAD
 	fmt.Println("Runging server port ===> 80")
-	http.ListenAndServe(":80", handler)
+	http.ListenAndServe(":8080", handler)
 	// =======
 	// fmt.Println("Runging server port ==> 80")
 	// http.ListenAndServe(":80", handler)
