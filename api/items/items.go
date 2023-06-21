@@ -1667,56 +1667,45 @@ func Add_item_image(w http.ResponseWriter, req *http.Request) {
 	publicID := result2.PublicId + 1
 	insertdat := bson.M{"publicId": publicID}
 
-	if result_rem.AdsRemaining > 0 || result_rem.AdsRemaining < 0 {
-		minus := result_rem.AdsRemaining - 1
-		_, err2 := coll1.UpdateOne(
-			context.TODO(),
-			bson.M{"publicId": uid},
-			bson.D{
-				{Key: "$set", Value: bson.M{
-					"adsRemaining": minus}}},
-		)
-		if err2 != nil {
-			log.Fatal(err2)
-		}
-		inset, err4 := coll.InsertOne(context.TODO(), insertdat)
-		if err4 != nil {
-			fmt.Print(err4)
-		}
-
-		// Requires the MongoDB Go Driver
-		// https://go.mongodb.org/mongo-driver
-
-		result3.PublicId = publicID
-		result3.ItmeId = inset.InsertedID
-		var results imgRescopce
-
-		if inset.InsertedID != "" {
-			results.Status = http.StatusOK
-			results.Message = "success"
-			results.Data = result3
-
-		} else {
-			results.Message = "decline"
-
-		}
-		output, err := json.MarshalIndent(results, "", "    ")
-		if err != nil {
-			panic(err)
-
-		}
-		fmt.Fprintf(w, "%s\n", output)
-	} else {
-		var results add_img_itme_result
-		results.Status = http.StatusOK
-		results.Message = "limit exceeded"
-		output, err := json.MarshalIndent(results, "", "    ")
-		if err != nil {
-			panic(err)
-
-		}
-		fmt.Fprintf(w, "%s\n", output)
+	// if result_rem.AdsRemaining > 0 || result_rem.AdsRemaining < 0 {
+	// minus := result_rem.AdsRemaining - 1
+	// _, err2 := coll1.UpdateOne(
+	// 	context.TODO(),
+	// 	bson.M{"publicId": uid},
+	// 	bson.D{
+	// 		{Key: "$set", Value: bson.M{
+	// 			"adsRemaining": minus}}},
+	// )
+	// if err2 != nil {
+	// 	log.Fatal(err2)
+	// }
+	inset, err4 := coll.InsertOne(context.TODO(), insertdat)
+	if err4 != nil {
+		fmt.Print(err4)
 	}
+
+	// Requires the MongoDB Go Driver
+	// https://go.mongodb.org/mongo-driver
+
+	result3.PublicId = publicID
+	result3.ItmeId = inset.InsertedID
+	var results imgRescopce
+
+	if inset.InsertedID != "" {
+		results.Status = http.StatusOK
+		results.Message = "success"
+		results.Data = result3
+
+	} else {
+		results.Message = "decline"
+
+	}
+	output, err := json.MarshalIndent(results, "", "    ")
+	if err != nil {
+		panic(err)
+
+	}
+	fmt.Fprintf(w, "%s\n", output)
 
 }
 
@@ -1734,6 +1723,17 @@ func Update_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 	}
 
 	coll := docking.PakTradeDb.Collection("items-parent")
+	userpId := strcutinit.PublicId
+
+	coll1 := docking.PakTradeDb.Collection("Mammalas_login")
+
+	var result_rem adsRemaining1
+	filter := bson.M{"_id": strcutinit.OwnerID}
+
+	err1 := coll1.FindOne(context.TODO(), filter).Decode(&result_rem)
+	if err1 != nil {
+		fmt.Println("errror retrieving user userid : ")
+	}
 
 	// var parnt_id parentID
 	// filter := bson.M{"publicId": strcutinit.PublicId}
@@ -1745,127 +1745,152 @@ func Update_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 
 	// // // // find user reming ads
 	// abx := parnt_id.pId
-	upd, err13 := coll.UpdateOne(
-		context.TODO(),
-		bson.M{"publicId": strcutinit.PublicId},
-		bson.D{
-			{Key: "$set", Value: bson.M{
-				"images":            strcutinit.Images,
-				"price":             strcutinit.Price,
-				"status":            "pending",
-				"category":          strcutinit.Category,
-				"subCategory":       strcutinit.SubCategory,
-				"country":           strcutinit.Country,
-				"qty":               strcutinit.Qty,
-				"currency":          strcutinit.Currency,
-				"title":             strcutinit.Title,
-				"ownerId":           strcutinit.OwnerID,
-				"remainingQty":      strcutinit.RemainingQty,
-				"creationTimestamp": primitive.NewDateTimeFromTime(time.Now()),
-				"planId":            strcutinit.PlanID,
-				// "publicId":          strcutinit.PublicId,
-			}},
-		},
-	)
-	if err13 != nil {
-		panic(err13)
-	}
-	///////////////// end find last number
-
-	if strcutinit.HasDimension == false {
-		inster_cloths := bson.M{
-
-			"parentId":       strcutinit.Item_id,
-			"availableColor": strcutinit.AvailableColor,
-			// "feature":          strcutinit.Feature,
-			"gender":           strcutinit.Gender,
-			"hasDimension":     strcutinit.HasDimension,
-			"name":             strcutinit.Name,
-			"fabric":           strcutinit.Fabric,
-			"careInstructions": strcutinit.Careinstructions,
-			"clothType":        strcutinit.ClothType,
-			"size": bson.M{
-				"availableSize": strcutinit.Size.AvailableSize,
-				"sizeChart":     "",
-			},
-		}
-
-		if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
-			coll1 := docking.PakTradeDb.Collection("cloths")
-			_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
-			if err4 != nil {
-				fmt.Print(err4)
-			}
-
-		} else if strcutinit.Category.Hex() == "63bdb52116cccb9bb8b48388" {
-			coll1 := docking.PakTradeDb.Collection("item-mart")
-			_, err4 := coll1.InsertOne(context.TODO(), bson.M{"parentId": strcutinit.Item_id})
-			if err4 != nil {
-				fmt.Print(err4)
-			}
-
-		}
-	} else {
-		inster_cloths := bson.M{
-
-			"parentId":       strcutinit.Item_id,
-			"availableColor": strcutinit.AvailableColor,
-			// "feature":          strcutinit.Feature,
-			"gender":           strcutinit.Gender,
-			"hasDimension":     strcutinit.HasDimension,
-			"name":             strcutinit.Name,
-			"fabric":           strcutinit.Fabric,
-			"careInstructions": strcutinit.Careinstructions,
-			"clothType":        strcutinit.ClothType,
-			"dimension": bson.M{
-				"length": bson.M{
-					"unit":  strcutinit.Dimension.Length.Unit,
-					"value": strcutinit.Dimension.Length.Value,
-				},
-				"width": bson.M{
-					"unit":  strcutinit.Dimension.Widht.Unit,
-					"value": strcutinit.Dimension.Widht.Value,
-				}},
-			"size": bson.M{
-				"availableSize": strcutinit.Size.AvailableSize,
-				"sizeChart":     "",
-			},
-		}
-
-		if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
-			coll1 := docking.PakTradeDb.Collection("cloths")
-			_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
-			if err4 != nil {
-				fmt.Print(err4)
-			}
-
-		} else if strcutinit.Category.Hex() == "63bdb52116cccb9bb8b48388" {
-			coll1 := docking.PakTradeDb.Collection("item-mart")
-			_, err4 := coll1.InsertOne(context.TODO(), bson.M{"parentId": strcutinit.Item_id})
-			if err4 != nil {
-				fmt.Print(err4)
-			}
-
-		}
-	}
-	///////
 	var results itemADD
 
-	if upd.ModifiedCount > 0 {
-		results.Status = http.StatusOK
-		results.Message = "success"
-		results.Update_record = "insert sucess"
+	if result_rem.AdsRemaining > 0 {
+		minus := result_rem.AdsRemaining - 1
+		_, err2 := coll1.UpdateOne(
+			context.TODO(),
+			bson.M{"publicId": userpId},
+			bson.D{
+				{Key: "$set", Value: bson.M{
+					"adsRemaining": minus}}},
+		)
+		if err2 != nil {
+			log.Fatal(err2)
+		}
+
+		upd, err13 := coll.UpdateOne(
+			context.TODO(),
+			bson.M{"publicId": strcutinit.PublicId},
+			bson.D{
+				{Key: "$set", Value: bson.M{
+					"images":            strcutinit.Images,
+					"price":             strcutinit.Price,
+					"status":            "pending",
+					"category":          strcutinit.Category,
+					"subCategory":       strcutinit.SubCategory,
+					"country":           strcutinit.Country,
+					"qty":               strcutinit.Qty,
+					"currency":          strcutinit.Currency,
+					"title":             strcutinit.Title,
+					"ownerId":           strcutinit.OwnerID,
+					"remainingQty":      strcutinit.RemainingQty,
+					"creationTimestamp": primitive.NewDateTimeFromTime(time.Now()),
+					"planId":            strcutinit.PlanID,
+					// "publicId":          strcutinit.PublicId,
+				}},
+			},
+		)
+		if err13 != nil {
+			panic(err13)
+		}
+		///////////////// end find last number
+
+		if strcutinit.HasDimension == false {
+			inster_cloths := bson.M{
+
+				"parentId":       strcutinit.Item_id,
+				"availableColor": strcutinit.AvailableColor,
+				// "feature":          strcutinit.Feature,
+				"gender":           strcutinit.Gender,
+				"hasDimension":     strcutinit.HasDimension,
+				"name":             strcutinit.Name,
+				"fabric":           strcutinit.Fabric,
+				"careInstructions": strcutinit.Careinstructions,
+				"clothType":        strcutinit.ClothType,
+				"size": bson.M{
+					"availableSize": strcutinit.Size.AvailableSize,
+					"sizeChart":     "",
+				},
+			}
+
+			if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
+				coll1 := docking.PakTradeDb.Collection("cloths")
+				_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
+				if err4 != nil {
+					fmt.Print(err4)
+				}
+
+			} else if strcutinit.Category.Hex() == "63bdb52116cccb9bb8b48388" {
+				coll1 := docking.PakTradeDb.Collection("item-mart")
+				_, err4 := coll1.InsertOne(context.TODO(), bson.M{"parentId": strcutinit.Item_id})
+				if err4 != nil {
+					fmt.Print(err4)
+				}
+
+			}
+		} else {
+			inster_cloths := bson.M{
+
+				"parentId":       strcutinit.Item_id,
+				"availableColor": strcutinit.AvailableColor,
+				// "feature":          strcutinit.Feature,
+				"gender":           strcutinit.Gender,
+				"hasDimension":     strcutinit.HasDimension,
+				"name":             strcutinit.Name,
+				"fabric":           strcutinit.Fabric,
+				"careInstructions": strcutinit.Careinstructions,
+				"clothType":        strcutinit.ClothType,
+				"dimension": bson.M{
+					"length": bson.M{
+						"unit":  strcutinit.Dimension.Length.Unit,
+						"value": strcutinit.Dimension.Length.Value,
+					},
+					"width": bson.M{
+						"unit":  strcutinit.Dimension.Widht.Unit,
+						"value": strcutinit.Dimension.Widht.Value,
+					}},
+				"size": bson.M{
+					"availableSize": strcutinit.Size.AvailableSize,
+					"sizeChart":     "",
+				},
+			}
+
+			if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
+				coll1 := docking.PakTradeDb.Collection("cloths")
+				_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
+				if err4 != nil {
+					fmt.Print(err4)
+				}
+
+			} else if strcutinit.Category.Hex() == "63bdb52116cccb9bb8b48388" {
+				coll1 := docking.PakTradeDb.Collection("item-mart")
+				_, err4 := coll1.InsertOne(context.TODO(), bson.M{"parentId": strcutinit.Item_id})
+				if err4 != nil {
+					fmt.Print(err4)
+				}
+
+			}
+		}
+		///////
+
+		if upd.ModifiedCount > 0 {
+			results.Status = http.StatusOK
+			results.Message = "success"
+			results.Update_record = "insert sucess"
+		} else {
+			results.Status = http.StatusNotFound
+			results.Message = "declined"
+			results.Update_record = "fail"
+		}
+
+		output, err := json.MarshalIndent(results, "", "    ")
+		if err != nil {
+			panic(err)
+
+		}
+		fmt.Fprintf(w, "%s\n", output)
 	} else {
-		results.Status = http.StatusNotFound
-		results.Message = "declined"
-		results.Update_record = "fail"
-	}
+		results.Status = http.StatusOK
+		results.Message = "decline"
+		output, err := json.MarshalIndent(results, "", "    ")
+		if err != nil {
+			panic(err)
 
-	output, err := json.MarshalIndent(results, "", "    ")
-	if err != nil {
-		panic(err)
+		}
+		fmt.Fprintf(w, "%s\n", output)
 
 	}
-	fmt.Fprintf(w, "%s\n", output)
 
 }
