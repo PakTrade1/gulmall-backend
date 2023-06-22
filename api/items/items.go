@@ -1252,6 +1252,26 @@ func Serch_item_by_id(w http.ResponseWriter, req *http.Request) {
 			},
 		},
 		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "fabric"},
+					{"localField", "fabric"},
+					{"foreignField", "_id"},
+					{"as", "fabric"},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "cloth_type"},
+					{"localField", "clothType"},
+					{"foreignField", "_id"},
+					{"as", "clothType"},
+				},
+			},
+		},
+		bson.D{
 			{"$set",
 				bson.D{
 					{"parent", bson.D{{"$first", "$parent"}}},
@@ -1259,7 +1279,8 @@ func Serch_item_by_id(w http.ResponseWriter, req *http.Request) {
 					{"subCategory", bson.D{{"$first", "$sub_cat"}}},
 					{"plans", bson.D{{"$first", "$plans"}}},
 					{"tier", bson.D{{"$first", "$tier"}}},
-					{"owner", bson.D{{"$first", "$owner"}}},
+					{"fabric", bson.D{{"$first", "$fabric"}}},
+					{"clothType", bson.D{{"$first", "$clothType"}}},
 				},
 			},
 		},
@@ -1267,7 +1288,9 @@ func Serch_item_by_id(w http.ResponseWriter, req *http.Request) {
 			{"$project",
 				bson.D{
 					{"name", "$name"},
-					{"feature", "$feature"},
+					{"feature", "$feature.name"},
+					{"clothType", "$clothType.name"},
+
 					{"images", "$parent.images"},
 					{"_id", "$_id"},
 					{"parentId", "$parent._id"},
