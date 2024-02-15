@@ -29,9 +29,9 @@ jobs:
     - name: Push Docker image to Azure Container Registry
       run: |
         docker build -t myapp .
-        docker tag myapp <your-azure-container-registry-name>.azurecr.io/myapp:latest
-        docker login <your-azure-container-registry-name>.azurecr.io -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
-        docker push <your-azure-container-registry-name>.azurecr.io/myapp:latest
+        docker tag myapp gulmallbackend.azurecr.io/myapp:latest
+        docker login gulmallbackend.azurecr.io -u ${{ secrets.ACR_USERNAME }} -p ${{ secrets.ACR_PASSWORD }}
+        docker push gulmallbackend.azurecr.io/myapp:latest
 
     - name: Deploy to Azure Web App
-      run: az webapp deployment container config --name <your-web-app-name> --resource-group <your-resource-group> --container-image <your-azure-container-registry-name>.azurecr.io/myapp:latest
+      run: az webapp deployment container config --name gulmallbackend --resource-group <your-resource-group> --container-image <your-azure-container-registry-name>.azurecr.io/myapp:latest
