@@ -8,6 +8,7 @@ import (
 	Allcart "pak-trade-go/api/cart"
 	categories "pak-trade-go/api/categories"
 	color "pak-trade-go/api/color"
+	clothingFilter "pak-trade-go/api/filter"
 	gender "pak-trade-go/api/gender"
 	keyword "pak-trade-go/api/serchKeyWord"
 	tier "pak-trade-go/api/tier"
@@ -90,6 +91,7 @@ func main() {
 	r.HandleFunc("/get-address", shipping_addres.Get_shipping_address_with_mammal_id)
 	r.HandleFunc("/get-ads-by-id", ads.Get_ads_user_by_post_id)
 	r.HandleFunc("/get-keyword", keyword.Get_all_items_serchkey)
+	r.HandleFunc("/get-clothing-filters", clothingFilter.FiltersHandler)
 
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
