@@ -13,7 +13,7 @@ import (
 var PakTradeDb *mongo.Database // PakTrade
 
 func PakTradeConnection() {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://developer001:IAmMuslim@cluster0.qeqntol.mongodb.net/test"))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://developer001:IAmMuslim@cluster0.qeqntol.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"))
 	if err != nil {
 		log.Fatal(err)
 	}
