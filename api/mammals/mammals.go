@@ -8,10 +8,12 @@ import (
 	"log"
 	"net/http"
 	docking "pak-trade-go/Docking"
+	"strconv"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Mammals_serch struct {
@@ -372,8 +374,6 @@ func getStringValue(value string) interface{} {
 func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
-	// w.Header().Set("Access-Control-Allow-Origin", "*")
-
 	var mammals_reg mammals_reg_insert
 	err := json.NewDecoder(req.Body).Decode(&mammals_reg)
 	if err != nil {
@@ -455,4 +455,147 @@ func Mammals_user_registration(w http.ResponseWriter, req *http.Request) {
 
 	fmt.Fprintf(w, "%s\n", output)
 
+}
+
+func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("In mail")
+	if r.Method != http.MethodGet {
+		respondWithJSON(w, http.StatusMethodNotAllowed, false, "Invalid request method")
+		return
+	}
+
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		respondWithJSON(w, http.StatusBadRequest, false, "Email parameter is missing")
+		return
+	}
+
+	exists, err := CheckEmailExists(email)
+	if err != nil {
+		respondWithJSON(w, http.StatusInternalServerError, false, "Internal server error")
+		return
+	}
+	if exists {
+		respondWithJSON(w, http.StatusOK, true, "Email exists")
+	} else {
+		respondWithJSON(w, http.StatusOK, false, "Email does not exist")
+	}
+}
+
+func CheckEmailExists(email string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := docking.PakTradeDb.Collection("Mammalas_login")
+
+	filter := bson.M{"email": email}
+	count, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
+func checkPhoneExists(phone int) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := docking.PakTradeDb.Collection("Mammalas_login")
+
+	filter := bson.M{"primaryPhone": phone}
+	count, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
+func respondWithJSON(w http.ResponseWriter, statusCode int, exists bool, message string) {
+	response := map[string]interface{}{
+		"exists":  exists,
+		"message": message,
+		"status":  statusCode,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(response)
+}
+
+func checkIsEmailVerified(email string) (bool, error) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	collection := docking.PakTradeDb.Collection("Mammalas_login")
+
+	filter := bson.M{"email": email}
+	var result struct {
+		IsEmailVerified bool `bson:"isEmailVerified"`
+	}
+	err := collection.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return false, nil // Email does not exist
+		}
+		return false, err
+	}
+	return result.IsEmailVerified, nil
+}
+
+func CheckEmailVerifiedHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondWithJSON(w, http.StatusMethodNotAllowed, false, "Invalid request method")
+		return
+	}
+
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		respondWithJSON(w, http.StatusBadRequest, false, "Email parameter is missing")
+		return
+	}
+
+	verified, err := checkIsEmailVerified(email)
+	if err != nil {
+		respondWithJSON(w, http.StatusInternalServerError, false, "Internal server error")
+		return
+	}
+
+	if verified {
+		respondWithJSON(w, http.StatusOK, true, "Email is verified")
+	} else {
+		respondWithJSON(w, http.StatusOK, false, "Email is not verified")
+	}
+}
+
+func CheckPhoneHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet {
+		respondWithJSON(w, http.StatusMethodNotAllowed, false, "Invalid request method")
+		return
+	}
+
+	phone := r.URL.Query().Get("phone")
+
+	if phone == "" {
+		respondWithJSON(w, http.StatusBadRequest, false, "Phone parameter is missing")
+		return
+	}
+	_phoneInt, err := strconv.Atoi(phone)
+	if err != nil {
+		respondWithJSON(w, http.StatusInternalServerError, false, "Invalid phone number")
+		return
+	}
+	phoneInt, err := checkPhoneExists(_phoneInt)
+	if err != nil {
+		respondWithJSON(w, http.StatusInternalServerError, false, "Internal server error")
+		return
+	}
+	if phoneInt {
+		respondWithJSON(w, http.StatusOK, true, "Phone exists")
+	} else {
+		respondWithJSON(w, http.StatusOK, false, "Phone does not exist")
+	}
 }

@@ -47,6 +47,9 @@ func main() {
 	r.HandleFunc("/add-sub-category-child", categories.Add_sub_child_category)
 	r.HandleFunc("/add-mammals_registration", User.Mammals_user_registration)
 	r.HandleFunc("/mammals_registration", User.Mammals_user_registration)
+	r.HandleFunc("/check-email", User.CheckEmailHandler)
+	r.HandleFunc("/check-email-verified", User.CheckEmailVerifiedHandler)
+	r.HandleFunc("/check-phone-number", User.CheckPhoneHandler)
 	r.HandleFunc("/add-item", item.Update_item_wrt_category)
 	r.HandleFunc("/create-draft-item", item.Add_item_image)
 
