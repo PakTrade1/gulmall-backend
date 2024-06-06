@@ -497,7 +497,7 @@ func CheckEmailExists(email string) (bool, error) {
 	return count > 0, nil
 }
 
-func checkPhoneExists(phone int) (bool, error) {
+func CheckPhoneExists(phone int) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -588,7 +588,7 @@ func CheckPhoneHandler(w http.ResponseWriter, r *http.Request) {
 		respondWithJSON(w, http.StatusInternalServerError, false, "Invalid phone number")
 		return
 	}
-	phoneInt, err := checkPhoneExists(_phoneInt)
+	phoneInt, err := CheckPhoneExists(_phoneInt)
 	if err != nil {
 		respondWithJSON(w, http.StatusInternalServerError, false, "Internal server error")
 		return
