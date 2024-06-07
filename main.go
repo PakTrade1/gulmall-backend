@@ -11,6 +11,7 @@ import (
 	clothingFilter "pak-trade-go/api/filter"
 	gender "pak-trade-go/api/gender"
 	keyword "pak-trade-go/api/serchKeyWord"
+	"pak-trade-go/api/signin"
 	tier "pak-trade-go/api/tier"
 
 	//	"pak-trade-go/api/weight"
@@ -50,6 +51,7 @@ func main() {
 	r.HandleFunc("/check-email", User.CheckEmailHandler)
 	r.HandleFunc("/check-email-verified", User.CheckEmailVerifiedHandler)
 	r.HandleFunc("/check-phone-number", User.CheckPhoneHandler)
+	r.HandleFunc("/signin-email", signin.SignInEmailHandler)
 	r.HandleFunc("/add-item", item.Update_item_wrt_category)
 	r.HandleFunc("/create-draft-item", item.Add_item_image)
 
