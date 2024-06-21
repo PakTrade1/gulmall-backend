@@ -52,6 +52,7 @@ func main() {
 	r.HandleFunc("/check-email-verified", User.CheckEmailVerifiedHandler)
 	r.HandleFunc("/check-phone-number", User.CheckPhoneHandler)
 	r.HandleFunc("/signin-email", signin.SignInEmailHandler)
+	r.HandleFunc("/signin-phone", signin.SignInPhoneHandler)
 	r.HandleFunc("/add-item", item.Update_item_wrt_category)
 	r.HandleFunc("/create-draft-item", item.Add_item_image)
 

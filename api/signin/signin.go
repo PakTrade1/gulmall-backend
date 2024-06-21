@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	docking "pak-trade-go/Docking"
+	"strconv"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -58,11 +59,60 @@ func SignInEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func SignInPhoneHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondWithJSON(w, http.StatusMethodNotAllowed, false, "Invalid request method")
+		return
+	}
+
+	phone := r.URL.Query().Get("phone")
+
+	_phoneInt, err := strconv.Atoi(phone)
+
+	if err != nil {
+		respondWithJSON(w, http.StatusInternalServerError, false, "Invalid phone number")
+		return
+	}
+
+	if phone == "" {
+		respondWithJSON(w, http.StatusBadRequest, false, "Phone parameter is missing")
+		return
+	}
+
+	user, err := findUserByPhone(_phoneInt)
+	if err != nil {
+		respondWithJSON(w, http.StatusBadRequest, false, err.Error())
+		return
+	} else {
+		response := EmailCheckResponse{
+			PublicId: user.PublicId,
+			Found:    true,
+			Message:  "Phone found",
+			Status:   200,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+
+	}
+}
+
 func findUserByEmail(email string) (*User, error) {
 
 	collection := docking.PakTradeDb.Collection("Mammalas_login")
 	var user User
 	filter := bson.M{"email": email}
+	err := collection.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func findUserByPhone(phone int) (*User, error) {
+
+	collection := docking.PakTradeDb.Collection("Mammalas_login")
+	var user User
+	filter := bson.M{"primaryPhone": phone}
 	err := collection.FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
 		return nil, err
