@@ -8,24 +8,28 @@ import (
 	"strconv"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type User struct {
-	PublicId int    `json:"publicId" bson:"publicId"`
-	Email    string `json:"email" bson:"email"`
+	PublicId int                `json:"publicId" bson:"publicId"`
+	Email    string             `json:"email" bson:"email"`
+	ID       primitive.ObjectID `json:"id" bson:"_id"`
 }
 
 type EmailCheckResponse struct {
-	PublicId int    `json:"publicId,omitempty"`
-	Found    bool   `json:"found"`
-	Message  string `json:"message"`
-	Status   int    `json:"status"`
+	PublicId int                `json:"publicId,omitempty"`
+	Found    bool               `json:"found"`
+	Message  string             `json:"message"`
+	Status   int                `json:"status"`
+	ID       primitive.ObjectID `json:"id" bson:"_id"`
 }
 
 type respone_struct1 struct {
-	Status   int    `json:"status"`
-	Message  string `json:"message"`
-	PublicID int    `json:"publicId"`
+	Status   int                `json:"status"`
+	Message  string             `json:"message"`
+	PublicID int                `json:"publicId"`
+	ID       primitive.ObjectID `json:"id" bson:"_id"`
 }
 
 func SignInEmailHandler(w http.ResponseWriter, r *http.Request) {
@@ -50,6 +54,7 @@ func SignInEmailHandler(w http.ResponseWriter, r *http.Request) {
 			PublicId: user.PublicId,
 			Found:    true,
 			Message:  "Email found",
+			ID:       user.ID,
 			Status:   200,
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -87,6 +92,7 @@ func SignInPhoneHandler(w http.ResponseWriter, r *http.Request) {
 		response := EmailCheckResponse{
 			PublicId: user.PublicId,
 			Found:    true,
+			ID:       user.ID,
 			Message:  "Phone found",
 			Status:   200,
 		}
