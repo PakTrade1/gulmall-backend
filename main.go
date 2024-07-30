@@ -98,6 +98,7 @@ func main() {
 	r.HandleFunc("/get-ads-by-id", ads.Get_ads_user_by_post_id)
 	r.HandleFunc("/get-keyword", keyword.Get_all_items_serchkey)
 	r.HandleFunc("/get-clothing-filters", clothingFilter.FiltersHandler)
+	r.HandleFunc("/create-user", User.CreateUser)
 
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 

@@ -11,9 +11,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Mammals_serch struct {
@@ -216,53 +218,6 @@ func Mammals_insertone(w http.ResponseWriter, req *http.Request) {
 type datanotfound struct {
 	Message string `json:"message"`
 	Status  string `json:"status"`
-}
-
-func Mammals_select_one(w http.ResponseWriter, req *http.Request) {
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	var search1 Mammals_serch
-	err := json.NewDecoder(req.Body).Decode(&search1)
-	if err != nil {
-		panic(err)
-	}
-	coll := docking.PakTradeDb.Collection("Mammalas_login")
-	// objectIDS, _ := primitive.ObjectIDFromHex(search1.ID)
-
-	var result Mammals_user1
-	filter := bson.M{"publicId": search1.ID}
-
-	err1 := coll.FindOne(context.TODO(), filter).Decode(&result)
-	if err1 != nil {
-		fmt.Println("errror retrieving user userid : ")
-	}
-
-	// end findOne
-	var data respone_struct1
-	var datanot datanotfound
-	if result.CreationDate != nil {
-		data.Status = http.StatusOK
-		data.Message = "success"
-		data.Data = result
-		output, err2 := json.MarshalIndent(data, "", "    ")
-		if err2 != nil {
-			panic(err2)
-		}
-		fmt.Fprintf(w, "%s\n", output)
-
-	} else {
-		datanot.Message = "decline"
-		datanot.Status = "not found"
-		output, err2 := json.MarshalIndent(datanot, "", "    ")
-		if err2 != nil {
-			panic(err2)
-		}
-		fmt.Fprintf(w, "%s\n", output)
-
-	}
-
 }
 
 type mamal_login_update struct {
@@ -598,4 +553,166 @@ func CheckPhoneHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		respondWithJSON(w, http.StatusOK, false, "Phone does not exist")
 	}
+}
+
+func Mammals_select_one(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var search1 Mammals_serch
+	err := json.NewDecoder(req.Body).Decode(&search1)
+	if err != nil {
+		panic(err)
+	}
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
+	// objectIDS, _ := primitive.ObjectIDFromHex(search1.ID)
+
+	var result Mammals_user1
+	filter := bson.M{"publicId": search1.ID}
+
+	err1 := coll.FindOne(context.TODO(), filter).Decode(&result)
+	if err1 != nil {
+		fmt.Println("errror retrieving user userid : ")
+	}
+
+	// end findOne
+	var data respone_struct1
+	var datanot datanotfound
+	if result.CreationDate != nil {
+		data.Status = http.StatusOK
+		data.Message = "success"
+		data.Data = result
+		output, err2 := json.MarshalIndent(data, "", "    ")
+		if err2 != nil {
+			panic(err2)
+		}
+		fmt.Fprintf(w, "%s\n", output)
+
+	} else {
+		datanot.Message = "decline"
+		datanot.Status = "not found"
+		output, err2 := json.MarshalIndent(datanot, "", "    ")
+		if err2 != nil {
+			panic(err2)
+		}
+		fmt.Fprintf(w, "%s\n", output)
+
+	}
+
+}
+
+// CreateUserEndpoint creates a new user
+func CreateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var user User
+	_ = json.NewDecoder(r.Body).Decode(&user)
+	user.ID = primitive.NewObjectID()
+	user.Credit = 5
+	user.AdsRemaining = 5
+	user.ServerDate = primitive.NewDateTimeFromTime(time.Now())
+	user.CreationDate = time.Now().Format(time.RFC3339)
+	user.LastSignedIn = time.Now().Format(time.RFC3339)
+	user.IsEmailVerified = false
+	user.AccountStatus = true
+	user.BusinessPhone = "N/A"
+	user.IsBusiness = false
+	user.PublicID = getNextPublicID()
+	planID := "64735fe18f737b74c13bd6d3"
+
+	// Convert string to ObjectID
+	Planid, errr := primitive.ObjectIDFromHex(planID)
+
+	if errr != nil {
+		fmt.Println("Error:", errr)
+		return
+	}
+
+	user.PlanID = Planid
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
+	_, err := coll.InsertOne(context.TODO(), user)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return the user object with the ID
+	response, err := json.Marshal(user)
+	if err != nil {
+		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(response)
+	//json.NewEncoder(w).Encode(result)
+}
+
+// Get the next available PublicID
+func getNextPublicID() int64 {
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
+	// Find the highest PublicID in the collection
+	options := options.FindOne().SetSort(bson.D{{"publicId", -1}})
+	var result User
+	err := coll.FindOne(context.TODO(), bson.D{}, options).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return 1
+		}
+		panic(err)
+	}
+
+	return result.PublicID + 1
+}
+
+// GetUserEndpoint gets a user by ID
+func GetUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var user User
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
+	err := coll.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(user)
+}
+
+// UpdateUserEndpoint updates a user by ID
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var user User
+	_ = json.NewDecoder(r.Body).Decode(&user)
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
+	update := bson.M{
+		"$set": user,
+	}
+	_, err := coll.UpdateOne(context.TODO(), bson.M{"_id": id}, update)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode("User updated successfully")
+}
+
+// DeleteUserEndpoint deletes a user by ID
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
+	_, err := coll.DeleteOne(context.TODO(), bson.M{"_id": id})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode("User deleted successfully")
 }
