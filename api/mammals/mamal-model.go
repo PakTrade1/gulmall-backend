@@ -24,9 +24,3 @@ type User struct {
 	UID             string             `json:"uid" bson:"uid"`
 	Platform        string             `json:"platform" bson:"platform"`
 }
-
-// SignInInfo represents sign-in information for a user
-type SignInInfo struct {
-	LastSignedIn string `json:"lastSignedIn" bson:"lastSignedIn"`
-	Platform     string `json:"platform" bson:"platform"`
-}
