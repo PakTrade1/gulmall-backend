@@ -15,6 +15,7 @@ type User struct {
 	PublicId int                `json:"publicId" bson:"publicId"`
 	Email    string             `json:"email" bson:"email"`
 	ID       primitive.ObjectID `json:"id" bson:"_id"`
+	IP       primitive.ObjectID `json:"ip" bson:"ip"`
 }
 
 type EmailCheckResponse struct {
@@ -53,7 +54,7 @@ func SignInEmailHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		response := EmailCheckResponse{
 			PublicId: user.PublicId,
-			ip: 	  user.ip,
+			IP:       user.IP,
 			Found:    true,
 			Message:  "Email found",
 			ID:       user.ID,
