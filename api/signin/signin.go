@@ -52,6 +52,7 @@ func SignInEmailHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		response := EmailCheckResponse{
 			PublicId: user.PublicId,
+			ip: 	  user.ip,
 			Found:    true,
 			Message:  "Email found",
 			ID:       user.ID,
