@@ -23,4 +23,5 @@ type User struct {
 	PrimaryPhone    string             `json:"primaryPhone" bson:"primaryPhone"`
 	UID             string             `json:"uid" bson:"uid"`
 	Platform        string             `json:"platform" bson:"platform"`
+	Ip        		string             `json:"ip" bson:"ip"`
 }
