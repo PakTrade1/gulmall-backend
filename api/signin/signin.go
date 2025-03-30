@@ -24,7 +24,7 @@ type EmailCheckResponse struct {
 	Message  string             `json:"message"`
 	Status   int                `json:"status"`
 	ID       primitive.ObjectID `json:"id" bson:"_id"`
-	IP       primitive.ObjectID `json:"ip" bson:"ip"`
+	IP       string             `json:"ip" bson:"ip"`
 }
 
 type respone_struct1 struct {
