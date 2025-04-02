@@ -25,6 +25,7 @@ type CartMammals struct {
 		Price           float32            `json:"price"`
 		Discount        string             `json:"discount"`
 		Total_price     float32            `json:"total_price"`
+		Currency        string             `json:"currency"`
 		Rem             int                `json:"items_remaining_quantity"`
 	} `json:"orders"`
 }
@@ -77,6 +78,7 @@ func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
 			"payement_method": cart_init.Orders[i].Payement_method,
 			"total_price":     cart_init.Orders[i].Total_price,
 			"seller_info":     cart_init.Orders[i].SellerInfo,
+			"currency":        cart_init.Orders[i].Currency,
 		}
 
 		inset_data, err3 := coll.InsertOne(context.TODO(), mongo_query)
