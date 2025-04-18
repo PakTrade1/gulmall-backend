@@ -113,12 +113,6 @@ func main() {
 		AllowCredentials: true,
 	})
 	handler := c.Handler(r)
-	// <<<<<<< HEAD
 	fmt.Println("Runging server port ===> 80")
 	http.ListenAndServe(":80", handler)
-	// =======
-	// fmt.Println("Runging server port ==> 80")
-	// http.ListenAndServe(":80", handler)
-	//
-	// >>>>>>> e315a59a8ba0a26a2426b2132873019210ed34f7
 }
