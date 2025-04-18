@@ -17,6 +17,7 @@ import (
 	//	"pak-trade-go/api/weight"
 
 	shipping_addres "pak-trade-go/api/address"
+	authWhatsapp "pak-trade-go/api/auth"
 	item "pak-trade-go/api/items"
 	User "pak-trade-go/api/mammals"
 	payment_service "pak-trade-go/api/payment"
@@ -29,6 +30,7 @@ import (
 )
 
 func main() {
+
 	// DOCKING WITH AZURE BLOB STORAGE.
 	docking.PakTradeConnection()
 	docking.AzureBloblogs()
@@ -100,7 +102,8 @@ func main() {
 	r.HandleFunc("/get-clothing-filters", clothingFilter.FiltersHandler)
 	r.HandleFunc("/create-user", User.CreateUser)
 	r.HandleFunc("/get-all-items-by-mamal-id", item.GetUserAndItemsHandler)
-
+	r.HandleFunc("/api/send-otp", authWhatsapp.SendOTPHandler)
+	r.HandleFunc("/api/verify-otp", authWhatsapp.VerifyOTPHandler)
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
 	// UPLOAD FILE
@@ -112,7 +115,7 @@ func main() {
 	handler := c.Handler(r)
 	// <<<<<<< HEAD
 	fmt.Println("Runging server port ===> 80")
-	http.ListenAndServe(":80", handler)
+	http.ListenAndServe(":8080", handler)
 	// =======
 	// fmt.Println("Runging server port ==> 80")
 	// http.ListenAndServe(":80", handler)
