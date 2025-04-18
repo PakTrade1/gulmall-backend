@@ -183,7 +183,7 @@ func VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 		OTP   string `json:"otp"`
 	}
 	json.NewDecoder(r.Body).Decode(&req)
-
+	w.Header().Set("Content-Type", "application/json")
 	otpStore.Lock()
 	expectedOTP := otpStore.data[req.Phone]
 	otpStore.Unlock()
