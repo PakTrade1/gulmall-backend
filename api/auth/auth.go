@@ -12,8 +12,6 @@ import (
 	"os"
 	"sync"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 type OTPRequestInfo struct {
@@ -25,10 +23,7 @@ var otpRequests = make(map[string]*OTPRequestInfo)
 var mu sync.Mutex
 
 func canSendOTP(phoneNumber string) bool {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+
 	mu.Lock()
 	defer mu.Unlock()
 
