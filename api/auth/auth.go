@@ -10,8 +10,13 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"pak-trade-go/api/mammals"
+	"pak-trade-go/api/signin"
 	"sync"
 	"time"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type OTPRequestInfo struct {
@@ -23,7 +28,12 @@ var otpRequests = make(map[string]*OTPRequestInfo)
 var mu sync.Mutex
 
 func canSendOTP(phoneNumber string) bool {
-
+	if os.Getenv("ENV") != "production" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("Warning: error loading .env file (ignored in production)")
+		}
+	}
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -173,19 +183,70 @@ func SendOTPHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
 	var req struct {
 		Phone string `json:"phone"`
 		OTP   string `json:"otp"`
 	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if req.Phone == "" || req.OTP == "" {
+		http.Error(w, "Phone or OTP is missing", http.StatusBadRequest)
+		return
+	}
+
 	json.NewDecoder(r.Body).Decode(&req)
-	w.Header().Set("Content-Type", "application/json")
+
 	otpStore.Lock()
 	expectedOTP := otpStore.data[req.Phone]
 	otpStore.Unlock()
+
+	user, err := signin.FindUserByPhone(req.Phone)
+	if err != nil {
+		// Handle DB error (optional: log or report)
+	}
+	if user == nil {
+		// User not found — create a new one
+		// user = CreateUser(req.Phone)
+	}
 
 	if expectedOTP == req.OTP {
 		json.NewEncoder(w).Encode(map[string]bool{"verified": true})
 	} else {
 		json.NewEncoder(w).Encode(map[string]bool{"verified": false})
 	}
+}
+
+func CreateUser(phone string) (*mammals.User, error) {
+	var user mammals.User
+	user.ID = primitive.NewObjectID()
+	user.Credit = 5
+	user.AdsRemaining = 5
+	user.ServerDate = primitive.NewDateTimeFromTime(time.Now())
+	user.CreationDate = time.Now().Format(time.RFC3339)
+	user.LastSignedIn = time.Now().Format(time.RFC3339)
+	user.IsEmailVerified = false
+	user.AccountStatus = true
+	user.BusinessPhone = "N/A"
+	user.IsBusiness = false
+	user.PublicID = mammals.GetNextPublicID()
+
+	planID := "64735fe18f737b74c13bd6d3"
+	Planid, _ := primitive.ObjectIDFromHex(planID)
+	user.PlanID = Planid
+	// coll := docking.PakTradeDb.Collection("Mammalas_login")
+	// _, err = coll.InsertOne(context.TODO(), user)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	return &user, nil
+
 }

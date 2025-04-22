@@ -607,6 +607,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user User
 	_ = json.NewDecoder(r.Body).Decode(&user)
+
+	// ✅ Validate: either phone or email must be present
+	if user.PrimaryPhone == "" && user.Email == "" {
+		http.Error(w, "Either phone number or email must be provided", http.StatusBadRequest)
+		return
+	}
+
 	user.ID = primitive.NewObjectID()
 	user.Credit = 5
 	user.AdsRemaining = 5
@@ -617,27 +624,25 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	user.AccountStatus = true
 	user.BusinessPhone = "N/A"
 	user.IsBusiness = false
-	user.PublicID = getNextPublicID()
+	user.PublicID = GetNextPublicID()
+
 	planID := "64735fe18f737b74c13bd6d3"
-
-	// Convert string to ObjectID
 	Planid, errr := primitive.ObjectIDFromHex(planID)
-
 	if errr != nil {
 		fmt.Println("Error:", errr)
+		http.Error(w, "Invalid plan ID", http.StatusInternalServerError)
 		return
 	}
 
 	user.PlanID = Planid
+
 	coll := docking.PakTradeDb.Collection("Mammalas_login")
 	_, err := coll.InsertOne(context.TODO(), user)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Return the user object with the ID
 	response, err := json.Marshal(user)
 	if err != nil {
 		http.Error(w, "Error encoding response", http.StatusInternalServerError)
@@ -645,11 +650,10 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(response)
-	//json.NewEncoder(w).Encode(result)
 }
 
 // Get the next available PublicID
-func getNextPublicID() int64 {
+func GetNextPublicID() int64 {
 	coll := docking.PakTradeDb.Collection("Mammalas_login")
 	// Find the highest PublicID in the collection
 	options := options.FindOne().SetSort(bson.D{{"publicId", -1}})
