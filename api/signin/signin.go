@@ -11,7 +11,7 @@ import (
 )
 
 type User struct {
-	PublicId int                `json:"publicId" bson:"publicId"`
+	PublicId int64              `json:"publicId" bson:"publicId"`
 	Email    string             `json:"email" bson:"email"`
 	ID       primitive.ObjectID `json:"id" bson:"_id"`
 	IP       string             `json:"ip" bson:"ip"`

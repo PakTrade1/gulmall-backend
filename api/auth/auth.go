@@ -2,6 +2,7 @@ package authWhatsapp
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	docking "pak-trade-go/Docking"
 	"pak-trade-go/api/mammals"
 	"pak-trade-go/api/signin"
 	"sync"
@@ -215,17 +217,29 @@ func VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if user == nil {
 		// User not found — create a new one
-		// user = CreateUser(req.Phone)
+		user, err = CreateUser(req.Phone)
+		if err != nil {
+			// handle error
+			fmt.Println("User creation failed:", err)
+			return
+		}
+
+		// use the created user
+		fmt.Println("User created:", user)
+
 	}
 
 	if expectedOTP == req.OTP {
-		json.NewEncoder(w).Encode(map[string]bool{"verified": true})
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"verified":  true,
+			"user_info": user,
+		})
 	} else {
 		json.NewEncoder(w).Encode(map[string]bool{"verified": false})
 	}
 }
 
-func CreateUser(phone string) (*mammals.User, error) {
+func CreateUser(phone string) (*signin.User, error) {
 	var user mammals.User
 	user.ID = primitive.NewObjectID()
 	user.Credit = 5
@@ -238,15 +252,23 @@ func CreateUser(phone string) (*mammals.User, error) {
 	user.BusinessPhone = "N/A"
 	user.IsBusiness = false
 	user.PublicID = mammals.GetNextPublicID()
-
+	user.PrimaryPhone = phone
+	user.IsPrimaryPhoneVerified = true
 	planID := "64735fe18f737b74c13bd6d3"
 	Planid, _ := primitive.ObjectIDFromHex(planID)
 	user.PlanID = Planid
-	// coll := docking.PakTradeDb.Collection("Mammalas_login")
-	// _, err = coll.InsertOne(context.TODO(), user)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	return &user, nil
-
+	coll := docking.PakTradeDb.Collection("Mammalas_login")
+	insertedUser, err := coll.InsertOne(context.TODO(), user)
+	if err != nil {
+		//
+	}
+	println(insertedUser)
+	newUser := signin.User{
+		PublicId: user.PublicID,
+		Email:    user.Email,
+		ID:       user.ID,
+		IP:       user.Ip,
+	}
+	println("create user")
+	return &newUser, nil
 }
