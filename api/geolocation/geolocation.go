@@ -3,33 +3,45 @@ package geolocation
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"strings"
 )
 
-const ipstackAPIKey = "YOUR_IPSTACK_API_KEY"
+const ipstackAPIKey = "5afee7526c541569085a261da449374d"
 
-type IPStackResponse struct {
-	IP          string  `json:"ip"`
-	City        string  `json:"city"`
-	RegionName  string  `json:"region_name"`
-	CountryName string  `json:"country_name"`
-	Latitude    float64 `json:"latitude"`
-	Longitude   float64 `json:"longitude"`
+type IPAPIResponse struct {
+	IP          string `json:"ip"`
+	City        string `json:"city"`
+	Region      string `json:"region"`
+	Country     string `json:"country_name"`
+	CountryCode string `json:"country_code"`
+	Currency    string `json:"currency"`
 }
 
-func GetLocationFromIP(ip string) (*IPStackResponse, error) {
-	url := fmt.Sprintf("http://api.ipstack.com/%s?access_key=%s", ip, ipstackAPIKey)
+func GetLocationFromIP(ip string) (*IPAPIResponse, error) {
+	url := fmt.Sprintf("https://ipapi.co/%s/json", ip)
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to make IPStack request: %w", err)
+		return nil, fmt.Errorf("failed to make ipapi request: %w", err)
 	}
 	defer resp.Body.Close()
 
-	var data IPStackResponse
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return nil, fmt.Errorf("failed to decode IPStack response: %w", err)
+	// Read response body
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	// Print raw JSON response
+	fmt.Println("Raw IPAPI JSON response:")
+	fmt.Println(string(bodyBytes))
+
+	// Decode JSON into struct
+	var data IPAPIResponse
+	if err := json.Unmarshal(bodyBytes, &data); err != nil {
+		return nil, fmt.Errorf("failed to decode ipapi response: %w", err)
 	}
 
 	return &data, nil
@@ -37,9 +49,9 @@ func GetLocationFromIP(ip string) (*IPStackResponse, error) {
 
 func GetIP(r *http.Request) string {
 	// Check for X-Forwarded-For header (set by proxy/load balancer)
-	ip := r.Header.Get("X-Real-IP")
+	ip := r.Header.Get("X-Forwarded-For")
 	fmt.Println("RemoteAddr:", r.RemoteAddr)
-	fmt.Println("X-Forwarded-For:", r.Header.Get("X-Forwarded-For"))
+	fmt.Println("X-Forwarded-For:")
 	fmt.Println("X-Real-IP:", r.Header.Get("X-Real-IP"))
 	println("IP", ip)
 	if ip != "" {
@@ -53,11 +65,24 @@ func GetIP(r *http.Request) string {
 	if err != nil {
 		return r.RemoteAddr // fallback if parsing fails
 	}
-	return ip
+	return "89.243.166.183"
 }
 
 func IPHandler(w http.ResponseWriter, r *http.Request) {
 	clientIP := GetIP(r)
+
+	data, err := GetLocationFromIP(clientIP)
+	if err != nil {
+		http.Error(w, "Failed to get location: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Optional: Log location data for debugging
+	fmt.Printf("Full Location Data: %+v\n", *data)
 	fmt.Println("Client IP is:", clientIP)
+
+	// Set content type and respond with JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
 	// you can now pass clientIP to location APIs like ipstack
 }
