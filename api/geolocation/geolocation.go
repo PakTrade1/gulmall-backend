@@ -21,7 +21,7 @@ type IPAPIResponse struct {
 }
 
 func GetLocationFromIP(ip string) (*IPAPIResponse, error) {
-	url := fmt.Sprintf("https://ipapi.co/%s/json", ip)
+	url := fmt.Sprintf("https://ipapi.co/%s/json/", ip)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make ipapi request: %w", err)
@@ -65,7 +65,7 @@ func GetIP(r *http.Request) string {
 	if err != nil {
 		return r.RemoteAddr // fallback if parsing fails
 	}
-	return "89.243.166.183"
+	return ip
 }
 
 func IPHandler(w http.ResponseWriter, r *http.Request) {
