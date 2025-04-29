@@ -65,7 +65,7 @@ func GetIP(r *http.Request) string {
 	if err != nil {
 		return r.RemoteAddr // fallback if parsing fails
 	}
-	return ip
+	return "89.243.166.183"
 }
 
 func IPHandler(w http.ResponseWriter, r *http.Request) {
