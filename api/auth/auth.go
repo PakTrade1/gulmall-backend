@@ -13,6 +13,7 @@ import (
 	"os"
 	docking "pak-trade-go/Docking"
 	"pak-trade-go/api/geolocation"
+	"pak-trade-go/api/jwt"
 	"pak-trade-go/api/mammals"
 	"pak-trade-go/api/signin"
 	"sync"
@@ -186,6 +187,7 @@ func SendOTPHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
+
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -236,9 +238,11 @@ func VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if expectedOTP == req.OTP {
+		token := jwt.GenerateJWT(user)
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"verified":  true,
 			"user_info": user,
+			"token":     token,
 		})
 	} else {
 		json.NewEncoder(w).Encode(map[string]bool{"verified": false})

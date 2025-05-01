@@ -3,6 +3,7 @@ package signin
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	docking "pak-trade-go/Docking"
 
@@ -95,6 +96,22 @@ func findUserByEmail(email string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+	return &user, nil
+}
+
+func FindUserByID(idStr string) (*User, error) {
+	collection := docking.PakTradeDb.Collection("Mammalas_login")
+	objectID, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid ID format: %w", err)
+	}
+
+	var user User
+	err = collection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&user)
+	if err != nil {
+		return nil, fmt.Errorf("user not found: %w", err)
+	}
+
 	return &user, nil
 }
 
