@@ -103,9 +103,9 @@ func main() {
 	r.HandleFunc("/get-clothing-filters", clothingFilter.FiltersHandler)
 	r.HandleFunc("/create-user", User.CreateUser)
 	r.HandleFunc("/get-all-items-by-mamal-id", item.GetUserAndItemsHandler)
-	r.HandleFunc("/api/send-otp", authWhatsapp.SendOTPHandler)
-	r.HandleFunc("/api/verify-otp", authWhatsapp.VerifyOTPHandler)
-	r.HandleFunc("/api/ip", geolocation.IPHandler)
+	r.HandleFunc("/send-otp", authWhatsapp.SendOTPHandler)
+	r.HandleFunc("/verify-otp", authWhatsapp.VerifyOTPHandler)
+	r.HandleFunc("/ip", geolocation.IPHandler)
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
 	// UPLOAD FILE
