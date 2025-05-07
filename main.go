@@ -5,7 +5,6 @@ import (
 	"net/http"
 	docking "pak-trade-go/Docking"
 	ads "pak-trade-go/api/ads"
-	Allcart "pak-trade-go/api/cart"
 	categories "pak-trade-go/api/categories"
 	color "pak-trade-go/api/color"
 	clothingFilter "pak-trade-go/api/filter"
@@ -16,9 +15,9 @@ import (
 	tier "pak-trade-go/api/tier"
 
 	//	"pak-trade-go/api/weight"
-
 	shipping_addres "pak-trade-go/api/address"
 	authWhatsapp "pak-trade-go/api/auth"
+	cart "pak-trade-go/api/cart"
 	item "pak-trade-go/api/items"
 	User "pak-trade-go/api/mammals"
 	payment_service "pak-trade-go/api/payment"
@@ -42,7 +41,7 @@ func main() {
 	// ADD ROUTES
 
 	// r.HandleFunc("/add-keyword", keyword.Serchkeywordinsert)
-	r.HandleFunc("/add-cart-fashion", Allcart.Cart_insertone_fashion)
+	r.HandleFunc("/add-cart", cart.AddToCartHandler(docking.PakTradeDb.Collection("cart_mammals")))
 
 	r.HandleFunc("/add-size", size.Add_size)
 	r.HandleFunc("/add-address", shipping_addres.Add_shipping_address)
@@ -90,7 +89,7 @@ func main() {
 	r.HandleFunc("/get-user-by-id", User.Mammals_select_one)
 	r.HandleFunc("/get-item-by-id", item.Serch_item_by_id)
 	// r.HandleFunc("/get-cart-with-id", Allcart.Get_cart_with_id)
-	r.HandleFunc("/get-cart", Allcart.Cart_getall)
+
 	// r.HandleFunc("/get-order-details", Allcart.Order_with_need_data)
 	// r.HandleFunc("/get-all-cart", Allcart.Get_cart_all_with_id_data)
 	r.HandleFunc("/get-all-item", item.Get_all_items)
@@ -106,6 +105,7 @@ func main() {
 	r.HandleFunc("/send-otp", authWhatsapp.SendOTPHandler)
 	r.HandleFunc("/verify-otp", authWhatsapp.VerifyOTPHandler)
 	r.HandleFunc("/ip", geolocation.IPHandler)
+	r.HandleFunc("/update-cart", cart.UpdateOrderHandler(docking.PakTradeDb.Collection("cart_mammals"), docking.PakTradeDb.Collection("cart_audits")))
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
 	// UPLOAD FILE

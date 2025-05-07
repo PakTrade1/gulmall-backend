@@ -3,270 +3,260 @@ package cart
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	docking "pak-trade-go/Docking"
+	"reflect"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type CartMammals struct {
-	Orders []struct {
-		Mammal_id       primitive.ObjectID `json:"user_id"`
-		Item_id         primitive.ObjectID `json:"item_id"`
-		Quantity        int                `json:"quantity"`
-		Payement_method primitive.ObjectID `json:"payement_method"`
-		Color_id        primitive.ObjectID `json:"color_id"`
-		Size_id         primitive.ObjectID `json:"size_id"`
-		SellerInfo      primitive.ObjectID `json:"seller_info"`
-		Price           float32            `json:"price"`
-		Discount        string             `json:"discount"`
-		Total_price     float32            `json:"total_price"`
-		Currency        string             `json:"currency"`
-		Rem             int                `json:"items_remaining_quantity"`
-	} `json:"orders"`
+type ChangeSet struct {
+	Old map[string]interface{}
+	New map[string]interface{}
 }
 
-type Resp_insert struct {
-	Status  int         `json:"status"`
-	Message string      `json:"message"`
-	Id      interface{} `json:"id"`
-}
-type Get_qty struct {
-	Qty      int     `json:"qty"`
-	Price    float32 `json:"price"`
-	Discount string  `json:"discount"`
+type Cart struct {
+	ID             primitive.ObjectID `bson:"_id" json:"cart_id"`
+	ItemID         primitive.ObjectID `bson:"item_id" json:"item_id"`
+	ColorID        primitive.ObjectID `bson:"color_id" json:"color_id"`
+	Quantity       int                `bson:"quantity" json:"quantity"`
+	TotalPrice     float64            `bson:"total_price" json:"total_price"`
+	Discount       string             `bson:"discount" json:"discount"`
+	PaymentMethod  primitive.ObjectID `bson:"payment_method" json:"payment_method"`
+	UserID         primitive.ObjectID `bson:"user_id" json:"user_id"`
+	SellerId       primitive.ObjectID `bson:"seller_id" json:"seller_id"`
+	DeliveryStatus string             `bson:"delivery_status" json:"delivery_status"`
+	OrderDate      time.Time          `bson:"orderDate" json:"order_placed_on"`
+	SizeID         primitive.ObjectID `bson:"size_id" json:"size_id"`
+	Currency       string             `bson:"currency" json:"currency"`
+	Category       string             `bson:"category" json:"category"`
+	SubCategory    string             `bson:"sub_category" json:"sub_category"`
+	CreatedAt      time.Time          `bson:"created_at"`
+	UpdatedAt      time.Time          `bson:"updated_at"`
+	Modifier       string             `bson:"modify_by" json:"modify_by"`
 }
 
-func Cart_insertone_fashion(w http.ResponseWriter, req *http.Request) {
+type UserInfo struct {
+	PublicID int64  `bson:"publicId" json:"public_id"`
+	Phone    string `bson:"primaryPhone" json:"phone"`
+}
 
+type AddToCartPayload struct {
+	Orders []Cart `json:"orders"`
+}
+
+func GetAllCartHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var cart_init CartMammals
-	err := json.NewDecoder(req.Body).Decode(&cart_init)
+	collection := docking.PakTradeDb.Collection("cart_mammals") // replace with your actual cart collection
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "orderDate", Value: -1}})
+	cursor, err := collection.Find(ctx, bson.M{}, findOptions)
 	if err != nil {
-		panic(err)
+		http.Error(w, "Error fetching carts", http.StatusInternalServerError)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	var carts []Cart
+	if err := cursor.All(ctx, &carts); err != nil {
+		http.Error(w, "Error decoding cart data", http.StatusInternalServerError)
+		return
 	}
 
-	coll := docking.PakTradeDb.Collection("cart_mammals")
-	coll1 := docking.PakTradeDb.Collection("items-parent")
+	json.NewEncoder(w).Encode(carts)
+}
 
-	inset := struct {
-		InsertedID interface{}
-	}{
-		InsertedID: "",
-	}
-
-	for i := 0; i < len(cart_init.Orders); i++ {
-
-		// // insert a user
-
-		mongo_query := bson.M{
-			"user_id":         cart_init.Orders[i].Mammal_id,
-			"item_id":         cart_init.Orders[i].Item_id,
-			"delivery_status": "pending",
-			"orderDate":       time.Now(),
-			"color_id":        cart_init.Orders[i].Color_id,
-			"size_id":         cart_init.Orders[i].Size_id,
-			"quantity":        cart_init.Orders[i].Quantity,
-			"price":           cart_init.Orders[i].Price,
-			"discount":        cart_init.Orders[i].Discount,
-			"payement_method": cart_init.Orders[i].Payement_method,
-			"total_price":     cart_init.Orders[i].Total_price,
-			"seller_info":     cart_init.Orders[i].SellerInfo,
-			"currency":        cart_init.Orders[i].Currency,
+func AddToCartHandler(cartCollection *mongo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
 		}
 
-		inset_data, err3 := coll.InsertOne(context.TODO(), mongo_query)
-		if err3 != nil {
-			fmt.Fprintf(w, "%s\n", err3)
+		var payload AddToCartPayload
+		err := json.NewDecoder(r.Body).Decode(&payload)
+		if err != nil {
+			http.Error(w, "Invalid JSON payload: "+err.Error(), http.StatusBadRequest)
+			return
 		}
-		inset.InsertedID = inset_data.InsertedID
-		Qty_minus := cart_init.Orders[i].Rem
-		_, err1 := coll1.UpdateOne(
-			context.TODO(),
-			bson.M{"_id": cart_init.Orders[i].Item_id},
-			bson.D{
-				{Key: "$set", Value: bson.M{
-					"qty": Qty_minus,
-				}},
-			},
-		)
-		if err1 != nil {
-			log.Fatal(err1)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		println("Order", payload.Orders)
+		for _, order := range payload.Orders {
+			now := time.Now()
+
+			filter := bson.M{
+				"user_id":          order.UserID,
+				"item_id":          order.ItemID,
+				"size_id":          order.SizeID,
+				"color_id":         order.ColorID,
+				"order_date":       now,
+				"order_updated_at": nil,
+				"discount":         order.Discount,
+				"currency":         order.Currency,
+				"seller_id":        order.SellerId,
+				"payment_method":   order.PaymentMethod,
+				"total_price":      order.TotalPrice,
+				"category":         order.Category,
+				"sub_category":     order.SubCategory,
+				"delivery_status":  "PENDING",
+			}
+
+			_, err := cartCollection.InsertOne(ctx, filter)
+			if err != nil {
+				log.Println("Error updating cart:", err)
+				http.Error(w, "Failed to update cart", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Items added to cart successfully",
+		})
+	}
+}
+
+func UpdateOrderPartial(ctx context.Context, orderID string, updates map[string]interface{}, modifiedBy string, orderCol, auditCol *mongo.Collection) error {
+	oid, err := primitive.ObjectIDFromHex(orderID)
+	if err != nil {
+		return fmt.Errorf("invalid order ID: %w", err)
+	}
+	println("Order ID: ", orderID)
+	// Get current order
+	var current bson.M
+
+	if err := orderCol.FindOne(ctx, bson.M{"_id": oid}).Decode(&current); err != nil {
+		println("IN ERROR")
+		return fmt.Errorf("order not found: %w", err)
+	}
+
+	// Prepare diff
+	oldValues := make(map[string]interface{})
+	newValues := make(map[string]interface{})
+
+	for key, newVal := range updates {
+		oldVal, exists := current[key]
+		if !exists || !reflect.DeepEqual(oldVal, newVal) {
+			oldValues[key] = oldVal
+			newValues[key] = newVal
 		}
 	}
-	var results Resp_insert
-	if inset.InsertedID != nil {
-		results.Status = http.StatusOK
-		results.Message = "success"
-		results.Id = inset.InsertedID
 
-	} else {
-		results.Message = "decline"
-
+	if len(newValues) == 0 {
+		return errors.New("no changes detected")
 	}
 
-	output, err := json.MarshalIndent(results, "", "    ")
+	// Add audit log
+	audit := bson.M{
+		"orderId":    oid,
+		"modifiedBy": modifiedBy,
+		"modifiedAt": time.Now(),
+		"changes": bson.M{
+			"old": oldValues,
+			"new": newValues,
+		},
+	}
+	if _, err := auditCol.InsertOne(ctx, audit); err != nil {
+		return fmt.Errorf("failed to save audit log: %w", err)
+	}
+
+	// Set system fields
+	updates["modified_by"] = modifiedBy
+	updates["modified_at"] = time.Now()
+
+	// Apply changes
+	_, err = orderCol.UpdateOne(ctx, bson.M{"_id": oid}, bson.M{"$set": updates})
 	if err != nil {
-		panic(err)
-
+		return fmt.Errorf("update failed: %w", err)
 	}
 
-	fmt.Fprintf(w, "%s\n", output)
-
+	return nil
 }
 
-type Item struct {
-	ID          primitive.ObjectID `bson:"_id"`
-	OrderDate   string             `json:"order_date"`
-	Seller_info string             `json:"seller_info"`
-	Qty         int                `json:"qty"`
-	Size        []struct {
-		ID   primitive.ObjectID `bson:"_id"`
-		Name string             `json:"name"`
-	} `json:"size"`
-	Color []struct {
-		ID     string `bson:"_id"`
-		CssHex string `json:"cssHex"`
-		Name   string `json:"name"`
-	} `json:"color"`
-	Total_price int    `json:"total_price"`
-	Discount    string `json:"discount"`
-	Item_name   string `json:"item_name"`
-	Images      []struct {
-		Image string `json:"image"`
-		Color string `json:"color"`
-	} `json:"images"`
-	Item_price int `json:"item_price"`
+func getChanges(oldOrder, newOrder Cart) ChangeSet {
+	oldVal := reflect.ValueOf(oldOrder)
+	newVal := reflect.ValueOf(newOrder)
+	typ := oldVal.Type()
+
+	changes := ChangeSet{
+		Old: make(map[string]interface{}),
+		New: make(map[string]interface{}),
+	}
+
+	for i := 0; i < oldVal.NumField(); i++ {
+		field := typ.Field(i)
+		name := field.Tag.Get("bson")
+		if name == "" || name == "-" || name == "_id" {
+			continue
+		}
+
+		oldField := oldVal.Field(i).Interface()
+		newField := newVal.Field(i).Interface()
+
+		if !reflect.DeepEqual(oldField, newField) {
+			changes.Old[name] = oldField
+			changes.New[name] = newField
+		}
+	}
+
+	return changes
 }
 
-type Size struct {
-	ID   primitive.ObjectID `json:"_id"`
-	Name string             `json:"name"`
-}
+// Handler
+func UpdateOrderHandler(orderCollection, auditCollection *mongo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPut && r.Method != http.MethodPatch {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 
-type Color struct {
-	ID     primitive.ObjectID `json:"_id"`
-	CssHex string             `json:"cssHex"`
-	Name   string             `json:"name"`
-}
-type UserID struct {
-	UserID primitive.ObjectID `json:"user_id"`
-}
+		// 1. Get order ID from query params
+		orderID := r.URL.Query().Get("cart_id")
+		if orderID == "" {
+			http.Error(w, "Missing order ID", http.StatusBadRequest)
+			return
+		}
 
-func Cart_getall(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+		// 2. Get 'ModifiedBy' from header (you can change this logic)
+		modifiedBy := r.Header.Get("emp_id")
+		if modifiedBy == "" {
+			http.Error(w, "Missing Employee-User-ID header", http.StatusBadRequest)
+			return
+		}
 
-	var cart_init UserID
+		// Decode only the changed fields
+		var updatedFields map[string]interface{}
+		if err := json.NewDecoder(r.Body).Decode(&updatedFields); err != nil {
+			http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+			return
+		}
 
-	err := json.NewDecoder(req.Body).Decode(&cart_init)
-	if err != nil {
-		panic(err)
+		// 4. Call the update logic
+		err := UpdateOrderPartial(r.Context(), orderID, updatedFields, modifiedBy, orderCollection, auditCollection)
+		if err != nil {
+			http.Error(w, "Failed to update orde: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// 5. Respond success
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Order updated and audit logged successfully",
+		})
 	}
-
-	coll := docking.PakTradeDb.Collection("cart_mammals")
-
-	mongoQ := bson.A{
-		bson.D{
-			{"$match",
-				bson.D{
-					{"mammal_id", cart_init.UserID},
-					{"delivery_status", "pending"},
-				},
-			},
-		},
-		bson.D{{"$unwind", bson.D{{"path", "$color_id"}}}},
-		bson.D{{"$unwind", bson.D{{"path", "$size_id"}}}},
-		bson.D{
-			{"$lookup",
-				bson.D{
-					{"from", "color"},
-					{"localField", "color_id"},
-					{"foreignField", "_id"},
-					{"as", "color"},
-				},
-			},
-		},
-		bson.D{
-			{"$lookup",
-				bson.D{
-					{"from", "size"},
-					{"localField", "size_id"},
-					{"foreignField", "_id"},
-					{"as", "size"},
-				},
-			},
-		},
-		bson.D{
-			{"$lookup",
-				bson.D{
-					{"from", "items-parent"},
-					{"localField", "item_id"},
-					{"foreignField", "_id"},
-					{"as", "items"},
-				},
-			},
-		},
-		bson.D{
-			{"$lookup",
-				bson.D{
-					{"from", "Mammalas_login"},
-					{"localField", "seller_info"},
-					{"foreignField", "_id"},
-					{"as", "seller"},
-				},
-			},
-		},
-		bson.D{
-			{"$set",
-				bson.D{
-					{"seller", bson.D{{"$first", "$seller"}}},
-					{"items", bson.D{{"$first", "$items"}}},
-				},
-			},
-		},
-		bson.D{
-			{"$project",
-				bson.D{
-					{"order_date", "$orderDate"},
-					{"seller_info", "$seller.displayName"},
-					{"qty", "$quantity"},
-					{"size", "$size"},
-					{"color", "$color"},
-					{"total_price", "$total_price"},
-					{"discount", "$discount"},
-					{"item_name", "$items.title"},
-					{"images", "$items.images"},
-					{"item_price", "$items.price"},
-				},
-			},
-		},
-	}
-
-	cursor, err := coll.Aggregate(context.Background(), mongoQ)
-	if err != nil {
-		panic(err)
-	}
-
-	var results []Item
-	for cursor.Next(context.TODO()) {
-		var abc Item
-		cursor.Decode(&abc)
-		results = append(results, abc)
-
-	}
-
-	output, err := json.MarshalIndent(results, "", "    ")
-	if err != nil {
-		panic(err)
-
-	}
-	fmt.Fprintf(w, "%s\n", output)
-
 }
