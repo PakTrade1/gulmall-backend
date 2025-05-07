@@ -40,7 +40,24 @@ type Cart struct {
 	SubCategory    string             `bson:"sub_category" json:"sub_category"`
 	CreatedAt      time.Time          `bson:"created_at"`
 	UpdatedAt      time.Time          `bson:"updated_at"`
-	Modifier       string             `bson:"modify_by" json:"modify_by"`
+	Modifier       primitive.ObjectID `bson:"modify_by" json:"modify_by"`
+}
+
+type Change struct {
+	Field string      `json:"field"`
+	From  interface{} `json:"from"`
+	To    interface{} `json:"to"`
+}
+
+type FlatChange struct {
+	OrderID    string    `json:"orderId"`
+	ModifiedBy string    `json:"modify_by"`
+	ModifiedAt time.Time `json:"updated_at"`
+	Changes    struct {
+		Field string      `json:"field"`
+		From  interface{} `json:"from"`
+		To    interface{} `json:"to"`
+	} `json:"changes"`
 }
 
 type UserInfo struct {
@@ -99,20 +116,20 @@ func AddToCartHandler(cartCollection *mongo.Collection) http.HandlerFunc {
 			now := time.Now()
 
 			filter := bson.M{
-				"user_id":          order.UserID,
-				"item_id":          order.ItemID,
-				"size_id":          order.SizeID,
-				"color_id":         order.ColorID,
-				"order_date":       now,
-				"order_updated_at": nil,
-				"discount":         order.Discount,
-				"currency":         order.Currency,
-				"seller_id":        order.SellerId,
-				"payment_method":   order.PaymentMethod,
-				"total_price":      order.TotalPrice,
-				"category":         order.Category,
-				"sub_category":     order.SubCategory,
-				"delivery_status":  "PENDING",
+				"user_id":         order.UserID,
+				"item_id":         order.ItemID,
+				"size_id":         order.SizeID,
+				"color_id":        order.ColorID,
+				"order_date":      now,
+				"updated_at":      nil,
+				"discount":        order.Discount,
+				"currency":        order.Currency,
+				"seller_id":       order.SellerId,
+				"payment_method":  order.PaymentMethod,
+				"total_price":     order.TotalPrice,
+				"category":        order.Category,
+				"sub_category":    order.SubCategory,
+				"delivery_status": "PENDING",
 			}
 
 			_, err := cartCollection.InsertOne(ctx, filter)
@@ -160,12 +177,12 @@ func UpdateOrderPartial(ctx context.Context, orderID string, updates map[string]
 	if len(newValues) == 0 {
 		return errors.New("no changes detected")
 	}
-
+	uid, _ := primitive.ObjectIDFromHex(modifiedBy)
 	// Add audit log
 	audit := bson.M{
 		"orderId":    oid,
-		"modifiedBy": modifiedBy,
-		"modifiedAt": time.Now(),
+		"modify_by":  uid,
+		"updated_at": time.Now(),
 		"changes": bson.M{
 			"old": oldValues,
 			"new": newValues,
@@ -176,8 +193,8 @@ func UpdateOrderPartial(ctx context.Context, orderID string, updates map[string]
 	}
 
 	// Set system fields
-	updates["modified_by"] = modifiedBy
-	updates["modified_at"] = time.Now()
+	updates["modify_by"] = uid
+	updates["updated_at"] = time.Now()
 
 	// Apply changes
 	_, err = orderCol.UpdateOne(ctx, bson.M{"_id": oid}, bson.M{"$set": updates})
@@ -186,35 +203,6 @@ func UpdateOrderPartial(ctx context.Context, orderID string, updates map[string]
 	}
 
 	return nil
-}
-
-func getChanges(oldOrder, newOrder Cart) ChangeSet {
-	oldVal := reflect.ValueOf(oldOrder)
-	newVal := reflect.ValueOf(newOrder)
-	typ := oldVal.Type()
-
-	changes := ChangeSet{
-		Old: make(map[string]interface{}),
-		New: make(map[string]interface{}),
-	}
-
-	for i := 0; i < oldVal.NumField(); i++ {
-		field := typ.Field(i)
-		name := field.Tag.Get("bson")
-		if name == "" || name == "-" || name == "_id" {
-			continue
-		}
-
-		oldField := oldVal.Field(i).Interface()
-		newField := newVal.Field(i).Interface()
-
-		if !reflect.DeepEqual(oldField, newField) {
-			changes.Old[name] = oldField
-			changes.New[name] = newField
-		}
-	}
-
-	return changes
 }
 
 // Handler
@@ -259,4 +247,70 @@ func UpdateOrderHandler(orderCollection, auditCollection *mongo.Collection) http
 			"message": "Order updated and audit logged successfully",
 		})
 	}
+}
+
+func GetOrderSnapshotsHandler(auditCollection *mongo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		orderID := r.URL.Query().Get("id")
+		if orderID == "" {
+			http.Error(w, "Missing 'id' query param", http.StatusBadRequest)
+			return
+		}
+
+		oid, err := primitive.ObjectIDFromHex(orderID)
+		if err != nil {
+			http.Error(w, "Invalid order ID", http.StatusBadRequest)
+			return
+		}
+
+		findOptions := options.Find().SetSort(bson.D{{Key: "updated_at", Value: -1}})
+
+		filter := bson.M{"orderId": oid}
+		cursor, err := auditCollection.Find(r.Context(), filter, findOptions)
+		if err != nil {
+			http.Error(w, "Database error: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer cursor.Close(r.Context())
+
+		var snapshots []bson.M
+		if err := cursor.All(r.Context(), &snapshots); err != nil {
+			http.Error(w, "Failed to read data: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var flattened []FlatChange
+		for _, doc := range snapshots {
+			flattened = append(flattened, transformAuditFlat(doc)...)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(flattened)
+	}
+}
+
+func transformAuditFlat(doc bson.M) []FlatChange {
+	orderID := doc["orderId"].(primitive.ObjectID).Hex()
+	modifiedBy := doc["modify_by"].(primitive.ObjectID).Hex()
+	modifiedAt := doc["updated_at"].(primitive.DateTime)
+
+	oldMap, _ := doc["changes"].(bson.M)["old"].(bson.M)
+	newMap, _ := doc["changes"].(bson.M)["new"].(bson.M)
+
+	var result []FlatChange
+	for key, oldVal := range oldMap {
+		if newVal, ok := newMap[key]; ok {
+			entry := FlatChange{
+				OrderID:    orderID,
+				ModifiedBy: modifiedBy,
+				ModifiedAt: modifiedAt.Time(),
+			}
+			entry.Changes.Field = key
+			entry.Changes.From = oldVal
+			entry.Changes.To = newVal
+			result = append(result, entry)
+		}
+	}
+
+	return result
 }
