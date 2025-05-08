@@ -95,7 +95,7 @@ func GetAllCartHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(carts)
 }
 
-func AddToCartHandler(cartCollection *mongo.Collection) http.HandlerFunc {
+func AddToCartHandler(cartCollection *mongo.Collection, itemCollection *mongo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -111,37 +111,56 @@ func AddToCartHandler(cartCollection *mongo.Collection) http.HandlerFunc {
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		println("Order", payload.Orders)
-		for _, order := range payload.Orders {
-			now := time.Now()
 
-			filter := bson.M{
+		for _, order := range payload.Orders {
+			// ✅ Step 1: Get item price from itemCollection
+			var item struct {
+				Price float64 `bson:"price"`
+			}
+
+			itemObjID, err := primitive.ObjectIDFromHex(order.ItemID.Hex())
+			if err != nil {
+				http.Error(w, "Invalid item ID: "+err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			err = itemCollection.FindOne(ctx, bson.M{"_id": itemObjID}).Decode(&item)
+			if err != nil {
+				http.Error(w, "Item not found: "+err.Error(), http.StatusNotFound)
+				return
+			}
+
+			// ✅ Step 2: Calculate total price
+			totalPrice := item.Price * float64(order.Quantity)
+			println("ORDER QTY: ", order.Quantity)
+			// ✅ Step 3: Build cart document
+			doc := bson.M{
 				"user_id":         order.UserID,
 				"item_id":         order.ItemID,
 				"size_id":         order.SizeID,
 				"color_id":        order.ColorID,
-				"order_date":      now,
+				"order_date":      time.Now(),
 				"updated_at":      nil,
 				"discount":        order.Discount,
 				"currency":        order.Currency,
 				"seller_id":       order.SellerId,
 				"payment_method":  order.PaymentMethod,
-				"total_price":     order.TotalPrice,
+				"total_price":     totalPrice,
 				"category":        order.Category,
 				"sub_category":    order.SubCategory,
+				"quantity":        order.Quantity,
 				"delivery_status": "PENDING",
 			}
 
-			_, err := cartCollection.InsertOne(ctx, filter)
+			_, err = cartCollection.InsertOne(ctx, doc)
 			if err != nil {
-				log.Println("Error updating cart:", err)
-				http.Error(w, "Failed to update cart", http.StatusInternalServerError)
+				log.Println("Error inserting cart:", err)
+				http.Error(w, "Failed to add item to cart", http.StatusInternalServerError)
 				return
 			}
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]string{
 			"message": "Items added to cart successfully",
 		})

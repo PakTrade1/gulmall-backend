@@ -41,7 +41,7 @@ func main() {
 	// ADD ROUTES
 
 	// r.HandleFunc("/add-keyword", keyword.Serchkeywordinsert)
-	r.HandleFunc("/add-cart", cart.AddToCartHandler(docking.PakTradeDb.Collection("cart_mammals")))
+	r.HandleFunc("/add-cart", cart.AddToCartHandler(docking.PakTradeDb.Collection("cart_mammals"), docking.PakTradeDb.Collection("items-parent")))
 
 	r.HandleFunc("/add-size", size.Add_size)
 	r.HandleFunc("/add-address", shipping_addres.Add_shipping_address)
