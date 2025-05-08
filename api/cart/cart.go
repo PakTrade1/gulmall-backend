@@ -39,8 +39,7 @@ type Cart struct {
 	Category       string             `bson:"category" json:"category"`
 	SubCategory    string             `bson:"sub_category" json:"sub_category"`
 	CreatedAt      time.Time          `bson:"created_at"`
-	UpdatedAt      time.Time          `bson:"updated_at"`
-	Modifier       primitive.ObjectID `bson:"modify_by" json:"modify_by"`
+	IsModified     primitive.ObjectID `bson:"isModified" json:"isModified"`
 }
 
 type Change struct {
@@ -140,7 +139,6 @@ func AddToCartHandler(cartCollection *mongo.Collection, itemCollection *mongo.Co
 				"size_id":         order.SizeID,
 				"color_id":        order.ColorID,
 				"order_date":      time.Now(),
-				"updated_at":      nil,
 				"discount":        order.Discount,
 				"currency":        order.Currency,
 				"seller_id":       order.SellerId,
@@ -150,6 +148,7 @@ func AddToCartHandler(cartCollection *mongo.Collection, itemCollection *mongo.Co
 				"sub_category":    order.SubCategory,
 				"quantity":        order.Quantity,
 				"delivery_status": "PENDING",
+				"isModified":      false,
 			}
 
 			_, err = cartCollection.InsertOne(ctx, doc)
