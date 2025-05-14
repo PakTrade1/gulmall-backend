@@ -107,6 +107,8 @@ func main() {
 	r.HandleFunc("/ip", geolocation.IPHandler)
 	r.HandleFunc("/update-cart", cart.UpdateOrderHandler(docking.PakTradeDb.Collection("cart_mammals"), docking.PakTradeDb.Collection("cart_audits")))
 	r.HandleFunc("/get-cart-snapshot", cart.GetOrderSnapshotsHandler(docking.PakTradeDb.Collection("cart_audits")))
+	r.HandleFunc("/get-cart", cart.GetDetailedCartItemsHandler_v2(docking.PakTradeDb.Collection("cart_mammals")))
+	r.HandleFunc("/get-cart-from-to", cart.GetCartFromDateToDate)
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
 	// UPLOAD FILE
