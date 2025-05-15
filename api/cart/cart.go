@@ -368,6 +368,7 @@ func GetDetailedCartItemsHandler_v2(cartCollection *mongo.Collection) http.Handl
 			{{"$addFields", bson.D{{"item_fabric", bson.D{{"$arrayElemAt", bson.A{"$item_fabric.name", 0}}}}}}},
 			{{"$lookup", bson.D{{"from", "employee"}, {"localField", "order_verified_by"}, {"foreignField", "_id"}, {"as", "order_verified_by"}}}},
 			{{"$addFields", bson.D{{"order_verified_by", bson.D{{"$arrayElemAt", bson.A{"$order_verified_by", 0}}}}}}},
+			bson.D{{"$sort", bson.D{{"order_date", -1}}}},
 		}
 
 		// Full pipeline with $facet
@@ -868,7 +869,7 @@ func AddToCartHandler(cartCollection *mongo.Collection, itemCollection *mongo.Co
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-
+		orderNumber, err := getNextOrderNumber()
 		for _, order := range payload.Orders {
 			// ✅ Step 1: Get item price from itemCollection
 			var item struct {
@@ -886,8 +887,6 @@ func AddToCartHandler(cartCollection *mongo.Collection, itemCollection *mongo.Co
 				http.Error(w, "Item not found: "+err.Error(), http.StatusNotFound)
 				return
 			}
-
-			orderNumber, err := getNextOrderNumber()
 
 			// ✅ Step 2: Calculate total price
 			totalPrice := item.Price * float64(order.Quantity)
@@ -907,13 +906,13 @@ func AddToCartHandler(cartCollection *mongo.Collection, itemCollection *mongo.Co
 				"category":          order.Category,
 				"sub_category":      order.SubCategory,
 				"quantity":          order.Quantity,
-				"delivery_status":   "PENDING",
+				"delivery_status":   "Pending",
+				"order_number":      orderNumber,
 				"isModified":        false,
 				"delivery_date":     nil,
 				"deliver_by":        nil,
-				"order_number":      orderNumber,
-				"order_verified":    false,
 				"order_verified_by": nil,
+				"order_verified":    false,
 			}
 
 			_, err = cartCollection.InsertOne(ctx, doc)
