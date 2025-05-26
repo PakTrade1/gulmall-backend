@@ -34,7 +34,7 @@ type Cart struct {
 	UserID          primitive.ObjectID `bson:"user_id" json:"user_id"`
 	SellerId        primitive.ObjectID `bson:"seller_id" json:"seller_id"`
 	DeliveryStatus  string             `bson:"delivery_status" json:"delivery_status"`
-	OrderDate       time.Time          `bson:"orderDate" json:"order_placed_on"`
+	OrderDate       time.Time          `bson:"order_date" json:"order_date"`
 	SizeID          primitive.ObjectID `bson:"size_id" json:"size_id"`
 	Currency        string             `bson:"currency" json:"currency"`
 	Category        string             `bson:"category" json:"category"`
@@ -897,7 +897,7 @@ func AddToCartHandler(cartCollection *mongo.Collection, itemCollection *mongo.Co
 				"item_id":           order.ItemID,
 				"size_id":           order.SizeID,
 				"color_id":          order.ColorID,
-				"order_date":        time.Now(),
+				"order_date":        order.OrderDate,
 				"discount":          order.Discount,
 				"currency":          order.Currency,
 				"seller_id":         order.SellerId,

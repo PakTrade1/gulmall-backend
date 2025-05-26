@@ -36,6 +36,7 @@ func main() {
 	docking.AzureBloblogs()
 	// ROUTERS
 	r := mux.NewRouter()
+
 	http.Handle("/", r)
 	// API ENDPOINTS
 	// ADD ROUTES
@@ -109,6 +110,7 @@ func main() {
 	r.HandleFunc("/get-cart-snapshot", cart.GetOrderSnapshotsHandler(docking.PakTradeDb.Collection("cart_audits")))
 	r.HandleFunc("/get-cart", cart.GetDetailedCartItemsHandler_v2(docking.PakTradeDb.Collection("cart_mammals")))
 	r.HandleFunc("/get-cart-from-to", cart.GetCartFromDateToDate)
+	r.HandleFunc("/get-items-by-category", item.GetItemsByCategoryHandler)
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
 	// UPLOAD FILE
