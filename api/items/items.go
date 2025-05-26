@@ -115,7 +115,7 @@ func Items(w http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	coll := docking.PakTradeDb.Collection("item-variant")
+	coll := docking.PakTradeDb.Collection("item_variant")
 
 	// Requires the MongoDB Go Driver
 	// https://go.mongodb.org/mongo-driver
@@ -216,7 +216,7 @@ func Item_update_one(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	coll := docking.PakTradeDb.Collection("item-variant")
+	coll := docking.PakTradeDb.Collection("item_variant")
 	objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.ID)
 	gender_objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.Gender)
 	sub_category_objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.Sub_category)
@@ -307,7 +307,7 @@ func Item_delete_by_id(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	coll := docking.PakTradeDb.Collection("item-variant")
+	coll := docking.PakTradeDb.Collection("item_variant")
 	objectIDS, _ := primitive.ObjectIDFromHex(strcutinit.Item_id)
 	// fmt.Print(objectIDS)
 
@@ -430,7 +430,7 @@ func Get_all_items(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	coll := docking.PakTradeDb.Collection("item-variant")
+	coll := docking.PakTradeDb.Collection("item_variant")
 	coll1 := docking.PakTradeDb.Collection("product")
 
 	pageN := req.URL.Query().Get("pageNumber")
@@ -850,7 +850,7 @@ func Add_item_update(w http.ResponseWriter, req *http.Request) {
 	}
 	var clot_update_status = 0
 	a := new(update_res)
-	coll1 := docking.PakTradeDb.Collection("item-variant")
+	coll1 := docking.PakTradeDb.Collection("item_variant")
 
 	if strcutinit.Category == "63a9a76fd38789473ba919e6" {
 		result1, err := coll1.UpdateOne(
@@ -1049,7 +1049,7 @@ func Add_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 			}
 
 			if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
-				coll1 := docking.PakTradeDb.Collection("item-variant")
+				coll1 := docking.PakTradeDb.Collection("item_variant")
 				_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
 				if err4 != nil {
 					fmt.Print(err4)
@@ -1090,7 +1090,7 @@ func Add_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 			}
 
 			if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
-				coll1 := docking.PakTradeDb.Collection("item-variant")
+				coll1 := docking.PakTradeDb.Collection("item_variant")
 				_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
 				if err4 != nil {
 					fmt.Print(err4)
@@ -1153,7 +1153,7 @@ func Serch_item_by_id(w http.ResponseWriter, req *http.Request) {
 		itemNu = 1
 	}
 
-	coll := docking.PakTradeDb.Collection("item-variant")
+	coll := docking.PakTradeDb.Collection("item_variant")
 
 	// objectId, err := primitive.ObjectIDFromHex(id_get.Item_id)
 	// handleError(err)
@@ -1851,7 +1851,7 @@ func Update_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 			}
 
 			if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
-				coll1 := docking.PakTradeDb.Collection("item-variant")
+				coll1 := docking.PakTradeDb.Collection("item_variant")
 				_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
 				if err4 != nil {
 					fmt.Print(err4)
@@ -1893,7 +1893,7 @@ func Update_item_wrt_category(w http.ResponseWriter, req *http.Request) {
 			}
 
 			if strcutinit.Category.Hex() == "63a9a76fd38789473ba919e6" {
-				coll1 := docking.PakTradeDb.Collection("item-variant")
+				coll1 := docking.PakTradeDb.Collection("item_variant")
 				_, err4 := coll1.InsertOne(context.TODO(), inster_cloths)
 				if err4 != nil {
 					fmt.Print(err4)
