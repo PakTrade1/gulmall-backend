@@ -3,6 +3,7 @@ package geolocation
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -23,15 +24,25 @@ func FetchGeoData(ip string) (GeoData, error) {
 	url := fmt.Sprintf("https://ipapi.co/%s/json/", ip)
 	println(url)
 	resp, err := http.Get(url)
-	print(resp)
+	println(resp.Body)
+	println(err)
+	if err != nil {
+		return GeoData{}, fmt.Errorf("failed to make ipapi request: %w", err)
+	}
 	if err != nil {
 		return GeoData{}, err
 	}
 	defer resp.Body.Close()
-
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return GeoData{}, fmt.Errorf("failed to read response body: %w", err)
+	}
+	fmt.Println("IP API JSON response:")
+	fmt.Println(string(bodyBytes))
 	var data GeoData
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return GeoData{}, err
+
+	if err := json.Unmarshal(bodyBytes, &data); err != nil {
+		return GeoData{}, fmt.Errorf("failed to decode ipapi response: %w", err)
 	}
 
 	return data, nil
