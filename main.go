@@ -9,7 +9,7 @@ import (
 	color "pak-trade-go/api/color"
 	clothingFilter "pak-trade-go/api/filter"
 	gender "pak-trade-go/api/gender"
-	"pak-trade-go/api/geolocation"
+	"pak-trade-go/api/ipstack"
 	keyword "pak-trade-go/api/serchKeyWord"
 	"pak-trade-go/api/signin"
 	tier "pak-trade-go/api/tier"
@@ -105,12 +105,13 @@ func main() {
 	r.HandleFunc("/get-all-items-by-mamal-id", item.GetUserAndItemsHandler)
 	r.HandleFunc("/send-otp", authWhatsapp.SendOTPHandler)
 	r.HandleFunc("/verify-otp", authWhatsapp.VerifyOTPHandler)
-	r.HandleFunc("/ip", geolocation.IPHandler)
+	//r.HandleFunc("/ip", geolocation.IPHandler)
 	r.HandleFunc("/update-cart", cart.UpdateOrderHandler(docking.PakTradeDb.Collection("cart_mammals"), docking.PakTradeDb.Collection("cart_audits")))
 	r.HandleFunc("/get-cart-snapshot", cart.GetOrderSnapshotsHandler(docking.PakTradeDb.Collection("cart_audits")))
 	r.HandleFunc("/get-cart", cart.GetDetailedCartItemsHandler_v2(docking.PakTradeDb.Collection("cart_mammals")))
 	r.HandleFunc("/get-cart-from-to", cart.GetCartFromDateToDate)
 	r.HandleFunc("/get-items-by-category", item.GetItemsByCategoryHandler)
+	r.HandleFunc("/ip", ipstack.GetUserLocation)
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
 	// UPLOAD FILE

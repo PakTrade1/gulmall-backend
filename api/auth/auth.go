@@ -12,7 +12,7 @@ import (
 	"net/http/httputil"
 	"os"
 	docking "pak-trade-go/Docking"
-	"pak-trade-go/api/geolocation"
+
 	"pak-trade-go/api/jwt"
 	"pak-trade-go/api/mammals"
 	"pak-trade-go/api/signin"
@@ -213,19 +213,14 @@ func VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 	otpStore.Lock()
 	expectedOTP := otpStore.data[req.Phone]
 	otpStore.Unlock()
-	userIP := geolocation.GetIP(r)
-	location, err := geolocation.GetLocationFromIP(userIP)
-	if err != nil {
-		fmt.Println("IPStack error:", err)
-		// optionally log and continue
-	}
+
 	user, err := signin.FindUserByPhone(req.Phone)
 	if err != nil {
 		// Handle DB error (optional: log or report)
 	}
 	if user == nil {
 		// User not found — create a new one
-		user, err = CreateUser(req.Phone, location)
+		user, err = CreateUser(req.Phone)
 		if err != nil {
 			// handle error
 			fmt.Println("User creation failed:", err)
@@ -249,8 +244,8 @@ func VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func CreateUser(phone string, location *geolocation.IPAPIResponse) (*signin.User, error) {
-	println("LOCAITON: ", location)
+func CreateUser(phone string) (*signin.User, error) {
+	//println("LOCAITON: ", location)
 	var user mammals.User
 	user.ID = primitive.NewObjectID()
 	user.Credit = 5
@@ -265,9 +260,9 @@ func CreateUser(phone string, location *geolocation.IPAPIResponse) (*signin.User
 	user.PublicID = mammals.GetNextPublicID()
 	user.PrimaryPhone = phone
 	user.IsPrimaryPhoneVerified = true
-	user.Ip = location.IP
-	user.CountryName = location.Country
-	user.Currency = location.Currency
+	//user.Ip = location.IP
+	//user.CountryName = location.Country
+	//user.Currency = location.Currency
 	planID := "64735fe18f737b74c13bd6d3"
 	Planid, _ := primitive.ObjectIDFromHex(planID)
 	user.PlanID = Planid
