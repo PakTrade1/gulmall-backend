@@ -9,7 +9,6 @@ import (
 func GetIPAddress(r *http.Request) string {
 	ip := r.Header.Get("X-Forwarded-For")
 	println("RemoteAddr:", r.RemoteAddr)
-	println("X-Forwarded-For:")
 	println("X-Real-IP:", r.Header.Get("X-Real-IP"))
 	println("IP", ip)
 	if ip == "" {

@@ -11,21 +11,15 @@ import (
 //const ipstackBaseURL = "http://api.ipstack.com/"
 
 type GeoData struct {
-	IP          string `json:"ip"`
-	City        string `json:"city"`
-	Region      string `json:"region"`
-	Country     string `json:"country_name"`
+	Country     string `json:"country"`
 	CountryCode string `json:"country_code"`
-	Currency    string `json:"currency"`
 }
 
 func FetchGeoData(ip string) (GeoData, error) {
-
-	url := fmt.Sprintf("https://ipapi.co/%s/json/", ip)
+	println("IP: ", ip)
+	url := fmt.Sprintf("https://api.ipinfo.io/lite/%s/?token=6794b10129b8b5", ip)
 	println(url)
 	resp, err := http.Get(url)
-	println(resp.Body)
-	println(err)
 	if err != nil {
 		return GeoData{}, fmt.Errorf("failed to make ipapi request: %w", err)
 	}

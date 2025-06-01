@@ -9,10 +9,12 @@ import (
 	color "pak-trade-go/api/color"
 	clothingFilter "pak-trade-go/api/filter"
 	gender "pak-trade-go/api/gender"
+	"pak-trade-go/api/geolocation"
 	"pak-trade-go/api/ipstack"
 	keyword "pak-trade-go/api/serchKeyWord"
 	"pak-trade-go/api/signin"
 	tier "pak-trade-go/api/tier"
+	"time"
 
 	//	"pak-trade-go/api/weight"
 	shipping_addres "pak-trade-go/api/address"
@@ -114,6 +116,7 @@ func main() {
 	r.HandleFunc("/ip", ipstack.GetUserLocation)
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
+	geolocation.StartCleanupRoutine(10 * time.Minute)
 	// UPLOAD FILE
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
 	c := cors.New(cors.Options{
