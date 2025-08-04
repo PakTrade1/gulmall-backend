@@ -13,6 +13,7 @@ import (
 	"pak-trade-go/api/ipstack"
 	keyword "pak-trade-go/api/serchKeyWord"
 	"pak-trade-go/api/signin"
+	stripe "pak-trade-go/api/stripe"
 	tier "pak-trade-go/api/tier"
 	"time"
 
@@ -34,6 +35,7 @@ import (
 func main() {
 
 	// DOCKING WITH AZURE BLOB STORAGE.
+	stripe.MainInitiate()
 	docking.PakTradeConnection()
 	docking.AzureBloblogs()
 	// ROUTERS
@@ -44,7 +46,7 @@ func main() {
 	// ADD ROUTES
 
 	// r.HandleFunc("/add-keyword", keyword.Serchkeywordinsert)
-	r.HandleFunc("/add-cart", cart.AddToCartHandler(docking.PakTradeDb.Collection("cart_mammals"), docking.PakTradeDb.Collection("items-parent")))
+	r.HandleFunc("/add-cart", cart.AddToCartHandler(docking.PakTradeDb.Collection("cart_mammals"), docking.PakTradeDb.Collection("product")))
 
 	r.HandleFunc("/add-size", size.Add_size)
 	r.HandleFunc("/add-address", shipping_addres.Add_shipping_address)
@@ -114,6 +116,9 @@ func main() {
 	r.HandleFunc("/get-cart-from-to", cart.GetCartFromDateToDate)
 	r.HandleFunc("/get-items-by-category", item.GetItemsByCategoryHandler)
 	r.HandleFunc("/ip", ipstack.GetUserLocation)
+	r.HandleFunc("/stripe/create-payment-link", stripe.CreatePaymentLinkHandler)
+	r.HandleFunc("/stripe/create-payment-intent", stripe.CreatePaymentIntentHandler)
+
 	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
 
 	geolocation.StartCleanupRoutine(10 * time.Minute)
