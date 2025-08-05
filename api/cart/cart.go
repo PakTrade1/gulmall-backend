@@ -104,10 +104,9 @@ type CartResponse struct {
 
 // CartSummary for the aggregated data
 type CartSummary struct {
-	ID              primitive.ObjectID `bson:"_id,omitempty"`
-	TotalOrders     int                `bson:"total_orders"`
-	DeliveredOrders int                `bson:"delivered_orders"`
-	PendingOrders   int                `bson:"pending_orders"`
+	TotalOrders     int `bson:"total_orders" json:"total_orders"`
+	DeliveredOrders int `bson:"delivered_orders" json:"delivered_orders"`
+	PendingOrders   int `bson:"pending_orders" json:"pending_orders"`
 }
 
 type Change struct {
