@@ -112,7 +112,7 @@ func main() {
 	//r.HandleFunc("/ip", geolocation.IPHandler)
 	r.HandleFunc("/update-cart", cart.UpdateOrderHandler(docking.PakTradeDb.Collection("cart_mammals"), docking.PakTradeDb.Collection("cart_audits")))
 	r.HandleFunc("/get-cart-snapshot", cart.GetOrderSnapshotsHandler(docking.PakTradeDb.Collection("cart_audits")))
-	r.HandleFunc("/get-cart", cart.GetDetailedCartItemsHandler_v2(docking.PakTradeDb.Collection("cart_mammals")))
+	r.HandleFunc("/get-cart", cart.GetDetailedCartItemsHandler_v3(docking.PakTradeDb.Collection("cart_mammals")))
 	r.HandleFunc("/get-cart-from-to", cart.GetCartFromDateToDate)
 	r.HandleFunc("/get-items-by-category", item.GetItemsByCategoryHandler)
 	r.HandleFunc("/ip", ipstack.GetUserLocation)

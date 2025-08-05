@@ -48,6 +48,68 @@ type Cart struct {
 	OrderVerifiedBy bool               `bson:"order_verified_by" json:"order_verified_by"`
 }
 
+// CartOutput represents the final structure of an order item in the response
+type CartOutput struct {
+	ID              primitive.ObjectID `bson:"_id,omitempty"`
+	ItemID          primitive.ObjectID `bson:"item_id"`                     // From your original Cart struct
+	Color           string             `bson:"color"`                       // From color lookup
+	Quantity        int                `bson:"quantity"`                    // From your original Cart struct
+	TotalPrice      float64            `bson:"total_price"`                 // From your original Cart struct
+	Discount        string             `bson:"discount"`                    // From your original Cart struct
+	PaymentMode     PaymentModeDoc     `bson:"payment_mode"`                // From payment_services lookup
+	UserID          primitive.ObjectID `bson:"user_id" json:"user_id"`      // From your original Cart struct
+	BuyerInfo       BuyerSellerInfo    `bson:"buyer_info"`                  // From Mammalas_login lookup for user_id
+	SellerId        primitive.ObjectID `bson:"seller_id"`                   // From your original Cart struct
+	SellerInfo      BuyerSellerInfo    `bson:"seller_info,omitempty"`       // From Mammalas_login lookup for seller_id
+	DeliveryStatus  string             `bson:"delivery_status"`             // From your original Cart struct
+	OrderDate       time.Time          `bson:"order_date"`                  // From your original Cart struct
+	Size            string             `bson:"size"`                        // From size lookup
+	Currency        string             `bson:"currency"`                    // From your original Cart struct
+	Category        string             `bson:"category"`                    // From your original Cart struct
+	SubCategory     string             `bson:"sub_category"`                // From your original Cart struct
+	IsModified      bool               `bson:"isModified"`                  // From your original Cart struct
+	DeliveredOn     *time.Time         `bson:"delivery_date,omitempty"`     // Pointer to time.Time for potentially null values, mapping to your struct's delivered_on
+	DeliveredBy     primitive.ObjectID `bson:"deliver_by"`                  // Original DeliverBy ID if needed, or map to a string name if lookup provides it
+	OrderNumber     int64              `bson:"order_number"`                // From your original Cart struct
+	OrderVerified   bool               `bson:"order_verified"`              // From your original Cart struct
+	OrderVerifiedBy *OrderVerifiedBy   `bson:"order_verified_by,omitempty"` // From employee lookup
+}
+
+// OrderVerifiedBy represents the structure of the order_verified_by object from employee lookup
+type OrderVerifiedBy struct {
+	ID    primitive.ObjectID `bson:"_id,omitempty"`
+	EmpID string             `bson:"emp_id,omitempty"`
+	Name  string             `bson:"name,omitempty"`
+}
+
+// BuyerSellerInfo represents the structure for buyer_info and seller_info
+type BuyerSellerInfo struct {
+	CountryName  string `bson:"countryName,omitempty"`
+	Currency     string `bson:"currency,omitempty"`
+	PrimaryPhone string `bson:"primaryPhone,omitempty"`
+}
+
+// PaymentModeDoc represents the structure of the payment_mode object
+type PaymentModeDoc struct {
+	ID      primitive.ObjectID `bson:"_id,omitempty"`
+	Country string             `bson:"country,omitempty"`
+	Name    interface{}        `bson:"name,omitempty"` // Can be string or nested PaymentName
+}
+
+// CartResponse structure to hold the orders and summary
+type CartResponse struct {
+	Orders  []bson.M    `bson:"orders"`
+	Summary CartSummary `bson:"summary"`
+}
+
+// CartSummary for the aggregated data
+type CartSummary struct {
+	ID              primitive.ObjectID `bson:"_id,omitempty"`
+	TotalOrders     int                `bson:"total_orders"`
+	DeliveredOrders int                `bson:"delivered_orders"`
+	PendingOrders   int                `bson:"pending_orders"`
+}
+
 type Change struct {
 	Field string      `json:"field"`
 	From  interface{} `json:"from"`
@@ -435,6 +497,237 @@ func GetDetailedCartItemsHandler_v2(cartCollection *mongo.Collection) http.Handl
 		if len(finalResult) > 0 {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(finalResult[0])
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(bson.M{
+				"orders":  []bson.M{},
+				"summary": bson.M{"total_orders": 0, "delivered_orders": 0, "pending_orders": 0},
+			})
+		}
+	}
+}
+
+// GetDetailedCartItemsHandler fetches detailed cart items.
+// It can fetch all orders if no 'user_id' is provided, or specific orders for a user if 'user_id' is provided.
+// GetDetailedCartItemsHandler fetches detailed cart items.
+func GetDetailedCartItemsHandler_v3(cartCollection *mongo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+
+		userID := r.URL.Query().Get("user_id")
+		status := r.URL.Query().Get("status")
+		orderLocation := r.URL.Query().Get("order_location")
+		startDateStr := r.URL.Query().Get("start_date")
+		endDateStr := r.URL.Query().Get("end_date")
+		dateStr := r.URL.Query().Get("date")
+
+		matchStage := bson.D{}
+
+		if userID != "" {
+			objectID, err := primitive.ObjectIDFromHex(userID)
+			if err != nil {
+				http.Error(w, "Invalid user ID format. Please use a valid hex string.", http.StatusBadRequest)
+				return
+			}
+			matchStage = append(matchStage, bson.E{Key: "user_id", Value: objectID})
+		}
+
+		// Date filters
+		if dateStr != "" {
+			orderDate, err := time.Parse("2006-01-02", dateStr)
+			if err == nil {
+				start := orderDate.UTC()
+				end := start.Add(24 * time.Hour)
+				matchStage = append(matchStage, bson.E{Key: "order_date", Value: bson.D{
+					{"$gte", start},
+					{"$lt", end},
+				}})
+			} else {
+				http.Error(w, "Invalid date format. Use YYYY-MM-DD", http.StatusBadRequest)
+				return
+			}
+		} else if startDateStr != "" || endDateStr != "" {
+			dateFilter := bson.D{}
+			if startDateStr != "" {
+				startDate, err := time.Parse("2006-01-02", startDateStr)
+				if err != nil {
+					http.Error(w, "Invalid start_date format. Use YYYY-MM-DD", http.StatusBadRequest)
+					return
+				}
+				dateFilter = append(dateFilter, bson.E{Key: "$gte", Value: startDate.UTC()})
+			}
+			if endDateStr != "" {
+				endDate, err := time.Parse("2006-01-02", endDateStr)
+				if err != nil {
+					http.Error(w, "Invalid end_date format. Use YYYY-MM-DD", http.StatusBadRequest)
+					return
+				}
+				dateFilter = append(dateFilter, bson.E{Key: "$lte", Value: endDate.Add(24 * time.Hour).UTC()})
+			}
+			if len(dateFilter) > 0 {
+				matchStage = append(matchStage, bson.E{Key: "order_date", Value: dateFilter})
+			}
+		}
+
+		if status != "" {
+			matchStage = append(matchStage, bson.E{Key: "delivery_status", Value: status})
+		}
+		if orderLocation != "" {
+			matchStage = append(matchStage, bson.E{Key: "buyer_info.countryName", Value: orderLocation})
+		}
+
+		// --- Aggregation Pipeline ---
+		pipeline := mongo.Pipeline{
+			{{"$match", matchStage}},
+
+			// 1. Lookups
+			{{"$lookup", bson.D{{"from", "Mammalas_login"}, {"localField", "user_id"}, {"foreignField", "_id"}, {"as", "buyer_info"}}}},
+			{{"$lookup", bson.D{{"from", "Mammalas_login"}, {"localField", "seller_id"}, {"foreignField", "_id"}, {"as", "seller_info"}}}},
+			{{"$lookup", bson.D{{"from", "color"}, {"localField", "color_id"}, {"foreignField", "_id"}, {"as", "color_doc"}}}},
+			{{"$lookup", bson.D{{"from", "size"}, {"localField", "size_id"}, {"foreignField", "_id"}, {"as", "size_doc"}}}},
+			{{"$lookup", bson.D{{"from", "payment_services"}, {"localField", "payment_method"}, {"foreignField", "_id"}, {"as", "payment_mode_doc"}}}},
+			{{"$lookup", bson.D{{"from", "cloths"}, {"localField", "item_id"}, {"foreignField", "_id"}, {"as", "item_doc"}}}},
+			{{"$lookup", bson.D{{"from", "fabric"}, {"localField", "item_fabric"}, {"foreignField", "_id"}, {"as", "item_fabric_doc"}}}},
+			{{"$lookup", bson.D{{"from", "employee"}, {"localField", "order_verified_by"}, {"foreignField", "_id"}, {"as", "order_verified_by_doc"}}}},
+
+			// 2. Reshape and Flatten
+			{
+				{"$addFields", bson.D{
+					{"buyer_info", bson.D{{"$arrayElemAt", bson.A{"$buyer_info", 0}}}},
+					{"seller_info", bson.D{{"$arrayElemAt", bson.A{"$seller_info", 0}}}},
+					{"color", bson.D{{"$arrayElemAt", bson.A{"$color_doc.name", 0}}}},
+					{"size", bson.D{{"$arrayElemAt", bson.A{"$size_doc.name", 0}}}},
+					{"payment_mode", bson.D{{"$arrayElemAt", bson.A{"$payment_mode_doc", 0}}}},
+					{"item_name", bson.D{{"$arrayElemAt", bson.A{"$item_doc.name", 0}}}},
+					{"item_fabric", bson.D{{"$arrayElemAt", bson.A{"$item_fabric_doc.name", 0}}}},
+					{"order_verified_by", bson.D{{"$arrayElemAt", bson.A{"$order_verified_by_doc", 0}}}},
+
+					// Map your Cart struct fields directly to output fields.
+					// We are using the names that will be in the final $project stage.
+					{"quantity", "$quantity"},
+					{"total_price", "$total_price"},
+					{"discount", "$discount"},
+					{"delivery_status", "$delivery_status"},
+					{"order_date", "$order_date"},
+					{"currency", "$currency"},
+					{"category", "$category"},
+					{"sub_category", "$sub_category"},
+					{"isModified", "$isModified"},
+					{"order_number", "$order_number"},
+					{"order_verified", "$order_verified"},
+
+					// Handle delivery_date mapping from your Cart.DeliveredOn
+					// Use a conditional to check if DeliveredOn is not the zero time.
+					{"delivery_date", bson.D{{"$cond", bson.D{
+						{"if", bson.D{{"$ne", bson.A{"$delivered_on", primitive.DateTime(0)}}}}, // Check if delivered_on is not the zero time.
+						{"then", "$delivered_on"},
+						{"else", nil}, // If it's zero time, use null (nil in Go)
+					}}}},
+					// You might also want to map DeliveredBy if it's meaningful as an ID, or perform another lookup for employee name.
+					// For now, mapping the ID from your struct directly.
+					{"deliver_by", "$delivered_by"},
+				}},
+			},
+
+			// 3. Project the final fields to shape the output
+			{
+				{"$project", bson.D{
+					{"_id", 1},
+					{"item_id", 1}, // Map from your Cart struct's ItemID
+					{"color", 1},
+					{"quantity", 1},
+					{"total_price", 1},
+					{"discount", 1},
+					{"delivery_status", 1},
+					{"order_date", 1},
+					{"order_number", 1},
+					{"order_verified", 1},
+					{"currency", 1},
+					{"category", 1},
+					{"sub_category", 1},
+					{"isModified", 1},
+					{"delivery_date", 1}, // Use the reshaped field
+					{"deliver_by", 1},    // Use the reshaped field
+
+					{"buyer_info", bson.D{
+						{"countryName", "$buyer_info.countryName"},
+						{"currency", "$buyer_info.currency"},
+						{"primaryPhone", "$buyer_info.primaryPhone"},
+					}},
+					{"seller_info", bson.D{
+						{"countryName", "$seller_info.countryName"},
+						{"currency", "$seller_info.currency"},
+						{"primaryPhone", "$seller_info.primaryPhone"},
+					}},
+					{"payment_mode", 1},
+					{"size", 1},
+					{"item_name", 1},
+					{"item_fabric", 1},
+					{"order_verified_by", bson.D{
+						{"_id", "$order_verified_by._id"},
+						{"emp_id", "$order_verified_by.emp_id"},
+						{"name", "$order_verified_by.name"},
+					}},
+				}},
+			},
+
+			// 4. Sort
+			{{"$sort", bson.D{{"order_date", -1}}}},
+
+			// 5. Facet
+			{
+				{"$facet", bson.D{
+					{"orders", mongo.Pipeline{}},
+					{"summary", mongo.Pipeline{
+						{{"$group", bson.D{
+							{"_id", nil},
+							{"total_orders", bson.D{{"$sum", 1}}},
+							{"delivered_orders", bson.D{{"$sum", bson.D{{"$cond", bson.A{bson.D{{"$eq", bson.A{"$delivery_status", "Delivered"}}}, 1, 0}}}}}},
+							{"pending_orders", bson.D{{"$sum", bson.D{{"$cond", bson.A{bson.D{{"$eq", bson.A{"$delivery_status", "Pending"}}}, 1, 0}}}}}},
+						}}},
+					}},
+				}},
+			},
+			// 6. Flatten Summary
+			{
+				{"$addFields", bson.D{
+					{"summary", bson.D{{"$arrayElemAt", bson.A{"$summary", 0}}}},
+				}},
+			},
+		}
+
+		cursor, err := cartCollection.Aggregate(ctx, pipeline)
+		if err != nil {
+			http.Error(w, "Error processing request: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer cursor.Close(ctx)
+
+		var resultWithFacet []bson.M
+		if err := cursor.All(ctx, &resultWithFacet); err != nil {
+			http.Error(w, "Error processing results: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if len(resultWithFacet) > 0 {
+			var cartResponse CartResponse
+			bsonBytes, err := bson.Marshal(resultWithFacet[0])
+			if err != nil {
+				http.Error(w, "Internal server error during response formatting", http.StatusInternalServerError)
+				return
+			}
+			err = bson.Unmarshal(bsonBytes, &cartResponse)
+			if err != nil {
+				// log.Printf("Error unmarshalling BSON into CartResponse: %v, data: %+v", err, resultWithFacet[0])
+				http.Error(w, "Internal server error during response formatting", http.StatusInternalServerError)
+				return
+			}
+
+			if err := json.NewEncoder(w).Encode(cartResponse); err != nil {
+				http.Error(w, "Error writing response", http.StatusInternalServerError)
+			}
 		} else {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(bson.M{
