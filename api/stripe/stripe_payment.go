@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/stripe/stripe-go/v72"
-	"github.com/stripe/stripe-go/v72/paymentintent"
-	"github.com/stripe/stripe-go/v72/paymentlink"
-	"github.com/stripe/stripe-go/v72/price"
-	"github.com/stripe/stripe-go/v72/product"
+	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/paymentintent"
+	"github.com/stripe/stripe-go/v82/paymentlink"
+	"github.com/stripe/stripe-go/v82/price"
+	"github.com/stripe/stripe-go/v82/product"
 )
 
 // --- Structs for Clear API Contracts ---
@@ -21,9 +21,6 @@ type PaymentIntentRequest struct {
 }
 
 // PaymentIntentResponse defines the structure for the /create-payment-intent response body.
-type PaymentIntentResponse struct {
-	ClientSecret string `json:"clientSecret"`
-}
 
 // PaymentLinkResponse defines the structure for the /create-payment-link response body.
 type PaymentLinkResponse struct {

@@ -116,11 +116,12 @@ func main() {
 	r.HandleFunc("/get-cart-from-to", cart.GetCartFromDateToDate)
 	r.HandleFunc("/get-items-by-category", item.GetItemsByCategoryHandler)
 	r.HandleFunc("/ip", ipstack.GetUserLocation)
-	r.HandleFunc("/stripe/create-payment-link", stripe.CreatePaymentLinkHandler)
-	r.HandleFunc("/stripe/create-payment-intent", stripe.CreatePaymentIntentHandler)
-
-	// r.HandleFunc("/get-ads-by-id/", ads.Get_ads_user_by_post_id)
-
+	r.HandleFunc("/create-payment-link", stripe.CreatePaymentLinkHandler)
+	r.HandleFunc("/create-payment", stripe.CreatePaymentIntentHandler)
+	// V1 for stripe payment
+	r.HandleFunc("/create-customer", stripe.CreateCustomerHandler)
+	r.HandleFunc("/create-setup-intent", stripe.CreateSetupIntentHandler) // For saving payment methods
+	r.HandleFunc("/create-payment-intent", stripe.CreatePaymentIntentHandler_v1)
 	geolocation.StartCleanupRoutine(10 * time.Minute)
 	// UPLOAD FILE
 	r.HandleFunc("/upload-file", storage.UploadFile).Methods("POST")
