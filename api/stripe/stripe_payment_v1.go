@@ -134,6 +134,13 @@ func CreateSetupIntentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreatePaymentIntentHandler_v1(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodOptions {
+		// CORS middleware should handle setting headers before this point,
+		// but explicit 200 return ensures preflight success.
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
