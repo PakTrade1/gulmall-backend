@@ -36,7 +36,7 @@ type ErrorResponse struct {
 
 func MainInitiate() {
 	// Best Practice: Load your secret key from an environment variable.
-	stripe.Key = "sk_test_51RYGbZ2cxpojAOVyXRxfyjwW3xO5R36gkwgirB4wbdod9XCt5Mqdb93hc1jAwi43t77BqXqICecJT4Wk3l6hkVhD00aZM7peAm"
+	//stripe.Key = "sk_test_51RYGbZ2cxpojAOVyXRxfyjwW3xO5R36gkwgirB4wbdod9XCt5Mqdb93hc1jAwi43t77BqXqICecJT4Wk3l6hkVhD00aZM7peAm"
 	if stripe.Key == "" {
 		// Fallback for development. Replace with your actual test secret key.
 		// IMPORTANT: Do not commit your secret key to version control.
