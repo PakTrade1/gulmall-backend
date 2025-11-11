@@ -40,7 +40,7 @@ func MainInitiate() {
 	if stripe.Key == "" {
 		// Fallback for development. Replace with your actual test secret key.
 		// IMPORTANT: Do not commit your secret key to version control.
-		stripe.Key = os.Getenv("STRIPE_SECRET_KEY_TEST")
+		stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 		log.Println("WARNING:Using a key for development.")
 	}
 
