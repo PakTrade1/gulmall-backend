@@ -128,6 +128,8 @@ func main() {
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 	})
 	handler := c.Handler(r)
 	fmt.Println("Runging server port ===> 80")
